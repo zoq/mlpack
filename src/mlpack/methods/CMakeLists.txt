@@ -23,6 +23,7 @@ set(DIRS
   ann
   block_krylov_svd
   cf
+  cmaes
   dbscan
   decision_stump
   decision_tree
