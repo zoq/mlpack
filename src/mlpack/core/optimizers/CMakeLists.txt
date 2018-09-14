@@ -25,6 +25,7 @@ set(DIRS
   sgdr
   smorms3
   svrg
+  wn_grad
   spalera_sgd
 )
 
