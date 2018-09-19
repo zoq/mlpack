@@ -25,6 +25,7 @@ set(DIRS
   sgdr
   smorms3
   svrg
+  trish
   spalera_sgd
 )
 
