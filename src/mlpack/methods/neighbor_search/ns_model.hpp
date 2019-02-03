@@ -107,10 +107,8 @@ class BiSearchVisitor : public boost::static_visitor<void>
   using NSTypeT = NSType<SortPolicy, TreeType>;
 
   //! Default Bichromatic neighbor search on the given NSType instance.
-  template<template<typename TreeMetricType,
-                    typename TreeStatType,
-                    typename TreeMatType> class TreeType>
-  void operator()(NSTypeT<TreeType>* ns) const;
+  template<typename TreeType>
+  void operator()(TreeType* ns) const;
 
   //! Bichromatic neighbor search on the given NSType specialized for KDTrees.
   void operator()(NSTypeT<tree::KDTree>* ns) const;
@@ -165,10 +163,11 @@ class TrainVisitor : public boost::static_visitor<void>
   using NSTypeT = NSType<SortPolicy, TreeType>;
 
   //! Default Train on the given NSType instance.
-  template<template<typename TreeMetricType,
-                    typename TreeStatType,
-                    typename TreeMatType> class TreeType>
-  void operator()(NSTypeT<TreeType>* ns) const;
+  // template<template<typename TreeMetricType,
+  //                   typename TreeStatType,
+  //                   typename TreeMatType> class TreeType>
+  template<typename TreeType>
+  void operator()(TreeType* ns) const;
 
   //! Train on the given NSType specialized for KDTrees.
   void operator()(NSTypeT<tree::KDTree>* ns) const;

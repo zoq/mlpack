@@ -52,10 +52,8 @@ BiSearchVisitor<SortPolicy>::BiSearchVisitor(const arma::mat& querySet,
 
 //! Default Bichromatic neighbor search on the given NSType instance.
 template<typename SortPolicy>
-template<template<typename TreeMetricType,
-                  typename TreeStatType,
-                  typename TreeMatType> class TreeType>
-void BiSearchVisitor<SortPolicy>::operator()(NSTypeT<TreeType>* ns) const
+template<typename TreeType>
+void BiSearchVisitor<SortPolicy>::operator()(TreeType* ns) const
 {
   if (ns)
     return ns->Search(querySet, k, neighbors, distances);
@@ -152,10 +150,8 @@ TrainVisitor<SortPolicy>::TrainVisitor(arma::mat&& referenceSet,
 
 //! Default Train on the given NSType instance.
 template<typename SortPolicy>
-template<template<typename TreeMetricType,
-                  typename TreeStatType,
-                  typename TreeMatType> class TreeType>
-void TrainVisitor<SortPolicy>::operator()(NSTypeT<TreeType>* ns) const
+template<typename TreeType>
+void TrainVisitor<SortPolicy>::operator()(TreeType* ns) const
 {
   if (ns)
     return ns->Train(std::move(referenceSet));
