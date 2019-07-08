@@ -20,6 +20,10 @@
 
 #include "format.hpp"
 
+#ifdef HAS_STB // Include this only if stb is present.
+#include "image_info.hpp"
+#endif
+
 namespace mlpack {
 namespace data /** Functions to load and save matrices. */ {
 
@@ -89,6 +93,39 @@ bool Save(const std::string& filename,
           T& t,
           const bool fatal = false,
           format f = format::autodetect);
+
+/**
+ * Image load/save interfaces.
+ */
+#ifdef HAS_STB
+template<typename eT>
+bool Load(const std::string& filename,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal = false,
+          const bool transpose = true);
+
+template<typename eT>
+bool Load(const std::vector<std::string>& files,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal = false,
+          const bool transpose = true);
+
+template<typename eT>
+bool Save(const std::string& filename,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal = false,
+          const bool transpose = true);
+
+template<typename eT>
+bool Save(const std::vector<std::string>& files,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal = false,
+          const bool transpose = true);
+#endif
 
 } // namespace data
 } // namespace mlpack

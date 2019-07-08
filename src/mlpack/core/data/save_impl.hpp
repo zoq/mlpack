@@ -283,6 +283,203 @@ bool Save(const std::string& filename,
   }
 }
 
+#ifdef HAS_STB
+// Image loading API.
+template<typename eT>
+bool Load(const std::string& filename,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal,
+          const bool transpose)
+{
+  unsigned char* image;
+
+  if (!ImageFormatSupported(filename))
+  {
+    std::ostringstream oss;
+    oss << "File type " << Extension(filename) << " not supported.\n";
+    oss << "Currently it supports ";
+    for (auto extension : loadFileTypes)
+      oss << " " << extension;
+    oss << std::endl;
+    throw std::runtime_error(oss.str());
+    return false;
+  }
+
+  stbi_set_flip_vertically_on_load(transpose);
+
+  // Temporary variables needed as stb_image.h supports int parameters.
+  int tempWidth, tempHeight, tempChannels;
+
+  // For grayscale images.
+  if (info.Channels() == 1)
+  {
+    image = stbi_load(filename.c_str(), &tempWidth, &tempHeight, &tempChannels,
+        STBI_grey);
+  }
+  else
+  {
+    image = stbi_load(filename.c_str(), &tempWidth, &tempHeight, &tempChannels,
+        STBI_rgb);
+  }
+
+  if (tempWidth <= 0 || tempHeight <= 0)
+  {
+    std::ostringstream oss;
+    oss << "Image '" << filename << "' not found." << std::endl;
+    free(image);
+    throw std::runtime_error(oss.str());
+
+    return false;
+  }
+
+  info.Width() = tempWidth;
+  info.Height() = tempHeight;
+  info.Channels() = tempChannels;
+
+  // Copy image into armadillo Mat.
+  matrix = arma::Mat<unsigned char>(image, info.Width() * info.Height() *
+      info.Channels(), 1, true, true);
+
+  // Free the image pointer.
+  free(image);
+
+  return true;
+}
+
+// Image loading API for multiple files.
+template<typename eT>
+bool Load(const std::vector<std::string>& files,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal,
+          const bool transpose)
+{
+  if (files.size() == 0)
+  {
+    std::ostringstream oss;
+    oss << "Files vector is empty." << std::endl;
+
+    throw std::runtime_error(oss.str());
+    return false;
+  }
+
+  arma::Mat<unsigned char> img;
+  bool status = Load(files[0], img, info, fatal, transpose);
+
+  // Decide matrix dimension using the image height and width.
+  matrix.set_size(info.Width() * info.Height() * info.Channels(), files.size());
+  matrix.col(0) = img;
+
+  for (size_t i = 1; i < files.size() ; i++)
+  {
+    arma::Mat<unsigned char> colImg(matrix.colptr(i), matrix.n_rows, 1,
+        false, true);
+    status &= Load(files[i], colImg, info, fatal, transpose);
+  }
+
+  return status;
+}
+
+// Image saving API.
+template<typename eT>
+bool Save(const std::string& filename,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal,
+          const bool transpose)
+{
+  const std::string extension = Extension(filename);
+
+  // if (!ImageFormatSupported(filename, true))
+  // {
+  //   std::ostringstream oss;
+  //   oss << "File type " << Extension(filename) << " not supported.\n";
+  //   oss << "Currently it supports ";
+  //   for (auto ext : saveFileTypes)
+  //     oss << ", " << ext;
+  //   oss << std::endl;
+
+  //   throw std::runtime_error(oss.str());
+  //   return false;
+  // }
+  // if (matrix.n_cols > 1)
+  // {
+  //   std::cout << "Input Matrix contains more than 1 image." << std::endl;
+  //   std::cout << "Only the first image will be saved!" << std::endl;
+  // }
+
+  // unsigned char* image = matrix.memptr();
+  // stbi_flip_vertically_on_write(transpose);
+
+  bool status = false;
+
+  // if ("png" == extension)
+  // {
+  //   status = stbi_write_png(filename.c_str(), info.Width(), info.Height(),
+  //       info.Channels(), image, info.Width() * info.Channels());
+  // }
+  // else if ("bmp" == extension)
+  // {
+  //   status = stbi_write_bmp(filename.c_str(), tempWidth, tempHeight,
+  //       tempChannels, image);
+  // }
+  // else if ("tga" == extension)
+  // {
+  //   status = stbi_write_tga(filename.c_str(), tempWidth, tempHeight,
+  //       tempChannels, image);
+  // }
+  // else if ("hdr" == extension)
+  // {
+  //   status = stbi_write_hdr(filename.c_str(), tempWidth, tempHeight,
+  //       tempChannels, reinterpret_cast<float*>(image));
+  // }
+  // else if ("jpg" == extension)
+  // {
+  //   status = stbi_write_jpg(filename.c_str(), tempWidth, tempHeight,
+  //       tempChannels, image, quality);
+  // }
+
+  return status;
+}
+
+// Image saving API for multiple files.
+template<typename eT>
+bool Save(const std::vector<std::string>& files,
+          arma::Mat<eT>& matrix,
+          ImageInfo& info,
+          const bool fatal,
+          const bool transpose)
+{
+  Timer::Start("saving_image");
+  bool status;
+
+  // // We transpose by default. So, un-transpose if necessary.
+  // if (!transpose)
+  //   matrix = arma::trans(matrix);
+
+  // try
+  // {
+  //   Image saver;
+  //   status = saver.Save(files, matrix, info.width, info.height,
+  //       info.channels, info.flipVertical, info.quality);
+  // }
+  // catch (std::exception& e)
+  // {
+  //   Timer::Stop("saving_image");
+  //   if (fatal)
+  //     Log::Fatal << e.what() << std::endl;
+  //   else
+  //     Log::Warn << e.what() << std::endl;
+
+  //   return false;
+  // }
+
+  // Timer::Start("saving_image");
+  return status;
+}
+#endif // HAS_STB
+
 } // namespace data
 } // namespace mlpack
 
