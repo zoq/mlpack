@@ -40,10 +40,10 @@ jobs:
       cmake . && make && sudo make install && cd ..
       sudo cp .travis/config.hpp /usr/include/armadillo_bits/config.hpp
     displayName: 'Install Build Dependencies'
-  - script: mkdir build && cd build && cmake $(CMakeArgs) .. && pwd
+  - script: mkdir build && cd build && cmake $(CMakeArgs) ..
     displayName: 'CMake'
-  - script: pwd && make -j4
+  - script: cd build && make -j4
     displayName: 'Build'
-  - script: ctest -j4
+  - script: cd build ctest -j4
     displayName: 'Run tests'
 
