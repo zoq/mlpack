@@ -44,6 +44,6 @@ jobs:
     displayName: 'CMake'
   - script: cd build && make -j4
     displayName: 'Build'
-  - script: cd build ctest -j4
+  - script: cd build && ctest -j4
     displayName: 'Run tests'
 
