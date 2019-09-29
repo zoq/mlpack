@@ -21,7 +21,11 @@ jobs:
   - script: |
       sudo apt-get update
       sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-all-dev xz-utils
-      sudo pip install --upgrade --ignore-installed setuptools cython numpy pandas
+
+      if [ "$python.version" = '2.7' ]; then
+        sudo apt-get install -y --allow-unauthenticated python-pip cython python-numpy python-pandas
+        sudo pip install --upgrade --ignore-installed setuptools cython
+      fi
 
       # Install armadillo.
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ && cd armadillo*
@@ -34,4 +38,3 @@ jobs:
     displayName: 'Build'
   - script: cd build && ctest -j4
     displayName: 'Run tests'
-
