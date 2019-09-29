@@ -5,13 +5,9 @@ jobs:
   strategy:
     matrix:
       Python27:
-        CC: gcc-7
-        CXX: g++-7
         python.version: '2.7'
         CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python'
       Plain:
-        CC: gcc-7
-        CXX: g++-7
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
         python.version: '2.7'
 
@@ -24,14 +20,6 @@ jobs:
       versionSpec: '$(python.version)'
   - script: |
       sudo apt-get update
-
-      # Compiler packages.
-      sudo apt-get install -y libc++-dev libc++abi-dev libc++abi1 libstdc++-7-dev gcc-7 g++-7
-      sudo update-alternatives --install /usr/bin/cc cc /usr/bin/$(CC) 100
-      sudo update-alternatives --set cc /usr/bin/$(CC)
-      sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/$(CXX) 100
-      sudo update-alternatives --set c++ /usr/bin/$(CXX)
-
       sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-all-dev xz-utils
       sudo pip install --upgrade --ignore-installed setuptools cython numpy pandas
 
