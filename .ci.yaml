@@ -20,8 +20,7 @@ jobs:
       versionSpec: '$(python.version)'
   - script: |
       sudo apt-get update
-      unset BOOST_ROOT
-      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-all-dev xz-utils
+      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-math-dev libboost-program-options-dev libboost-test-dev libboost-serialization-dev libarmadillo-dev xz-utils
 
       if [ "$python.version" = '2.7' ]; then
         sudo apt-get install -y --allow-unauthenticated python-pip cython python-numpy python-pandas
