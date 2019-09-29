@@ -30,8 +30,8 @@ jobs:
     displayName: 'Install Build Dependencies'
   - script: mkdir build && cd build && cmake $(CMakeArgs) ..
     displayName: 'CMake'
-  - script: cd build && make
+  - script: cd build && make -j4
     displayName: 'Build'
-  - script: cd build && ctest -j2
+  - script: cd build && ctest -j4
     displayName: 'Run tests'
 
