@@ -20,7 +20,8 @@ jobs:
       versionSpec: '$(python.version)'
   - script: |
       sudo apt-get update
-      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libarmadillo-dev xz-utils
+      unset BOOST_ROOT
+      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-math-dev libboost-program-options-dev libboost-test-dev libboost-serialization-dev libarmadillo-dev xz-utils
 
       if [ "$python.version" = '2.7' ]; then
         sudo apt-get install -y --allow-unauthenticated python-pip cython python-numpy python-pandas
@@ -32,7 +33,7 @@ jobs:
       cmake . && make && sudo make install && cd ..
       sudo cp .travis/config.hpp /usr/include/armadillo_bits/config.hpp
     displayName: 'Install Build Dependencies'
-  - script: mkdir build && cd build && cmake $(CMakeArgs) ..
+  - script: unset BOOST_ROOT && mkdir build && cd build && cmake $(CMakeArgs) ..
     displayName: 'CMake'
   - script: cd build && make -j4
     displayName: 'Build'
