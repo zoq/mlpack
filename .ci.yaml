@@ -1,0 +1,49 @@
+jobs:
+- job: Linux
+  pool:
+    vmImage: ubuntu-16.04
+  strategy:
+    matrix:
+      Python27:
+        CC: gcc-7
+        CXX: g++-7
+        python.version: '2.7'
+        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python'
+      Plain:
+        CC: gcc-7
+        CXX: g++-7
+        CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
+        python.version: '2.7'
+
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+  - script: |
+      sudo apt-get update
+
+      # Compiler packages.
+      sudo apt-get install -y libc++-dev libc++abi-dev libc++abi1 libstdc++-7-dev gcc-7 g++-7
+      sudo update-alternatives --install /usr/bin/cc cc /usr/bin/$(CC) 100
+      sudo update-alternatives --set cc /usr/bin/$(CC)
+      sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/$(CXX) 100
+      sudo update-alternatives --set c++ /usr/bin/$(CXX)
+
+      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-all-dev xz-utils
+      sudo pip install --upgrade --ignore-installed setuptools cython numpy pandas
+
+      # Install armadillo.
+      curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ && cd armadillo*
+      cmake . && make && sudo make install && cd ..
+      sudo cp .travis/config.hpp /usr/include/armadillo_bits/config.hpp
+    displayName: 'Install Build Dependencies'
+  - script: mkdir build && cd build && cmake $(CMakeArgs) ..
+    displayName: 'CMake'
+  - script: make -j4
+    displayName: 'Build'
+  - script: ctest -j4
+    displayName: 'Run tests'
+
