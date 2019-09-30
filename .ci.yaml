@@ -1,18 +1,12 @@
 jobs:
-- job: Linux
+- job: Windows
   pool:
-    vmImage: ubuntu-16.04
+    vmImage: vs2017-win2016
   strategy:
     matrix:
       Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
         python.version: '2.7'
-      Python27:
-        python.version: '2.7'
-        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python'
-      Python37:
-        python.version: '3.7'
-        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python3'
 
   steps:
   - checkout: self
@@ -22,68 +16,12 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
   - script: |
-      sudo apt-get update
-      unset BOOST_ROOT
-      sudo apt-get install -y --allow-unauthenticated libopenblas-dev liblapack-dev g++ libboost-math-dev libboost-program-options-dev libboost-test-dev libboost-serialization-dev libarmadillo-dev xz-utils
-
-      if [ '$(python.version)' == '2.7' ]; then
-        sudo apt-get install -y --allow-unauthenticated python-pip cython python-numpy python-pandas
-        sudo pip install --upgrade --ignore-installed setuptools cython
-      fi
-
-      if [ '$(python.version)' == '3.7' ]; then
-        sudo apt-get install -y --allow-unauthenticated python3-pip cython3 python3-numpy
-        sudo pip3 install --upgrade --ignore-installed setuptools cython pandas
-      fi
-
-      # Install armadillo.
-      curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ && cd armadillo*
-      cmake . && make && sudo make install && cd ..
-      sudo cp .travis/config.hpp /usr/include/armadillo_bits/config.hpp
+      nuget install boost -o $(System.AccessToken) -Version 1.60.0
+      nuget install boost_unit_test_framework-vc140 -o $(System.AccessToken) -Version 1.60.0
+      nuget install boost_program_options-vc140 -o $(System.AccessToken) -Version 1.60.0
+      nuget install boost_random-vc140 -o $(System.AccessToken) -Version 1.60.0
+      nuget install boost_serialization-vc140 -o $(System.AccessToken) -Version 1.60.0
+      nuget install boost_math_c99-vc140 -o $(System.AccessToken) -Version 1.60.0
+      nuget install OpenBLAS -o $(System.AccessToken)
+      set path=C:\Program Files (x86)\WiX Toolset v3.11\bin;%path%
     displayName: 'Install Build Dependencies'
-  - script: unset BOOST_ROOT && mkdir build && cd build && cmake $(CMakeArgs) ..
-    displayName: 'CMake'
-  - script: cd build && make -j2
-    displayName: 'Build'
-  - script: cd build && ctest -j2
-    displayName: 'Run tests'
-
-- job: macOS
-  pool:
-    vmImage: macOS-10.13
-  strategy:
-    matrix:
-      Plain:
-        CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
-        python.version: '2.7'
-      Python27:
-        python.version: '2.7'
-        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF'
-      Python37:
-        python.version: '3.7'
-        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF'
-
-  steps:
-  - checkout: self
-    clean: true
-    fetchDepth: 1
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-  - script: |
-      set -e
-      sudo xcode-select --switch /Applications/Xcode_10.1.app/Contents/Developer
-      unset BOOST_ROOT
-      pip install cython numpy pandas
-      brew install openblas armadillo boost
-    displayName: 'Install Build Dependencies'
-  - script: |
-      unset BOOST_ROOT
-      mkdir build && cd build
-      export PYPATH=$(which python)
-      cmake $(CMakeArgs) -DPYTHON_EXECUTABLE=$PYPATH ..
-    displayName: 'CMake'
-  - script: cd build && make -j2
-    displayName: 'Build'
-  - script: cd build && ctest -j2
-    displayName: 'Run tests'
