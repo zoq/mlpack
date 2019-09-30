@@ -20,4 +20,10 @@ jobs:
       versionSpec: '5.3.0'
   - script: |
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_program_options-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_random-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_serialization-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_math_c99-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install OpenBLAS -o $(Agent.ToolsDirectory)
     displayName: 'Install Build Dependencies'
