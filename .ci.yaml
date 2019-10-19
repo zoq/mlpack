@@ -21,5 +21,6 @@ jobs:
   - powershell: |
       mkdir boost_libs
       (New-Object Net.WebClient).DownloadFile("https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz","armadillo.tar.xz")
-      ls -lA
+      Get-ChildItem | % { fsutil reparsepoint query $_ }
+      cmd /c dir /a:l
     displayName: 'Install Build Dependencies'
