@@ -28,11 +28,11 @@ jobs:
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
 
       mkdir boost_libs
-      cp $(Agent.ToolsDirectory)\boost_program_options-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
-      cp $(Agent.ToolsDirectory)\boost_math_c99-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
-      cp $(Agent.ToolsDirectory)\boost_random-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
-      cp $(Agent.ToolsDirectory)\boost_serialization-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
-      cp $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+      cp $(Agent.ToolsDirectory)/boost_program_options-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
+      cp $(Agent.ToolsDirectory)/boost_math_c99-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
+      cp $(Agent.ToolsDirectory)/boost_random-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
+      cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
+      cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
 
       mkdir armadillo
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ
@@ -41,5 +41,6 @@ jobs:
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
       -DBUILD_SHARED_LIBS=OFF \
-      -DCMAKE_BUILD_TYPE=Release .
+      -DCMAKE_BUILD_TYPE=Release . && \
+      msbuild.exe armadillo.sln /m /verbosity:quiet /p:Configuration=Release;Platform=x64
     displayName: 'Install Build Dependencies'
