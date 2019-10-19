@@ -20,7 +20,6 @@ jobs:
       versionSpec: '5.3.0'
   - powershell: |
       mkdir boost_libs
-      (New-Object Net.WebClient).DownloadFile("https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz","armadillo.tar.xz")
-      Get-ChildItem | % { fsutil reparsepoint query $_ }
-      cmd /c dir /a:l
+      (New-Object Net.WebClient).DownloadFile("http://masterblaster.mlpack.org:5005/armadillo-8.400.0.tar.gz","armadillo.tar.gz")
+      tar -xvJ armadillo.tar.gz
     displayName: 'Install Build Dependencies'
