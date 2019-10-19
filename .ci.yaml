@@ -1,5 +1,6 @@
 jobs:
 - job: Windows
+  timeoutInMinutes: 360
   pool:
     vmImage: vs2017-win2016
   strategy:
@@ -56,6 +57,7 @@ jobs:
       msbuildArchitecture: 'x64'
       msbuildArguments: /m /p:BuildInParallel=true
       clean: false
+      maximumCpuCount: false
     displayName: 'Build armadillo'
 
   - bash: |
@@ -81,6 +83,7 @@ jobs:
       configuration: 'Release'
       msbuildArchitecture: 'x64'
       msbuildArguments: /m /p:BuildInParallel=true
+      maximumCpuCount: false
       clean: false
     displayName: 'Build mlpack'
 
