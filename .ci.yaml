@@ -34,12 +34,12 @@ jobs:
       msbuildLocationMethod: 'location'
       msbuildVersion: '15.0'
       configuration: 'Release'
-      msbuildLocation: "armadillo"
       msbuildArchitecture: 'x64'
       clean: false
+    displayName: 'Build armadillo'
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '$(python.version)'
   - bash: |
-      ls armadillo/
+      ls armadillo-8.400.0\Release\
     
