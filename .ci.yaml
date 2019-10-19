@@ -31,9 +31,10 @@ jobs:
   - task: MSBuild@1
     inputs:
       solution: 'armadillo-8.400.0/*.sln'
-      msbuildLocationMethod: 'version'
+      msbuildLocationMethod: 'location'
       msbuildVersion: '15.0'
-      configuration: "Release"
+      configuration: 'Release'
+      msbuildLocation: "armadillo"
       msbuildArchitecture: 'x64'
       clean: false
   - task: UsePythonVersion@0
