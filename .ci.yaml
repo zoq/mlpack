@@ -42,5 +42,13 @@ jobs:
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
       -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_BUILD_TYPE=Release . && \
-      msbuild.exe armadillo.sln /m /verbosity:quiet /p:Configuration=Release;Platform=x64
-    displayName: 'Install Build Dependencies'
+    displayName: 'Fetch Build Dependencies'
+  - task: MSBuild@1
+    inputs:
+      solution: 'armadillo-8.400.0/*.sln' 
+      msbuildLocationMethod: 'version'
+      msbuildVersion: '15.0'
+      msbuildArchitecture: 'x86' # Optional. Options: x86, x64
+      clean: false
+      maximumCpuCount: false
+      logFileVerbosity: 'minimal'
