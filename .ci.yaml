@@ -19,6 +19,20 @@ jobs:
     inputs:
       versionSpec: '5.3.0'
   - bash: |
+      nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_program_options-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_random-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_serialization-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install boost_math_c99-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+      nuget install OpenBLAS -o $(Agent.ToolsDirectory)
+
       mkdir boost_libs
+      cp $(Agent.ToolsDirectory)\boost_program_options-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+      cp $(Agent.ToolsDirectory)\boost_math_c99-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+      cp $(Agent.ToolsDirectory)\boost_random-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+      cp $(Agent.ToolsDirectory)\boost_serialization-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+      cp $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
+
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ && cd armadillo*
     displayName: 'Install Build Dependencies'
