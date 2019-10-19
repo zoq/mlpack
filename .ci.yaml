@@ -35,6 +35,8 @@ jobs:
       cp $(Agent.ToolsDirectory)/boost_random-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
       cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
       cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
+
+      cd boost_libs && ls
       
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ
     displayName: 'Fetch build dependencies'
@@ -66,7 +68,7 @@ jobs:
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
       -DARMADILLO_LIBRARY:FILEPATH="../armadillo-8.400.0/Release/armadillo.lib" \
       -DBOOST_INCLUDEDIR:PATH=$(Agent.ToolsDirectory)/boost.1.60.0.0/lib/native/include \
-      -DBOOST_LIBRARYDIR:PATH="../boost_libs" \
+      -DBOOST_LIBRARYDIR:PATH="../boost_libs/" \
       -DDEBUG=OFF \
       -DPROFILE=OFF \
       -DBUILD_PYTHON_BINDINGS=OFF \
