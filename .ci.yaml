@@ -20,6 +20,7 @@ jobs:
     inputs:
       versionSpec: '5.3.0'
   
+  # Fetch build dependencies
   - bash: |
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
@@ -40,6 +41,7 @@ jobs:
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ
     displayName: 'Fetch build dependencies'
 
+# Configure armadillo
   - bash: |
       cd armadillo-8.400.0/ && cmake -G "Visual Studio 15 2017 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
@@ -48,6 +50,8 @@ jobs:
       -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_BUILD_TYPE=Release .
     displayName: 'Configure armadillo'
+
+# Build armadillo
   - task: MSBuild@1
     inputs:
       solution: 'armadillo-8.400.0/*.sln'
@@ -60,6 +64,7 @@ jobs:
       maximumCpuCount: false
     displayName: 'Build armadillo'
 
+# Configure mlpack
   - bash: |
       mkdir build && cd build && \
       cmake -G "Visual Studio 15 2017 Win64" \
@@ -75,6 +80,7 @@ jobs:
       -DCMAKE_BUILD_TYPE=Release .. \
     displayName: 'Configure mlpack'
 
+# Build mlpack
   - task: MSBuild@1
     inputs:
       solution: 'build/*.sln'
@@ -87,6 +93,7 @@ jobs:
       clean: false
     displayName: 'Build mlpack'
 
+# Run tests
   - bash: |
       cp $(Agent.ToolsDirectory)/boost_libs/*.* build/
       cp $(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/*.* build/
@@ -98,11 +105,29 @@ jobs:
       --log_level=test_suite --log_format=XML > mlpack_test.xml & exit 0
     displayName: 'Run tests'
 
-  # Publish test results to Azure Pipelines
+# Publish test results to Azure Pipelines
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'xUnit'
       testResultsFiles: 'build/*.xml' 
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
+
+# Build artifacts
+  - bash: |
+      7z a mlpack-windows-no-libs.zip build/Release/*.exe
+      7z a mlpack-windows.zip build/Release/*.*"
+    displayName: 'Build artifacts'
+
+# Publish build artifacts to Azure Pipelines
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'mlpack-windows-no-libs.zip'
+      artifactName: 'mlpack-windows-no-libs.zip'
+    displayName: 'Publish artifacts no-libs'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'mlpack-windows.zip'
+      artifactName: 'mlpack-windows.zip' 
+    displayName: 'Publish artifacts complete'
     
