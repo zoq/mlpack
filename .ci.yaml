@@ -21,9 +21,6 @@ jobs:
   
   - bash: |
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
-    displayName: 'Fetch Build Dependencies'
-
-  - bash: |
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_program_options-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
@@ -38,8 +35,11 @@ jobs:
       cp $(Agent.ToolsDirectory)/boost_random-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
       cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
       cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* boost_libs/
-
+      
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ
+    displayName: 'Fetch build dependencies'
+
+  - bash: |
       cd armadillo-8.400.0/ && cmake -G "Visual Studio 15 2017 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
@@ -65,7 +65,7 @@ jobs:
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
       -DARMADILLO_LIBRARY:FILEPATH="../armadillo-8.400.0/Release/armadillo.lib" \
-      -DBOOST_INCLUDEDIR:PATH=$(Agent.ToolsDirectory)/boost.1.60.0.0/lib/native/include" \
+      -DBOOST_INCLUDEDIR:PATH=$(Agent.ToolsDirectory)/boost.1.60.0.0/lib/native/include \
       -DBOOST_LIBRARYDIR:PATH="../boost_libs" \
       -DDEBUG=OFF \
       -DPROFILE=OFF \
