@@ -41,5 +41,5 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
   - bash: |
-      ls armadillo-8.400.0/Release/
+      ls armadillo-8.400.0/Release/armadillo.lib
     
