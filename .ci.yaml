@@ -35,4 +35,7 @@ jobs:
       cp $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\lib\*.* boost_libs\
 
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ && cd armadillo*
+      ls
+      ls $(Agent.ToolsDirectory)
+      cmake -G "Visual Studio 15 2017 Win64" -DBLAS_LIBRARY:FILEPATH=%BLAS_LIBRARY% -DLAPACK_LIBRARY:FILEPATH=%BLAS_LIBRARY% -DCMAKE_PREFIX:FILEPATH="%APPVEYOR_BUILD_FOLDER%/armadillo" -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release ..
     displayName: 'Install Build Dependencies'
