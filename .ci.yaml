@@ -83,4 +83,12 @@ jobs:
       msbuildArguments: /m /p:BuildInParallel=true
       clean: false
     displayName: 'Build mlpack'
+
+  - bash: |
+      cp $(Agent.ToolsDirectory)/boost_libs/*.* build/
+      cp $(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/*.* build/
+      cd build && Release\mlpack_test.exe \
+      --report_level=detailed \
+      --log_level=test_suite --log_format=XML > mlpack_test.xml & exit 0
+    displayName: 'Run tests'
     
