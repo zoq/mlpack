@@ -43,5 +43,5 @@ jobs:
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
       -DBUILD_SHARED_LIBS=OFF \
-      -DCMAKE_BUILD_TYPE=Release ..
+      -DCMAKE_BUILD_TYPE=Release .
     displayName: 'Install Build Dependencies'
