@@ -90,8 +90,19 @@ jobs:
   - bash: |
       cp $(Agent.ToolsDirectory)/boost_libs/*.* build/
       cp $(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/*.* build/
+      cp $(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/bin/x64/*.* build/
+      
+      ls -lA build/
       cd build && Release/mlpack_test.exe \
       --report_level=detailed \
       --log_level=test_suite --log_format=XML > mlpack_test.xml & exit 0
     displayName: 'Run tests'
+
+  # Publish test results to Azure Pipelines
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'xUnit'
+      testResultsFiles: 'build/*.xml' 
+      failTaskOnFailedTests: true
+    displayName: 'Publish tests'
     
