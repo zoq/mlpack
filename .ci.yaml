@@ -106,7 +106,7 @@ jobs:
 # Process test results
   - bash: |
       dotnet tool install --global dotnet-xunit-to-junit --version 1.0.3
-      dotnet build/mlpack_test.xml build/mlpack_test_junit.xml
+      dotnet xunit-to-junit build/mlpack_test.xml build/mlpack_test_junit.xml
     displayName: 'Process test results'
 
 # Publish test results to Azure Pipelines
