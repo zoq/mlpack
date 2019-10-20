@@ -100,7 +100,7 @@ jobs:
       cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\bin\x64\*.* build\
 
       cd build
-      ctest -j2 --output-log mlpack_test.xml
+      ctest -j2 --build-config Release --output-log mlpack_test.xml
     displayName: 'Run tests'
 
 # Publish test results to Azure Pipelines
