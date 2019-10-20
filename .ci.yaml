@@ -106,7 +106,6 @@ jobs:
 # Process test results
   - bash: |
       curl https://raw.githubusercontent.com/mlpack/jenkins-conf/master/xml_boost_test.py -O
-      python xml_boost_test.py build/mlpack_test.xml > build/mlpack_test.xml
     displayName: 'Process test results'
 
 # Publish test results to Azure Pipelines
