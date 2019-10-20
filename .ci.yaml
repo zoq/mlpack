@@ -100,13 +100,13 @@ jobs:
       cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\bin\x64\*.* build\
 
       cd build
-      Release\mlpack_test.exe --report_level=detailed --log_level=all --log_format=JUNIT --log_sink=mlpack_test.xml
+      Release\mlpack_test.exe --report_level=detailed --log_level=all --log_format=XML --log_sink=mlpack_test.xml
     displayName: 'Run tests'
 
 # Publish test results to Azure Pipelines
   - task: PublishTestResults@2
     inputs:
-      testResultsFormat: 'JUnit'
+      testResultsFormat: 'xUnit'
       testResultsFiles: 'build/mlpack_test.xml' 
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
