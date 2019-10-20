@@ -22,6 +22,12 @@ jobs:
   
   # Fetch build dependencies
   - bash: |
+      dotnet tool install --global dotnet-xunit-to-junit --version 1.0.3
+
+      curl https://gist.githubusercontent.com/zoq/39a6402b210800cf2ad2186a3e2466ad/raw/9c3c33b69e627a32880d281bfe2d3518807190d8/testxml.xml -O
+      dotnet xunit-to-junit testxml.xml newtestxml.xml
+
+
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
