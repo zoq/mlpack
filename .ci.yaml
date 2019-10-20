@@ -22,12 +22,6 @@ jobs:
   
   # Fetch build dependencies
   - bash: |
-      dotnet tool install --global dotnet-xunit-to-junit --version 1.0.3
-
-      curl https://gist.githubusercontent.com/zoq/39a6402b210800cf2ad2186a3e2466ad/raw/9c3c33b69e627a32880d281bfe2d3518807190d8/testxml.xml -O
-      dotnet xunit-to-junit testxml.xml newtestxml.xml
-
-
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
@@ -111,14 +105,15 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://raw.githubusercontent.com/mlpack/jenkins-conf/master/xml_boost_test.py -O
+      dotnet tool install --global dotnet-xunit-to-junit --version 1.0.3
+      dotnet build/mlpack_test.xml build/mlpack_test_junit.xml
     displayName: 'Process test results'
 
 # Publish test results to Azure Pipelines
   - task: PublishTestResults@2
     inputs:
-      testResultsFormat: xUnit
-      testResultsFiles: 'build/mlpack_test.xml' 
+      testResultsFormat: JUnit
+      testResultsFiles: 'build/mlpack_test_junit.xml' 
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
 
@@ -144,4 +139,9 @@ jobs:
       pathtoPublish: 'build/mlpack_test.xml'
       artifactName: 'mlpack_test.xml' 
     displayName: 'Publish artifacts test results'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'build/mlpack_test_junit.xml'
+      artifactName: 'mlpack_test_junit.xml' 
+    displayName: 'Publish artifacts test junit results'
     
