@@ -32,11 +32,13 @@ jobs:
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       
       mkdir -p $(Agent.ToolsDirectory)/boost_libs
-      cp $(Agent.ToolsDirectory)/boost_program_options-vc140.1.70.0.0/lib/native/*64*.* $(Agent.ToolsDirectory)/boost_libs
-      cp $(Agent.ToolsDirectory)/boost_math_c99-vc140.1.70.0.0/lib/native/*64*.* $(Agent.ToolsDirectory)/boost_libs
-      cp $(Agent.ToolsDirectory)/boost_random-vc140.1.70.0.0/lib/native/*64*.* $(Agent.ToolsDirectory)/boost_libs
-      cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.70.0.0/lib/native/*64*.* $(Agent.ToolsDirectory)/boost_libs
-      cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.70.0.0/lib/native/*64*.* $(Agent.ToolsDirectory)/boost_libs
+      cp $(Agent.ToolsDirectory)/boost_program_options-vc140.1.70.0.0/lib/native/*.* $(Agent.ToolsDirectory)/boost_libs
+      cp $(Agent.ToolsDirectory)/boost_math_c99-vc140.1.70.0.0/lib/native/*.* $(Agent.ToolsDirectory)/boost_libs
+      cp $(Agent.ToolsDirectory)/boost_random-vc140.1.70.0.0/lib/native/*.* $(Agent.ToolsDirectory)/boost_libs
+      cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.70.0.0/lib/native/*.* $(Agent.ToolsDirectory)/boost_libs
+      cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.70.0.0/lib/native/*.* $(Agent.ToolsDirectory)/boost_libs
+
+      ls $(Agent.ToolsDirectory)/boost_libs
       
       curl https://ftp.fau.de/macports/distfiles/armadillo/armadillo-8.400.0.tar.xz | tar -xvJ
     displayName: 'Fetch build dependencies'
