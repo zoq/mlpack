@@ -100,7 +100,7 @@ jobs:
       cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\bin\x64\*.* build\
 
       cd build
-      Release\mlpack_test.exe --report_level=detailed --log_level=test_suite --log_format=XML --log_sink=mlpack_test.xml & exit 0
+      Release\mlpack_test.exe --report_level=detailed --log_level=test_suite --log_format=XML --log_sink=mlpack_test.xml
     displayName: 'Run tests'
 
 # Process test results
