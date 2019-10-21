@@ -105,7 +105,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/6e54e06cf2a2123e956e6d67279feb45abd90f44/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9589b3557a36ed6655ebc1d8d26331b79f8a97f/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
@@ -113,7 +113,7 @@ jobs:
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: JUnit
-      testResultsFiles: 'build/mlpack_test.xml'
+      testResultsFiles: 'mlpack_test.xml'
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
 
@@ -136,6 +136,6 @@ jobs:
     displayName: 'Publish artifacts complete'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'build/mlpack_test.xml'
+      pathtoPublish: 'mlpack_test.xml'
       artifactName: 'mlpack_test.xml'
     displayName: 'Publish artifacts test results'
