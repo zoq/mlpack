@@ -23,7 +23,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/39a6402b210800cf2ad2186a3e2466ad/raw/7d3149265b1ddcf70ab1c10aae538d63d27c4a68/testxml.xml -O
+      curl https://gist.githubusercontent.com/zoq/39a6402b210800cf2ad2186a3e2466ad/raw/4efb747c0f5c5a488752e3133a23fa5d67adf31a/testxml.xml -O
     displayName: 'Process test results'
 
 # Publish test results to Azure Pipelines
