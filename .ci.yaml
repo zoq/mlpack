@@ -23,13 +23,13 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/n1k0/4332371/raw/14fdb095d43062da2a711e641b7b5e01ce455a32/log.xml -O
+      curl https://gist.githubusercontent.com/zoq/39a6402b210800cf2ad2186a3e2466ad/raw/7d3149265b1ddcf70ab1c10aae538d63d27c4a68/testxml.xml -O
     displayName: 'Process test results'
 
 # Publish test results to Azure Pipelines
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: JUnit
-      testResultsFiles: 'log.xml' 
+      testResultsFiles: 'testxml.xml' 
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
