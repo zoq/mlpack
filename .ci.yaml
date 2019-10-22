@@ -2,28 +2,20 @@ jobs:
 - job: Windows
   timeoutInMinutes: 360
   pool:
-    vmImage: vs2015-win2012r2
+    vmImage: vs2017-win2016
   strategy:
     matrix:
       Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
-        python.version: '3'
+        python.version: '2.7'
 
   steps:
   - checkout: self
     clean: true
     fetchDepth: 1
-
-  - powershell: 'Invoke-WebRequest https://www.python.org/ftp/python/3.7.2/python-3.7.2-amd64-webinstall.exe -OutFile c:\py3-setup.exe'
-  - script: |
-      c:\py3-setup.exe /quiet PrependPath=1 InstallAllUsers=1 Include_launcher=1 InstallLauncherAllUsers=1 Include_test=0 Include_doc=0 Include_dev=0 Include_debug=0 Include_tcltk=0 TargetDir=c:\py3
-  - script: |
-      @echo ##vso[task.prependpath]C:\py3
-      @echo ##vso[task.prependpath]C:\py3\Scripts
-  - script: |
-      python --version
-      py -3 --version
-
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
   - task: NuGetToolInstaller@0
     inputs:
       versionSpec: '5.3.0'
@@ -51,7 +43,7 @@ jobs:
 
 # Configure armadillo
   - bash: |
-      cd armadillo-8.400.0/ && cmake -G "Visual Studio 14 2015 Win64" \
+      cd armadillo-8.400.0/ && cmake -G "Visual Studio 15 2017 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
@@ -75,7 +67,7 @@ jobs:
 # Configure mlpack
   - bash: |
       mkdir build && cd build && \
-      cmake -G "Visual Studio 14 2015 Win64" \
+      cmake -G "Visual Studio 15 2017 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
@@ -113,7 +105,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/52a8834118d2d8ddb3b63f75772c5dc1598d78fc/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9ca3956d692f67dc869795df1c23e02e3dc8475/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
