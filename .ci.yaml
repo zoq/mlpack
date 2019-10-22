@@ -45,16 +45,29 @@ jobs:
     displayName: 'CMake'
   - script: cd build && make -j2
     displayName: 'Build'
-  - script: cd build && ctest -j2 -O mlpack_test.xml
+  - script: cd build && bin/mlpack_test --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
 
-  # Publish test results to Azure Pipelines
+# Process test results
+  - bash: |
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9ca3956d692f67dc869795df1c23e02e3dc8475/convert.py -O
+      python convert.py > mlpack_test.xml
+    displayName: 'Process test results'
+
+# Publish test results to Azure Pipelines
   - task: PublishTestResults@2
     inputs:
-      testResultsFormat: cTest
-      testResultsFiles: 'build/mlpack_test.xml'
+      testResultsFormat: JUnit
+      testResultsFiles: 'mlpack_test.xml'
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
+
+# Publish build artifacts to Azure Pipelines
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'mlpack_test.xml'
+      artifactName: 'mlpack_test.xml'
+    displayName: 'Publish artifacts test results'
 
 - job: macOS
   pool:
@@ -93,8 +106,29 @@ jobs:
     displayName: 'CMake'
   - script: cd build && make -j2
     displayName: 'Build'
-  - script: cd build && ctest -j2
+  - script: cd build && bin/mlpack_test --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
+
+# Process test results
+  - bash: |
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9ca3956d692f67dc869795df1c23e02e3dc8475/convert.py -O
+      python convert.py > mlpack_test.xml
+    displayName: 'Process test results'
+
+# Publish test results to Azure Pipelines
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: 'mlpack_test.xml'
+      failTaskOnFailedTests: true
+    displayName: 'Publish tests'
+
+# Publish build artifacts to Azure Pipelines
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'mlpack_test.xml'
+      artifactName: 'mlpack_test.xml'
+    displayName: 'Publish artifacts test results'
 
 - job: Windows
   timeoutInMinutes: 360
