@@ -48,10 +48,9 @@ jobs:
   - script: cd build && bin/mlpack_test --result_code=no --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
 
-# Publish test results to Azure Pipelines
-  - task: PublishTestResults@2
+  - task: PublishBuildArtifacts@1
     inputs:
-    pathtoPublish: 'res.txt'
+      pathtoPublish: 'build/res.txt'
       artifactName: 'res.txt'
     displayName: 'Publish artifacts test results'
 
@@ -61,11 +60,13 @@ jobs:
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
-  - task: PublishBuildArtifacts@1
+# Publish test results to Azure Pipelines
+  - task: PublishTestResults@2
     inputs:
-      pathtoPublish: 'build/res.txt'
-      artifactName: 'res_linux.txt'
-    displayName: 'Publish artifacts test results'
+      testResultsFormat: JUnit
+      testResultsFiles: 'mlpack_test.xml'
+      failTaskOnFailedTests: true
+    displayName: 'Publish tests'
 
 # Publish build artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
@@ -113,12 +114,6 @@ jobs:
     displayName: 'Build'
   - script: cd build && bin/mlpack_test --result_code=no --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
-
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathtoPublish: 'build/res.txt'
-      artifactName: 'res_mac.txt'
-    displayName: 'Publish artifacts test results'
 
 # Process test results
   - bash: |
