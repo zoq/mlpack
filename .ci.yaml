@@ -50,7 +50,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/2aea062ee15448740770ce8711b4c0197c1d1fa8/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/a7790189a530925a5575b2dc45fdc6b915b01313/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
@@ -111,7 +111,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/2aea062ee15448740770ce8711b4c0197c1d1fa8/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/a7790189a530925a5575b2dc45fdc6b915b01313/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
@@ -236,7 +236,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/2aea062ee15448740770ce8711b4c0197c1d1fa8/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/a7790189a530925a5575b2dc45fdc6b915b01313/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
