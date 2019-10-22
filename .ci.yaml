@@ -7,7 +7,7 @@ jobs:
     matrix:
       Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
-        python.version: '2.7'
+        python.version: '3.6.1'
 
   steps:
   - checkout: self
@@ -105,7 +105,7 @@ jobs:
 
 # Process test results
   - bash: |
-      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9ca3956d692f67dc869795df1c23e02e3dc8475/convert.py -O
+      curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/52a8834118d2d8ddb3b63f75772c5dc1598d78fc/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
