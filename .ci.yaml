@@ -48,19 +48,24 @@ jobs:
   - script: cd build && bin/mlpack_test --result_code=no --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
 
+# Publish test results to Azure Pipelines
+  - task: PublishTestResults@2
+    inputs:
+    pathtoPublish: 'res.txt'
+      artifactName: 'res.txt'
+    displayName: 'Publish artifacts test results'
+
 # Process test results
   - bash: |
       curl https://gist.githubusercontent.com/zoq/9ccf753c4b61efcc5e6f0452c9c22e26/raw/f9ca3956d692f67dc869795df1c23e02e3dc8475/convert.py -O
       python convert.py > mlpack_test.xml
     displayName: 'Process test results'
 
-# Publish test results to Azure Pipelines
-  - task: PublishTestResults@2
+  - task: PublishBuildArtifacts@1
     inputs:
-      testResultsFormat: JUnit
-      testResultsFiles: 'mlpack_test.xml'
-      failTaskOnFailedTests: true
-    displayName: 'Publish tests'
+      pathtoPublish: 'build/res.txt'
+      artifactName: 'res_linux.txt'
+    displayName: 'Publish artifacts test results'
 
 # Publish build artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
@@ -108,6 +113,12 @@ jobs:
     displayName: 'Build'
   - script: cd build && bin/mlpack_test --result_code=no --report_level=detailed --log_level=test_suite --log_format=HRF --log_sink=res.txt
     displayName: 'Run tests'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'build/res.txt'
+      artifactName: 'res_mac.txt'
+    displayName: 'Publish artifacts test results'
 
 # Process test results
   - bash: |
