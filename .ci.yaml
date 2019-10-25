@@ -253,20 +253,20 @@ jobs:
 
 # Build artifacts
   - bash: |
-      7z a mlpack-windows-no-libs.zip build/Release/*.exe
-      7z a mlpack-windows.zip build/Release/*.*
+      7z a mlpack-windows-vs16-no-libs.zip build/Release/*.exe
+      7z a mlpack-windows-vs16.zip build/Release/*.*
     displayName: 'Build artifacts'
 
 # Publish build artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows-no-libs.zip'
-      artifactName: 'mlpack-windows-no-libs.zip'
+      pathtoPublish: 'mlpack-windows-vs16-no-libs.zip'
+      artifactName: 'mlpack-windows-vs16-no-libs.zip'
     displayName: 'Publish artifacts no-libs'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows.zip'
-      artifactName: 'mlpack-windows.zip'
+      pathtoPublish: 'mlpack-windows-vs16.zip'
+      artifactName: 'mlpack-windows-vs16.zip'
     displayName: 'Publish artifacts complete'
   - task: PublishBuildArtifacts@1
     inputs:
@@ -318,7 +318,7 @@ jobs:
 
 # Configure armadillo
   - bash: |
-      cd armadillo-8.400.0/ && cmake -G "Visual Studio 16 2019 Win64" \
+      cd armadillo-8.400.0/ && cmake -G "Visual Studio 16 2019" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
@@ -342,7 +342,7 @@ jobs:
 # Configure mlpack
   - bash: |
       mkdir build && cd build && \
-      cmake -G "Visual Studio 16 2019 Win64" \
+      cmake -G "Visual Studio 16 2019" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
@@ -394,20 +394,20 @@ jobs:
 
 # Build artifacts
   - bash: |
-      7z a mlpack-windows-no-libs.zip build/Release/*.exe
-      7z a mlpack-windows.zip build/Release/*.*
+      7z a mlpack-windows-vs16-no-libs.zip build/Release/*.exe
+      7z a mlpack-windows-vs16.zip build/Release/*.*
     displayName: 'Build artifacts'
 
 # Publish build artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows-no-libs.zip'
-      artifactName: 'mlpack-windows-no-libs.zip'
+      pathtoPublish: 'mlpack-windows-vs16-no-libs.zip'
+      artifactName: 'mlpack-windows-vs16-no-libs.zip'
     displayName: 'Publish artifacts no-libs'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows.zip'
-      artifactName: 'mlpack-windows.zip'
+      pathtoPublish: 'mlpack-windows-vs16.zip'
+      artifactName: 'mlpack-windows-vs16.zip'
     displayName: 'Publish artifacts complete'
   - task: PublishBuildArtifacts@1
     inputs:
