@@ -130,13 +130,13 @@ jobs:
       artifactName: 'mlpack_test.xml'
     displayName: 'Publish artifacts test results'
 
-- job: Windows
+- job: Windows2016
   timeoutInMinutes: 360
   pool:
     vmImage: vs2017-win2016
   strategy:
     matrix:
-      2016 Plain:
+      Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
         python.version: '2.7'
 
@@ -271,13 +271,13 @@ jobs:
       artifactName: 'mlpack_test.xml'
     displayName: 'Publish artifacts test results'
 
-- job: Windows
+- job: Windows2019
   timeoutInMinutes: 360
   pool:
     vmImage: windows-2019
   strategy:
     matrix:
-      2019 Plain:
+      Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
         python.version: '2.7'
 
