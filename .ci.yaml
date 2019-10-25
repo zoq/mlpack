@@ -151,15 +151,15 @@ jobs:
       versionSpec: '5.3.0'
 
   # Fetch build dependencies
-  - bash: |
+  - powershell: |
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
 
-      ls $(Agent.ToolsDirectory)/
-      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/
-      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib
-      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/
-      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/
-      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/
+      ls $(Agent.ToolsDirectory)\
+      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\
+      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib
+      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib/native\
+      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\
+      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\lib\
 
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
 
