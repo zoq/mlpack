@@ -181,6 +181,8 @@ jobs:
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
       -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_BUILD_TYPE=Release .
+      ls
+      ls armadillo/
     displayName: 'Configure armadillo'
 
 # Build armadillo
