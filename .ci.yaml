@@ -152,21 +152,9 @@ jobs:
 
   # Fetch build dependencies
   - powershell: |
-      nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
-
-      ls $(Agent.ToolsDirectory)\
-      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\
-      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib
-      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib/native\
-      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\
-      ls $(Agent.ToolsDirectory)\boost_unit_test_framework-vc140.1.60.0.0\lib\native\address-model-64\lib\
-
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
-
-      
-
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
-      
+      nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_program_options-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_random-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_serialization-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
@@ -179,12 +167,12 @@ jobs:
       cp $(Agent.ToolsDirectory)/boost_random-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
       cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
       cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
-
-      curl http://masterblaster.mlpack.org:5005/armadillo-8.400.0.tar.gz | tar xvz
     displayName: 'Fetch build dependencies'
 
 # Configure armadillo
   - bash: |
+      curl http://masterblaster.mlpack.org:5005/armadillo-8.400.0.tar.gz | tar xvz
+
       cd armadillo-8.400.0/ && cmake -G "Visual Studio 14 2015 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
