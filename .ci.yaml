@@ -133,7 +133,7 @@ jobs:
       artifactName: 'mlpack_test.xml'
     displayName: 'Publish artifacts test results'
 
-- job: Windows2016
+- job: WindowsVS15
   timeoutInMinutes: 360
   pool:
     vmImage: vs2017-win2016
@@ -274,7 +274,7 @@ jobs:
       artifactName: 'mlpack_test.xml'
     displayName: 'Publish artifacts test results'
 
-- job: Windows2019
+- job: WindowsVS16
   timeoutInMinutes: 360
   pool:
     vmImage: windows-2019
