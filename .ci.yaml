@@ -152,9 +152,20 @@ jobs:
 
   # Fetch build dependencies
   - bash: |
-      nuget install OpenBLAS -o $(Agent.ToolsDirectory)
-      nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
+
+      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/
+      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib
+      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/
+      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/
+      ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/
+
+      nuget install OpenBLAS -o $(Agent.ToolsDirectory)
+
+      
+
+      nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
+      
       nuget install boost_program_options-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_random-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_serialization-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
