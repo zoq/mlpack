@@ -6,7 +6,6 @@ jobs:
     matrix:
       Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
-        python.version: '2.7'
       Python27:
         python.version: '2.7'
         CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python'
