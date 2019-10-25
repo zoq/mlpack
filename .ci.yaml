@@ -198,7 +198,8 @@ jobs:
 
 # Configure mlpack
   - powershell: |
-      mkdir build && cd build && \
+      mkdir build
+      cd build
       cmake -G "Visual Studio 14 2015 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
