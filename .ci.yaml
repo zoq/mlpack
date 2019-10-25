@@ -13,6 +13,9 @@ jobs:
       Python37:
         python.version: '3.7'
         CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DPYTHON_EXECUTABLE=/usr/bin/python3'
+      Markdown:
+        python.version: '2.7'
+        CMakeArgs: '-DDEBUG=OFF -DPROFILE=OFF -DBUILD_MARKDOWN_BINDINGS=ON -DBUILD_PYTHON_BINDINGS=OFF'
 
   steps:
   - checkout: self
@@ -315,7 +318,7 @@ jobs:
 
 # Configure armadillo
   - bash: |
-      cd armadillo-8.400.0/ && cmake -G "Visual Studio 15 2017 Win64" \
+      cd armadillo-8.400.0/ && cmake -G "Visual Studio 16 2019 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
@@ -339,7 +342,7 @@ jobs:
 # Configure mlpack
   - bash: |
       mkdir build && cd build && \
-      cmake -G "Visual Studio 15 2017 Win64" \
+      cmake -G "Visual Studio 16 2019 Win64" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
