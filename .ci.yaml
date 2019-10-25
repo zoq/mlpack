@@ -154,6 +154,7 @@ jobs:
   - bash: |
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
 
+      ls $(Agent.ToolsDirectory)/
       ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/
       ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib
       ls $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/
