@@ -134,7 +134,7 @@ jobs:
       rootFolderOrFile: 'build\Release\'
       includeRootFolder: false
       archiveType: 'zip'
-      archiveFile: 'mlpack-windows-vs14-libs.zip'
+      archiveFile: 'mlpack-windows-vs14.zip'
       replaceExistingArchive: true
     displayName: 'Build artifacts'
 
