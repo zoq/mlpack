@@ -86,6 +86,13 @@ jobs:
       clean: false
     displayName: 'Build mlpack'
 
+# Configure mlpack
+  - powershell: |
+      cp $(Agent.ToolsDirectory)\boost_libs\*.* build\Release\
+      cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\*.* build\Release\
+      cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\bin\x64\*.* build\Release\
+    displayName: 'Configure mlpack'
+
 # Run tests
   - bash: |
       cd build
