@@ -114,10 +114,28 @@ jobs:
       failTaskOnFailedTests: true
     displayName: 'Publish tests'
 
-# Build artifacts
-  - bash: |
-      7z a mlpack-windows-vs14-no-libs.zip build/Release/*.exe
-      7z a mlpack-windows-vs14.zip build/Release/*.*
+# Copy artifacts
+  - powershell: |
+      mkdir exe-archive
+      cp build\Release\*.exe exe-archive\
+    displayName: 'Copy artifacts'
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: 'exe-archive\'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: 'mlpack-windows-vs14-no-libs.zip'
+      replaceExistingArchive: true
+    displayName: 'Build artifacts'
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: 'build\Release\'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: 'mlpack-windows-vs14-libs.zip'
+      replaceExistingArchive: true
     displayName: 'Build artifacts'
 
 # Publish build artifacts to Azure Pipelines
