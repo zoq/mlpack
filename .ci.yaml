@@ -33,8 +33,6 @@ jobs:
       cp $(Agent.ToolsDirectory)/boost_random-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
       cp $(Agent.ToolsDirectory)/boost_serialization-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
       cp $(Agent.ToolsDirectory)/boost_unit_test_framework-vc140.1.60.0.0/lib/native/address-model-64/lib/*.* $(Agent.ToolsDirectory)/boost_libs
-
-      ls $(Agent.ToolsDirectory)/boost_libs
     displayName: 'Fetch build dependencies'
 
 # Configure armadillo
@@ -54,7 +52,7 @@ jobs:
     inputs:
       solution: 'armadillo-8.400.0/*.sln'
       msbuildLocationMethod: 'location'
-      msbuildVersion: '15.0'
+      msbuildVersion: '14.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
       msbuildArguments: /m /p:BuildInParallel=true
@@ -65,12 +63,17 @@ jobs:
 # Configure mlpack
   - powershell: |
       mkdir build
-      cp $(Agent.ToolsDirectory)\boost_libs\*.* build\
-      cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\*.* build\
-      cp $(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\bin\x64\*.* build\
-
       cd build
-      cmake -G "Visual Studio 14 2015 Win64" -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\libopenblas.dll.a -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\libopenblas.dll.a -DARMADILLO_INCLUDE_DIR="..\armadillo-8.400.0\include" -DARMADILLO_LIBRARY="..\armadillo-8.400.0\Release\armadillo.lib" -DBOOST_INCLUDEDIR=$(Agent.ToolsDirectory)\boost.1.60.0.0\lib\native\include -DBOOST_LIBRARYDIR=$(Agent.ToolsDirectory)\boost_libs -DDEBUG=OFF -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF -DCMAKE_BUILD_TYPE=Release ..
+
+      cmake -G "Visual Studio 14 2015 Win64" `
+      $(CMakeArgs) `
+      -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\libopenblas.dll.a `
+      -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)\OpenBLAS.0.2.14.1\lib\native\lib\x64\libopenblas.dll.a `
+      -DARMADILLO_INCLUDE_DIR="..\armadillo-8.400.0\include" `
+      -DARMADILLO_LIBRARY="..\armadillo-8.400.0\Release\armadillo.lib" `
+      -DBOOST_INCLUDEDIR=$(Agent.ToolsDirectory)\boost.1.60.0.0\lib\native\include `
+      -DBOOST_LIBRARYDIR=$(Agent.ToolsDirectory)\boost_libs `
+      -DCMAKE_BUILD_TYPE=Release ..
     displayName: 'Configure mlpack'
 
 # Build mlpack
@@ -120,6 +123,7 @@ jobs:
       cp build\Release\*.exe exe-archive\
     displayName: 'Copy artifacts'
 
+# Build artifacts archive
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: 'exe-archive\'
@@ -138,7 +142,7 @@ jobs:
       replaceExistingArchive: true
     displayName: 'Build artifacts'
 
-# Publish build artifacts to Azure Pipelines
+# Publish artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'mlpack-windows-vs14-no-libs.zip'
@@ -152,5 +156,5 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'mlpack_test.xml'
-      artifactName: 'mlpack_test.xml'
+      artifactName: 'mlpack_test-vs14.xml'
     displayName: 'Publish artifacts test results'
