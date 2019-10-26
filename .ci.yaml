@@ -413,25 +413,25 @@ jobs:
 
 # Build artifacts
   - bash: |
-      7z a mlpack-windows-vs16-no-libs.zip build/Release/*.exe
-      7z a mlpack-windows-vs16.zip build/Release/*.*
+      7z a mlpack-windows-vs15-no-libs.zip build/Release/*.exe
+      7z a mlpack-windows-vs15.zip build/Release/*.*
     displayName: 'Build artifacts'
 
 # Publish build artifacts to Azure Pipelines
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows-vs16-no-libs.zip'
-      artifactName: 'mlpack-windows-vs16-no-libs.zip'
+      pathtoPublish: 'mlpack-windows-vs15-no-libs.zip'
+      artifactName: 'mlpack-windows-vs15-no-libs.zip'
     displayName: 'Publish artifacts no-libs'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'mlpack-windows-vs16.zip'
-      artifactName: 'mlpack-windows-vs16.zip'
+      pathtoPublish: 'mlpack-windows-vs15.zip'
+      artifactName: 'mlpack-windows-vs15.zip'
     displayName: 'Publish artifacts complete'
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'mlpack_test.xml'
-      artifactName: 'mlpack_test.xml'
+      artifactName: 'mlpack_test_vs15.xml'
     displayName: 'Publish artifacts test results'
 
 - job: WindowsVS16
@@ -572,5 +572,5 @@ jobs:
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'mlpack_test.xml'
-      artifactName: 'mlpack_test.xml'
+      artifactName: 'mlpack_test_vs16.xml'
     displayName: 'Publish artifacts test results'
