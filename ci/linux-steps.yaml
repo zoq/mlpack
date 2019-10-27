@@ -61,6 +61,6 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: 'mlpack_test.xml'
-    artifactName: 'mlpack_test.xml'
+    artifactName: 'mlpack_test_linux.xml'
   displayName: 'Publish artifacts test results'
   
