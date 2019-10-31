@@ -150,7 +150,7 @@ jobs:
 
       cp build\include\mlpack dist\win-installer\staging -recurse
       cp doc\examples dist\win-installer\staging -recurse
-      cp tests\data\german.csv dist\win-installer\staging\examples\sample-ml-app\sample-ml-app\data\
+      cp src\mlpack\tests\data\german.csv dist\win-installer\staging\examples\sample-ml-app\sample-ml-app\data\
     displayName: 'Preparing installer staging'
 
 # Preparing installer staging
