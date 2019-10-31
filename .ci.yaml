@@ -127,7 +127,7 @@ jobs:
 
 # Pulling documentation for the installer
   - bash: |
-      mkdir -p /dist/win-installer/staging/lib
+      mkdir -p dist/win-installer/staging/lib
       curl http://ci.mlpack.org/job/mlpack%20-%20doxygen%20build/lastSuccessfulBuild/artifact/build/doc/html/*zip*/html.zip -o jenkinsdoc.zip
     displayName: 'Pulling documentation for the installer'
 
