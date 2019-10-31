@@ -155,9 +155,7 @@ jobs:
 
 # Preparing installer staging
   - powershell : |
-      $ver = (Get-Content
-      "src\mlpack\core\util\version.hpp" |
-      where {$_ -like "*MLPACK_VERSION*"});
+      $ver = (Get-Content "src\mlpack\core\util\version.hpp" | where {$_ -like "*MLPACK_VERSION*"});
       $env:MLPACK_VERSION += $ver[0].substring($ver[0].length - 1, 1) + '.';
       $env:MLPACK_VERSION += $ver[1].substring($ver[1].length - 1, 1) + '.';
       $env:MLPACK_VERSION += $ver[2].substring($ver[2].length - 1, 1);
