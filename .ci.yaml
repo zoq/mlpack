@@ -3,8 +3,9 @@ jobs:
 
 - job: WindowsVS15
   timeoutInMinutes: 360
+  displayName: Windows VS17
   pool:
-    vmImage: vs2017-win2016
+    vmImage: windows-2019
   strategy:
     matrix:
       Plain:
