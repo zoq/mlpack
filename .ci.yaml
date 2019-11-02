@@ -9,7 +9,7 @@ jobs:
     matrix:
       Plain:
         CMakeArgs: '-DDEBUG=ON -DPROFILE=OFF -DBUILD_PYTHON_BINDINGS=OFF'
-        python.version: '2.7'
+        python.version: '3.6'
 
   steps:
   - checkout: self
