@@ -22,10 +22,23 @@ jobs:
   - task: NuGetToolInstaller@0
     inputs:
       versionSpec: '5.3.0'
+  
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'clcache.zip'
+      targetPath: $(Agent.ToolsDirectory)\
+    displayName: 'Fetch clcache'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'clcache.zip'
+      destinationFolder: $(Agent.ToolsDirectory)\clcache
+      cleanDestinationFolder: true
+    displayName: 'Extract clcache'
 
   # Run tests
   - powershell: |
-      mkdir $(Agent.ToolsDirectory)/clcache/
+      mkdir -p $(Agent.ToolsDirectory)/clcache/
 
       pip install -q git+https://github.com/frerich/clcache.git
       clcache -M 3221225472
@@ -54,8 +67,6 @@ jobs:
 
   # Fetch build dependencies
   - bash: |
-      ls $(Agent.ToolsDirectory)/wix/
-
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
