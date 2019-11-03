@@ -110,6 +110,23 @@ jobs:
       clean: false
     displayName: 'Build mlpack'
 
+# Archive clcache build artifacts
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: $(Agent.ToolsDirectory)/clcache/
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: 'clcache.zip'
+      replaceExistingArchive: true
+    displayName: 'Archive clcache build artifacts'
+
+# Publish clcache build artifacts to Azure Pipelines
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'clcache.zip'
+      artifactName: 'clcache.zip'
+    displayName: 'Publish clcache build artifacts'
+
 # Run tests
 #  - powershell: |
 #      cp $(Agent.ToolsDirectory)\boost_libs\*.* build\
