@@ -37,8 +37,25 @@ jobs:
       Start-Process clcache-server
     displayName: 'Setup clcache'
 
+# Pulling documentation and toolset for the installer
+  - bash: |
+      mkdir -p $(Agent.ToolsDirectory)/wix
+      curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
+
+    displayName: 'Pulling documentation and toolset for the installer'
+
+# Extract toolset for the installer
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: $(Agent.ToolsDirectory)\wix311-binaries.zip
+      destinationFolder: $(Agent.ToolsDirectory)\wix
+      cleanDestinationFolder: true
+    displayName: 'Extract toolset for the installer'
+
   # Fetch build dependencies
   - bash: |
+      ls $(Agent.ToolsDirectory)/wix/
+
       nuget install OpenBLAS -o $(Agent.ToolsDirectory)
       nuget install boost -o $(Agent.ToolsDirectory) -Version 1.60.0
       nuget install boost_unit_test_framework-vc140 -o $(Agent.ToolsDirectory) -Version 1.60.0
@@ -159,20 +176,9 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
-      mkdir -p $(Agent.ToolsDirectory)\wix
-      curl https://kurg.org/misc/wix311-binaries.zip -O
-
       mkdir -p dist/win-installer/staging/lib
       curl http://ci.mlpack.org/job/mlpack%20-%20doxygen%20build/lastSuccessfulBuild/artifact/build/doc/html/*zip*/html.zip -o jenkinsdoc.zip
     displayName: 'Pulling documentation and toolset for the installer'
-
-# Extract toolset for the installer
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: $(Agent.ToolsDirectory)\wix311-binaries.zip
-      destinationFolder: 'wix'
-      cleanDestinationFolder: true
-    displayName: 'Extract toolset for the installer'
 
 # Extract documentation for the installer
   - task: ExtractFiles@1
