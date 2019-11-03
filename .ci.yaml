@@ -23,18 +23,18 @@ jobs:
     inputs:
       versionSpec: '5.3.0'
   
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'clcache.zip'
-      targetPath: $(Agent.ToolsDirectory)\
-    displayName: 'Fetch clcache'
+ # - task: DownloadPipelineArtifact@0
+ #   inputs:
+ #     artifactName: 'clcache.zip'
+ #     targetPath: $(Agent.ToolsDirectory)\
+ #   displayName: 'Fetch clcache'
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'clcache.zip'
-      destinationFolder: $(Agent.ToolsDirectory)\clcache
-      cleanDestinationFolder: true
-    displayName: 'Extract clcache'
+#  - task: ExtractFiles@1
+#    inputs:
+#      archiveFilePatterns: 'clcache.zip'
+#      destinationFolder: $(Agent.ToolsDirectory)\clcache
+#      cleanDestinationFolder: true
+#    displayName: 'Extract clcache'
 
   # Run tests
   - powershell: |
@@ -43,7 +43,7 @@ jobs:
       pip install -q git+https://github.com/frerich/clcache.git
       clcache -M 3221225472
       clcache -s
-      set CLCACHE_DIR=$(Agent.ToolsDirectory)/clcache/
+      set CLCACHE_DIR=C:\Users\VssAdministrator\clcache
       set CLCACHE_SERVER=1
       set CLCACHE_HARDLINK=1
       set CLCACHE_NODIRECT=1
@@ -141,7 +141,7 @@ jobs:
 # Archive clcache build artifacts
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: $(Agent.ToolsDirectory)/clcache/
+      rootFolderOrFile: C:\Users\VssAdministrator\clcache
       includeRootFolder: false
       archiveType: 'zip'
       archiveFile: 'clcache.zip'
