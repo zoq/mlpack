@@ -102,7 +102,7 @@ jobs:
       msbuildVersion: '15.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
-      msbuildArguments: /m /p:BuildInParallel=true
+      msbuildArguments: /m /p:BuildInParallel=true /p:TrackFileAccess=false /p:CLToolExe=clcache.exe
       maximumCpuCount: false
       clean: false
     displayName: 'Build mlpack'
@@ -140,7 +140,7 @@ jobs:
 # Pulling documentation and toolset for the installer
   - bash: |
       mkdir -p $(Agent.ToolsDirectory)\wix
-      curl https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -O
+      curl https://kurg.org/misc/wix311-binaries.zip -O
 
       mkdir -p dist/win-installer/staging/lib
       curl http://ci.mlpack.org/job/mlpack%20-%20doxygen%20build/lastSuccessfulBuild/artifact/build/doc/html/*zip*/html.zip -o jenkinsdoc.zip
