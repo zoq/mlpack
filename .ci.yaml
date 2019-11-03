@@ -137,11 +137,22 @@ jobs:
       7z a mlpack-windows-vs15.zip build/Release/*.*
     displayName: 'Build artifacts'
 
-# Pulling documentation for the installer
+# Pulling documentation and toolset for the installer
   - bash: |
+      mkdir -p $(Agent.ToolsDirectory)\wix
+      curl https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -O
+
       mkdir -p dist/win-installer/staging/lib
       curl http://ci.mlpack.org/job/mlpack%20-%20doxygen%20build/lastSuccessfulBuild/artifact/build/doc/html/*zip*/html.zip -o jenkinsdoc.zip
-    displayName: 'Pulling documentation for the installer'
+    displayName: 'Pulling documentation and toolset for the installer'
+
+# Extract toolset for the installer
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: $(Agent.ToolsDirectory)\wix311-binaries.zip
+      destinationFolder: 'wix'
+      cleanDestinationFolder: true
+    displayName: 'Extract toolset for the installer'
 
 # Extract documentation for the installer
   - task: ExtractFiles@1
@@ -185,9 +196,9 @@ jobs:
 
       cd dist\win-installer\mlpack-win-installer
 
-      heat dir ..\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
+      $(Agent.ToolsDirectory)\wix\heat.exe dir ..\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
 
-      candle -dHarvestPath=..\staging
+      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=..\staging
       -dConfiguration=Release
       -dOutDir=bin\x64\Release\
       -dPlatform=x64
@@ -206,7 +217,7 @@ jobs:
       -ext "C:\Program Files (x86)\WiX Toolset v3.11\bin\\WixUIExtension.dll"
       Product.wxs HeatGeneratedFileList.wxs
 
-      light -out .\bin\x64\Release\mlpack-%INSTALL_VERSION%.msi
+      $(Agent.ToolsDirectory)\wix\light.exe -out .\bin\x64\Release\mlpack-%INSTALL_VERSION%.msi
       -pdbout .\bin\x64\Release\mlpack-windows.wixpdb
       -cultures:null
       -loc mlpack-localization.wxl
