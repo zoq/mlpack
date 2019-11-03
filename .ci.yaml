@@ -57,7 +57,7 @@ jobs:
 
 # Configure armadillo
   - bash: |
-      cd armadillo-8.400.0/ && cmake -G "Visual Studio 15 2017 Win64" \
+      cd armadillo-8.400.0/ && cmake -G "Visual Studio 16 2019" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DCMAKE_PREFIX:FILEPATH=../../armadillo \
@@ -81,7 +81,7 @@ jobs:
 # Configure mlpack
   - bash: |
       mkdir build && cd build && \
-      cmake -G "Visual Studio 15 2017 Win64" \
+      cmake -G "Visual Studio 16 2019" \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
