@@ -38,7 +38,8 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
-      ls $(Agent.BuildDirectory)
+      echo "workingdir=$(Agent.BuildDirectory)"
+      pwd
 
       mkdir -p $(Agent.ToolsDirectory)/wix
       curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
