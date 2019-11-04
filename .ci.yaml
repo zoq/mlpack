@@ -38,9 +38,6 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
-      echo "workingdir=$(Agent.BuildDirectory)"
-      pwd
-
       mkdir -p $(Agent.ToolsDirectory)/wix
       curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
 
@@ -246,9 +243,9 @@ jobs:
 
       cd dist\win-installer\mlpack-win-installer
 
-      $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
+      $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\s\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
 
-      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=$(Agent.BuildDirectory)\dist\staging -dConfiguration=Release -dOutDir=bin\x64\Release\
+      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=$(Agent.BuildDirectory)\s\dist\staging -dConfiguration=Release -dOutDir=bin\x64\Release\
       -dPlatform=x64
       -dProjectDir=.
       -dProjectExt=.wixproj
@@ -262,14 +259,14 @@ jobs:
       -dTargetPath=.\bin\x64\Release\mlpack-windows.msi
       -out obj\x64\Release\
       -arch x64
-      -ext "C:\Program Files (x86)\WiX Toolset v3.11\bin\\WixUIExtension.dll"
+      -ext "$(Agent.ToolsDirectory)\wix\WixUIExtension.dll"
       Product.wxs HeatGeneratedFileList.wxs
 
       $(Agent.ToolsDirectory)\wix\light.exe -out .\bin\x64\Release\mlpack-%INSTALL_VERSION%.msi
       -pdbout .\bin\x64\Release\mlpack-windows.wixpdb
       -cultures:null
       -loc mlpack-localization.wxl
-      -ext "C:\Program Files (x86)\WiX Toolset v3.11\bin\\WixUIExtension.dll"
+      -ext "$(Agent.ToolsDirectory)\wix\WixUIExtension.dll"
       -contentsfile
       obj\x64\Release\mlpack-win-installer.wixproj.BindContentsFileListnull.txt
       -outputsfile
