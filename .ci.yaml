@@ -39,5 +39,7 @@ jobs:
 # Pulling documentation and toolset for the installer
   - powershell: |
       pwd
-      ls d:\a\1\s\
+      ls $(Agent.BuildDirectory)\s\
+#ls d:\a\1\s\
+      
       
