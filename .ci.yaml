@@ -36,9 +36,24 @@ jobs:
 #      cleanDestinationFolder: true
 #    displayName: 'Extract clcache'
 
+# Pulling documentation and toolset for the installer
+  - bash: |
+      mkdir -p $(Agent.ToolsDirectory)/wix
+      curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
+
+      curl https://kurg.org/misc/clcache.zip -O
+    displayName: 'Pulling documentation and toolset for the installer'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: clcache.zip
+      destinationFolder: C:\Users\VssAdministrator\
+      cleanDestinationFolder: true
+    displayName: 'Extract clcache'
+
   # Run tests
   - powershell: |
-      mkdir -p $(Agent.ToolsDirectory)/clcache/
+      ls C:\Users\VssAdministrator\clcache
 
       pip install -q git+https://github.com/frerich/clcache.git
       clcache -M 3221225472
@@ -50,12 +65,7 @@ jobs:
       Start-Process clcache-server
     displayName: 'Setup clcache'
 
-# Pulling documentation and toolset for the installer
-  - bash: |
-      mkdir -p $(Agent.ToolsDirectory)/wix
-      curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
 
-    displayName: 'Pulling documentation and toolset for the installer'
 
 # Extract toolset for the installer
   - task: ExtractFiles@1
