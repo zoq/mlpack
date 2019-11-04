@@ -47,7 +47,7 @@ jobs:
   - task: ExtractFiles@1
     inputs:
       archiveFilePatterns: clcache.zip
-      destinationFolder: C:\Users\VssAdministrator\clcache\
+      destinationFolder: C:\Users\VssAdministrator\
       cleanDestinationFolder: true
     displayName: 'Extract clcache'
 
