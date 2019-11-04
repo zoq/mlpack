@@ -38,6 +38,8 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
+      ls $(Agent.BuildDirectory)
+
       mkdir -p $(Agent.ToolsDirectory)/wix
       curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
 
@@ -243,11 +245,9 @@ jobs:
 
       cd dist\win-installer\mlpack-win-installer
 
-      $(Agent.ToolsDirectory)\wix\heat.exe dir ..\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
+      $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
 
-      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=..\staging
-      -dConfiguration=Release
-      -dOutDir=bin\x64\Release\
+      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=$(Agent.BuildDirectory)\dist\staging -dConfiguration=Release -dOutDir=bin\x64\Release\
       -dPlatform=x64
       -dProjectDir=.
       -dProjectExt=.wixproj
