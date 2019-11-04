@@ -241,7 +241,13 @@ jobs:
 
       echo INSTALL_VERSION is %INSTALL_VERSION%
 
+      pwd
+      ls
+
+
       cd dist\win-installer\mlpack-win-installer
+      ls
+      pwd
 
       $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\s\mlpack\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
 
