@@ -38,5 +38,5 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
-      ls Agent.BuildDirectory
+      ls $(Agent.BuildDirectory)
       
