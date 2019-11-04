@@ -243,9 +243,9 @@ jobs:
 
       cd dist\win-installer\mlpack-win-installer
 
-      $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\s\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
+      $(Agent.ToolsDirectory)\wix\heat.exe dir $(Agent.BuildDirectory)\s\mlpack\dist\staging -cg HeatGenerated -dr INSTALLFOLDER -sreg -srd -var var.HarvestPath -ag -sfrag -out HeatGeneratedFileList.wxs
 
-      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=$(Agent.BuildDirectory)\s\dist\staging -dConfiguration=Release -dOutDir=bin\x64\Release\
+      $(Agent.ToolsDirectory)\wix\candle.exe -dHarvestPath=$(Agent.BuildDirectory)\s\mlpack\dist\staging -dConfiguration=Release -dOutDir=bin\x64\Release\
       -dPlatform=x64
       -dProjectDir=.
       -dProjectExt=.wixproj
