@@ -37,7 +37,7 @@ jobs:
 #    displayName: 'Extract clcache'
 
 # Pulling documentation and toolset for the installer
-  - bash: |
+  - powershell: |
       pwd
-      ls $(Agent.BuildDirectory)/
+      ls d:\a\1\s\
       
