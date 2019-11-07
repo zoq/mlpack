@@ -144,7 +144,7 @@ jobs:
       msbuildVersion: '15.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
-      msbuildArguments: /m /p:BuildInParallel=true /p:TrackFileAccess=false /p:CLToolExe=clcache.exe
+      msbuildArguments: /m /p:BuildInParallel=true /p:TrackFileAccess=false /p:CLToolExe=clcache.exe /p:CLToolPath=C:\Users\VssAdministrator\clcache
       maximumCpuCount: false
       clean: false
     displayName: 'Build mlpack'
