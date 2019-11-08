@@ -38,7 +38,6 @@ jobs:
 
 # Pulling documentation and toolset for the installer
   - bash: |
-      ls Agent.BuildDirectory
       mkdir -p $(Agent.ToolsDirectory)/wix
       curl https://kurg.org/misc/wix311-binaries.zip -o $(Agent.ToolsDirectory)/wix311-binaries.zip
 
@@ -145,7 +144,7 @@ jobs:
       msbuildVersion: '15.0'
       configuration: 'Release'
       msbuildArchitecture: 'x64'
-      msbuildArguments: /m /p:BuildInParallel=true /p:TrackFileAccess=false /p:CLToolExe=clcache.exe /p:CLToolPath=C:\Users\VssAdministrator\clcache
+      msbuildArguments: /m /p:BuildInParallel=true /p:TrackFileAccess=false /p:CLToolExe=C:\hostedtoolcache\windows\Python\3.6.8\x64\Scripts\clcache.exe /p:CLToolPath=C:\Users\VssAdministrator\clcache
       maximumCpuCount: false
       clean: false
     displayName: 'Build mlpack'
