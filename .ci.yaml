@@ -125,6 +125,8 @@ jobs:
   - bash: |
       mkdir build && cd build && \
       cmake -G "Visual Studio 16 2019" \
+      -DCMAKE_CXX_COMPILER=C:\hostedtoolcache\windows\Python\3.6.8\x64\Scripts\clcache.exe \
+      -DCMAKE_CC_COMPILER=C:\hostedtoolcache\windows\Python\3.6.8\x64\Scripts\clcache.exe \
       -DBLAS_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DLAPACK_LIBRARY:FILEPATH=$(Agent.ToolsDirectory)/OpenBLAS.0.2.14.1/lib/native/lib/x64/libopenblas.dll.a \
       -DARMADILLO_INCLUDE_DIR="../armadillo-8.400.0/include" \
