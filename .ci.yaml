@@ -60,11 +60,12 @@ jobs:
       clcache -s
       set CLCACHE_DIR=C:\Users\VssAdministrator\clcache
       set CLCACHE_SERVER=1
-      set CLCACHE_HARDLINK=1
-      set CLCACHE_NODIRECT=1
       Start-Process clcache-server
       Get-Command clcache.exe
     displayName: 'Setup clcache'
+
+#      set CLCACHE_HARDLINK=1
+#      set CLCACHE_NODIRECT=1
 
 
 
