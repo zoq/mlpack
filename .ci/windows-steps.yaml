@@ -42,7 +42,7 @@ steps:
   inputs:
     solution: 'armadillo-8.400.0/*.sln'
     msbuildLocationMethod: 'location'
-    msbuildVersion: '14.0'
+    msbuildVersion: $(MSBuildVersion)
     configuration: 'Release'
     msbuildArchitecture: 'x64'
     msbuildArguments: /m /p:BuildInParallel=true
@@ -71,7 +71,7 @@ steps:
   inputs:
     solution: 'build/*.sln'
     msbuildLocationMethod: 'location'
-    msbuildVersion: '15.0'
+    msbuildVersion: $(MSBuildVersion)
     configuration: 'Release'
     msbuildArchitecture: 'x64'
     msbuildArguments: /m /p:BuildInParallel=true
