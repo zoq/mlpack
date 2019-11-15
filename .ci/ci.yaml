@@ -58,7 +58,6 @@ jobs:
   timeoutInMinutes: 360
   displayName: Windows VS15
   pool:
-  pool:
     vmImage: vs2017-win2016
   strategy:
     matrix:
@@ -76,7 +75,6 @@ jobs:
 - job: WindowsVS16
   timeoutInMinutes: 360
   displayName: Windows VS16
-  pool:
   pool:
     vmImage: windows-2019
   strategy:
