@@ -31,7 +31,7 @@ RegularizedSVDFunction<MatType>::RegularizedSVDFunction(const MatType& data,
   numItems = max(data.row(1)) + 1;
 
   // Initialize the parameters.
-  initialPoint.randu(rank, numUsers + numItems);
+  initialPoint.randn(rank, numUsers + numItems);
 }
 
 template<typename MatType>
