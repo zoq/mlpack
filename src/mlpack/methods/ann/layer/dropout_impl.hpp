@@ -19,8 +19,8 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputDataType, typename OutputDataType>
-Dropout<InputDataType, OutputDataType>::Dropout(
+template<typename InputType, typename OutputType>
+DropoutType<InputType, OutputType>::DropoutType(
     const double ratio) :
     ratio(ratio),
     scale(1.0 / (1.0 - ratio)),
@@ -29,11 +29,58 @@ Dropout<InputDataType, OutputDataType>::Dropout(
   // Nothing to do here.
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void Dropout<InputDataType, OutputDataType>::Forward(
-    const arma::Mat<eT>& input,
-    arma::Mat<eT>& output)
+template<typename InputType, typename OutputType>
+DropoutType<InputType, OutputType>::DropoutType(
+    const DropoutType& layer) :
+    ratio(layer.ratio),
+    scale(layer.scale),
+    deterministic(layer.deterministic)
+{
+  // Nothing to do here.
+}
+
+template<typename InputType, typename OutputType>
+DropoutType<InputType, OutputType>::DropoutType(
+    const DropoutType&& layer) :
+    ratio(std::move(layer.ratio)),
+    scale(std::move(scale)),
+    deterministic(std::move(deterministic))
+{
+  // Nothing to do here.
+}
+
+template<typename InputType, typename OutputType>
+DropoutType<InputType, OutputType>& DropoutType<InputType, OutputType>::
+operator=(const DropoutType& layer)
+{
+  if (this != &layer)
+  {
+    ratio = layer.ratio;
+    scale = layer.scale;
+    deterministic = layer.deterministic;
+  }
+
+  return *this;
+}
+
+template<typename InputType, typename OutputType>
+DropoutType<InputType, OutputType>& DropoutType<InputType, OutputType>::
+operator=(DropoutType&& layer)
+{
+  if (this != &layer)
+  {
+    ratio = std::move(layer.ratio);
+    scale = std::move(layer.scale);
+    deterministic = std::move(layer.deterministic);
+  }
+
+  return *this;
+}
+
+template<typename InputType, typename OutputType>
+void DropoutType<InputType, OutputType>::Forward(
+    const InputType& input,
+    OutputType& output)
 {
   // The dropout mask will not be multiplied in the deterministic mode
   // (during testing).
@@ -45,25 +92,24 @@ void Dropout<InputDataType, OutputDataType>::Forward(
   {
     // Scale with input / (1 - ratio) and set values to zero with probability
     // 'ratio'.
-    mask = arma::randu<arma::Mat<eT> >(input.n_rows, input.n_cols);
+    mask = arma::randu<OutputType>(input.n_rows, input.n_cols);
     mask.transform([&](double val) { return (val > ratio); });
     output = input % mask * scale;
   }
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void Dropout<InputDataType, OutputDataType>::Backward(
-    const arma::Mat<eT>& /* input */,
-    const arma::Mat<eT>& gy,
-    arma::Mat<eT>& g)
+template<typename InputType, typename OutputType>
+void DropoutType<InputType, OutputType>::Backward(
+    const InputType& /* input */,
+    const OutputType& gy,
+    OutputType& g)
 {
   g = gy % mask * scale;
 }
 
-template<typename InputDataType, typename OutputDataType>
+template<typename InputType, typename OutputType>
 template<typename Archive>
-void Dropout<InputDataType, OutputDataType>::serialize(
+void DropoutType<InputType, OutputType>::serialize(
     Archive& ar,
     const uint32_t /* version */)
 {

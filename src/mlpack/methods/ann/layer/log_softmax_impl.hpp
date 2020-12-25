@@ -18,15 +18,14 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputDataType, typename OutputDataType>
-LogSoftMax<InputDataType, OutputDataType>::LogSoftMax()
+template<typename InputType, typename OutputType>
+LogSoftMaxType<InputType, OutputType>::LogSoftMaxType()
 {
   // Nothing to do here.
 }
 
-template<typename InputDataType, typename OutputDataType>
 template<typename InputType, typename OutputType>
-void LogSoftMax<InputDataType, OutputDataType>::Forward(
+void LogSoftMaxType<InputType, OutputType>::Forward(
     const InputType& input, OutputType& output)
 {
   arma::mat maxInput = arma::repmat(arma::max(input), input.n_rows, 1);
@@ -61,23 +60,13 @@ void LogSoftMax<InputDataType, OutputDataType>::Forward(
   output = input - maxInput;
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void LogSoftMax<InputDataType, OutputDataType>::Backward(
-    const arma::Mat<eT>& input,
-    const arma::Mat<eT>& gy,
-    arma::Mat<eT>& g)
+template<typename InputType, typename OutputType>
+void LogSoftMaxType<InputType, OutputType>::Backward(
+    const InputType& input,
+    const OutputType& gy,
+    OutputType& g)
 {
   g = arma::exp(input) + gy;
-}
-
-template<typename InputDataType, typename OutputDataType>
-template<typename Archive>
-void LogSoftMax<InputDataType, OutputDataType>::serialize(
-    Archive& /* ar */,
-    const uint32_t /* version */)
-{
-  // Nothing to do here.
 }
 
 } // namespace ann
