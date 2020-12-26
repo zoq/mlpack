@@ -15,6 +15,8 @@
 #include <mlpack/prereqs.hpp>
 #include <mlpack/methods/ann/layer/layer_traits.hpp>
 
+#include "layer.hpp"
+
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
@@ -22,16 +24,13 @@ namespace ann /** Artificial Neural Network. */ {
  * Implementation of the Add module class. The Add module applies a bias term
  * to the incoming data.
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
- *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
- *         arma::sp_mat or arma::cube).
+ * @tparam InputType The type of the layer's inputs. The layer automatically
+ *    cast inputs to this type (Default: arma::mat).
+ * @tparam OutputType The type of the layer's Outputs. The layer automatically
+ *    cast inputs to this type (Default: arma::mat).
  */
-template <
-    typename InputDataType = arma::mat,
-    typename OutputDataType = arma::mat
->
-class Add
+template <typename InputType = arma::mat, typename OutputType = arma::mat>
+class AddType : public Layer<InputType, OutputType>
 {
  public:
   /**
@@ -39,7 +38,7 @@ class Add
    *
    * @param outSize The number of output units.
    */
-  Add(const size_t outSize = 0);
+  AddType(const size_t outSize = 0);
 
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
@@ -48,8 +47,7 @@ class Add
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  template<typename eT>
-  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Ordinary feed backward pass of a neural network, calculating the function
@@ -60,10 +58,9 @@ class Add
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& /* input */,
-                const arma::Mat<eT>& gy,
-                arma::Mat<eT>& g);
+  void Backward(const InputType& /* input */,
+                const OutputType& gy,
+                OutputType& g);
 
   /**
    * Calculate the gradient using the output delta and the input activation.
@@ -72,30 +69,9 @@ class Add
    * @param error The calculated error.
    * @param gradient The calculated gradient.
    */
-  template<typename eT>
-  void Gradient(const arma::Mat<eT>& /* input */,
-                const arma::Mat<eT>& error,
-                arma::Mat<eT>& gradient);
-
-  //! Get the parameters.
-  OutputDataType const& Parameters() const { return weights; }
-  //! Modify the parameters.
-  OutputDataType& Parameters() { return weights; }
-
-  //! Get the output parameter.
-  OutputDataType const& OutputParameter() const { return outputParameter; }
-  //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
-
-  //! Get the delta.
-  OutputDataType const& Delta() const { return delta; }
-  //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
-
-  //! Get the gradient.
-  OutputDataType const& Gradient() const { return gradient; }
-  //! Modify the gradient.
-  OutputDataType& Gradient() { return gradient; }
+  void Gradient(const InputType& /* input */,
+                const OutputType& error,
+                OutputType& gradient);
 
   //! Get the output size.
   size_t OutputSize() const { return outSize; }
@@ -112,19 +88,12 @@ class Add
  private:
   //! Locally-stored number of output units.
   size_t outSize;
-
-  //! Locally-stored weight object.
-  OutputDataType weights;
-
-  //! Locally-stored delta object.
-  OutputDataType delta;
-
-  //! Locally-stored gradient object.
-  OutputDataType gradient;
-
-  //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
 }; // class Add
+
+// Convenience typedefs.
+
+// Standard Adaptive max pooling layer.
+typedef AddType<arma::mat, arma::mat> Add;
 
 } // namespace ann
 } // namespace mlpack

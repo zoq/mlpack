@@ -77,34 +77,34 @@ using namespace mlpack::ann;
 //   CheckMatrices(predictions1, predictions2);
 // }
 
-// /**
-//  * Simple add module test.
-//  */
-// TEST_CASE("SimpleAddLayerTest", "[ANNLayerTest]")
-// {
-//   arma::mat output, input, delta;
-//   Add<> module(10);
-//   module.Parameters().randu();
+/**
+ * Simple add module test.
+ */
+TEST_CASE("SimpleAddLayerTest", "[ANNLayerTest]")
+{
+  arma::mat output, input, delta;
+  Add module(10);
+  module.Parameters().randu();
 
-//   // Test the Forward function.
-//   input = arma::zeros(10, 1);
-//   module.Forward(input, output);
-//   REQUIRE(arma::accu(module.Parameters()) == arma::accu(output));
+  // Test the Forward function.
+  input = arma::zeros(10, 1);
+  module.Forward(input, output);
+  REQUIRE(arma::accu(module.Parameters()) == arma::accu(output));
 
-//   // Test the Backward function.
-//   module.Backward(input, output, delta);
-//   REQUIRE(arma::accu(output) == arma::accu(delta));
+  // Test the Backward function.
+  module.Backward(input, output, delta);
+  REQUIRE(arma::accu(output) == arma::accu(delta));
 
-//   // Test the forward function.
-//   input = arma::ones(10, 1);
-//   module.Forward(input, output);
-//   REQUIRE(10 + arma::accu(module.Parameters()) ==
-//       Approx(arma::accu(output)).epsilon(1e-5));
+  // Test the forward function.
+  input = arma::ones(10, 1);
+  module.Forward(input, output);
+  REQUIRE(10 + arma::accu(module.Parameters()) ==
+      Approx(arma::accu(output)).epsilon(1e-5));
 
-//   // Test the backward function.
-//   module.Backward(input, output, delta);
-//   REQUIRE(arma::accu(output) == Approx(arma::accu(delta)).epsilon(1e-5));
-// }
+  // Test the backward function.
+  module.Backward(input, output, delta);
+  REQUIRE(arma::accu(output) == Approx(arma::accu(delta)).epsilon(1e-5));
+}
 
 // /**
 //  * Jacobian add module test.

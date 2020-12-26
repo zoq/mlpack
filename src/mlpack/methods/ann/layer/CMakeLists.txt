@@ -65,8 +65,8 @@ set(SOURCES
   # lookup_impl.hpp
   # lstm.hpp
   # lstm_impl.hpp
-  # max_pooling.hpp
-  # max_pooling_impl.hpp
+  max_pooling.hpp
+  max_pooling_impl.hpp
   # mean_pooling.hpp
   # mean_pooling_impl.hpp
   # minibatch_discrimination.hpp
