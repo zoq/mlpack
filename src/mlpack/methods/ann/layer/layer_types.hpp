@@ -14,8 +14,9 @@
 
 // Layer modules.
 #include <mlpack/methods/ann/layer/add.hpp>
+#include <mlpack/methods/ann/layer/add_merge.hpp>
 // #include <mlpack/methods/ann/layer/alpha_dropout.hpp>
-// #include <mlpack/methods/ann/layer/base_layer.hpp>
+#include <mlpack/methods/ann/layer/base_layer.hpp>
 // #include <mlpack/methods/ann/layer/batch_norm.hpp>
 // #include <mlpack/methods/ann/layer/bilinear_interpolation.hpp>
 // #include <mlpack/methods/ann/layer/constant.hpp>
@@ -23,8 +24,8 @@
 // #include <mlpack/methods/ann/layer/dropout.hpp>
 // #include <mlpack/methods/ann/layer/elu.hpp>
 // #include <mlpack/methods/ann/layer/hard_tanh.hpp>
-// #include <mlpack/methods/ann/layer/join.hpp>
-// #include <mlpack/methods/ann/layer/layer_norm.hpp>
+// #include <mlpack/methods/ann/layer/join.hpp
+// #include <mlpack/methods/ann/layer/layer_norm.hpp
 // #include <mlpack/methods/ann/layer/leaky_relu.hpp>
 // #include <mlpack/methods/ann/layer/c_relu.hpp>
 // #include <mlpack/methods/ann/layer/flexible_relu.hpp>
