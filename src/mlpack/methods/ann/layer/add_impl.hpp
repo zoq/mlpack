@@ -19,48 +19,51 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputType, typename OutputType>
-AddType<InputType, OutputType>::AddType(const size_t outSize) :
+template<typename InputDataType, typename OutputDataType>
+Add<InputDataType, OutputDataType>::Add(const size_t outSize) :
     outSize(outSize)
 {
-  this->Parameters().set_size(WeightSize(), 1);
+  weights.set_size(WeightSize(), 1);
 }
 
-template<typename InputType, typename OutputType>
-void AddType<InputType, OutputType>::Forward(
-    const InputType& input, OutputType& output)
+template<typename InputDataType, typename OutputDataType>
+template<typename eT>
+void Add<InputDataType, OutputDataType>::Forward(
+    const arma::Mat<eT>& input, arma::Mat<eT>& output)
 {
   output = input;
-  output.each_col() += this->Parameters();
+  output.each_col() += weights;
 }
 
-template<typename InputType, typename OutputType>
-void AddType<InputType, OutputType>::Backward(
-    const InputType& /* input */,
-    const OutputType& gy,
-    OutputType& g)
+template<typename InputDataType, typename OutputDataType>
+template<typename eT>
+void Add<InputDataType, OutputDataType>::Backward(
+    const arma::Mat<eT>& /* input */,
+    const arma::Mat<eT>& gy,
+    arma::Mat<eT>& g)
 {
   g = gy;
 }
 
-template<typename InputType, typename OutputType>
-void AddType<InputType, OutputType>::Gradient(
-    const InputType& /* input */,
-    const OutputType& error,
-    OutputType& gradient)
+template<typename InputDataType, typename OutputDataType>
+template<typename eT>
+void Add<InputDataType, OutputDataType>::Gradient(
+    const arma::Mat<eT>& /* input */,
+    const arma::Mat<eT>& error,
+    arma::Mat<eT>& gradient)
 {
   gradient = error;
 }
 
-template<typename InputType, typename OutputType>
+template<typename InputDataType, typename OutputDataType>
 template<typename Archive>
-void AddType<InputType, OutputType>::serialize(
+void Add<InputDataType, OutputDataType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(outSize));
 
   if (cereal::is_loading<Archive>())
-    this->Parameters().set_size(outSize, 1);
+    weights.set_size(outSize, 1);
 }
 
 } // namespace ann

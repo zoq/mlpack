@@ -15,8 +15,11 @@
 
 #include <mlpack/prereqs.hpp>
 
+#include "../visitor/delete_visitor.hpp"
+#include "../visitor/delta_visitor.hpp"
+#include "../visitor/output_parameter_visitor.hpp"
+
 #include "layer_types.hpp"
-#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -25,18 +28,18 @@ namespace ann /** Artificial Neural Network. */ {
  * Implementation of the AddMerge module class. The AddMerge class accumulates
  * the output of various modules.
  *
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  * @tparam CustomLayers Additional custom layers that can be added.
  */
 template<
-    typename InputType = arma::mat,
-    typename OutputType = arma::mat,
+    typename InputDataType = arma::mat,
+    typename OutputDataType = arma::mat,
     typename... CustomLayers
 >
-class AddMergeType : public Layer<InputType, OutputType>
+class AddMerge
 {
  public:
   /**
@@ -45,7 +48,7 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param model Expose all the network modules.
    * @param run Call the Forward/Backward method before the output is merged.
    */
-  AddMergeType(const bool model = false, const bool run = true);
+  AddMerge(const bool model = false, const bool run = true);
 
   /**
    * Create the AddMerge object using the specified parameters.
@@ -54,10 +57,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param run Call the Forward/Backward method before the output is merged.
    * @param ownsLayers Delete the layers when this is deallocated.
    */
-  AddMergeType(const bool model, const bool run, const bool ownsLayers);
+  AddMerge(const bool model, const bool run, const bool ownsLayers);
 
   //! Destructor to release allocated memory.
-  ~AddMergeType();
+  ~AddMerge();
 
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
@@ -66,6 +69,7 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param * (input) Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
+  template<typename InputType, typename OutputType>
   void Forward(const InputType& /* input */, OutputType& output);
 
   /**
@@ -77,9 +81,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const InputType& /* input */,
-                const OutputType& gy,
-                OutputType& g);
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g);
 
   /**
    * This is the overload of Backward() that runs only a specific layer with
@@ -90,9 +95,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param g The calculated gradient.
    * @param index The index of the layer to run.
    */
-  void Backward(const InputType& /* input */,
-                const OutputType& gy,
-                OutputType& g,
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g,
                 const size_t index);
 
   /*
@@ -102,9 +108,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param error The calculated error.
    * @param gradient The calculated gradient.
    */
-  void Gradient(const InputType& input,
-                const OutputType& error,
-                OutputType& /* gradient */);
+  template<typename eT>
+  void Gradient(const arma::Mat<eT>& input,
+                const arma::Mat<eT>& error,
+                arma::Mat<eT>& gradient);
 
   /*
    * This is the overload of Gradient() that runs a specific layer with the
@@ -115,9 +122,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    * @param gradient The calculated gradient.
    * @param The index of the layer to run.
    */
-  void Gradient(const InputType& input,
-                const OutputType& error,
-                OutputType& /* gradient */,
+  template<typename eT>
+  void Gradient(const arma::Mat<eT>& input,
+                const arma::Mat<eT>& error,
+                arma::Mat<eT>& gradient,
                 const size_t index);
 
   /*
@@ -133,10 +141,25 @@ class AddMergeType : public Layer<InputType, OutputType>
    *
    * @param layer The Layer to be added to the model.
    */
-  void Add(Layer<InputType, OutputType> layer) { network.push_back(layer); }
+  void Add(LayerTypes<CustomLayers...> layer) { network.push_back(layer); }
+
+  //! Get the input parameter.
+  InputDataType const& InputParameter() const { return inputParameter; }
+  //! Modify the input parameter.
+  InputDataType& InputParameter() { return inputParameter; }
+
+  //! Get the output parameter.
+  OutputDataType const& OutputParameter() const { return outputParameter; }
+  //! Modify the output parameter.
+  OutputDataType& OutputParameter() { return outputParameter; }
+
+  //! Get the delta.
+  OutputDataType const& Delta() const { return delta; }
+  //! Modify the delta.
+  OutputDataType& Delta() { return delta; }
 
   //! Return the model modules.
-  std::vector<Layer<InputType, OutputType> >& Model()
+  std::vector<LayerTypes<CustomLayers...> >& Model()
   {
     if (model)
     {
@@ -145,6 +168,11 @@ class AddMergeType : public Layer<InputType, OutputType>
 
     return empty;
   }
+
+  //! Get the parameters.
+  OutputDataType const& Parameters() const { return weights; }
+  //! Modify the parameters.
+  OutputDataType& Parameters() { return weights; }
 
   //! Get the value of run parameter.
   bool Run() const { return run; }
@@ -170,20 +198,36 @@ class AddMergeType : public Layer<InputType, OutputType>
   bool ownsLayers;
 
   //! Locally-stored network modules.
-  std::vector<Layer<InputType, OutputType> > network;
+  std::vector<LayerTypes<CustomLayers...> > network;
 
   //! Locally-stored empty list of modules.
-  std::vector<Layer<InputType, OutputType> > empty;
+  std::vector<LayerTypes<CustomLayers...> > empty;
+
+  //! Locally-stored delete visitor module object.
+  DeleteVisitor deleteVisitor;
+
+  //! Locally-stored output parameter visitor module object.
+  OutputParameterVisitor outputParameterVisitor;
+
+  //! Locally-stored delta visitor module object.
+  DeltaVisitor deltaVisitor;
+
+  //! Locally-stored delta object.
+  OutputDataType delta;
 
   //! Locally-stored gradient object.
-  OutputType gradient;
+  OutputDataType gradient;
 
+  //! Locally-stored input parameter object.
+  InputDataType inputParameter;
+
+  //! Locally-stored output parameter object.
+  OutputDataType outputParameter;
+
+  //! Locally-stored weight object.
+  OutputDataType weights;
 }; // class AddMerge
 
-// Convenience typedefs.
-
-// Standard Add Merge layer.
-typedef AddMergeType<arma::mat, arma::mat, CustomLayers...> AddMerge;
 } // namespace ann
 } // namespace mlpack
 

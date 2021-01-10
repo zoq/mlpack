@@ -16,127 +16,140 @@
 // In case it hasn't yet been included.
 #include "add_merge.hpp"
 
+#include "../visitor/forward_visitor.hpp"
+#include "../visitor/backward_visitor.hpp"
+#include "../visitor/gradient_visitor.hpp"
+
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-AddMergeType<InputType, OutputType, CustomLayers...>::AddMergeType(
+AddMerge<InputDataType, OutputDataType, CustomLayers...>::AddMerge(
     const bool model, const bool run) :
     model(model), run(run), ownsLayers(!model)
 {
   // Nothing to do here.
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-AddMergeType<InputType, OutputType, CustomLayers...>::AddMergeType(
+AddMerge<InputDataType, OutputDataType, CustomLayers...>::AddMerge(
     const bool model, const bool run, const bool ownsLayers) :
     model(model), run(run), ownsLayers(ownsLayers)
 {
   // Nothing to do here.
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-AddMergeType<InputType, OutputType, CustomLayers...>::~AddMergeType()
+AddMerge<InputDataType, OutputDataType, CustomLayers...>::~AddMerge()
 {
   if (!model && ownsLayers)
   {
-    for (auto layer = network.begin(); layer != network.end(); ++layer)
-      delete *layer;
+    std::for_each(network.begin(), network.end(),
+        boost::apply_visitor(deleteVisitor));
   }
 }
 
-template <typename InputType, typename OutputType,
+template <typename InputDataType, typename OutputDataType,
           typename... CustomLayers>
-void AddMergeType<InputType, OutputType, CustomLayers...>::Forward(
+template<typename InputType, typename OutputType>
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::Forward(
     const InputType& input, OutputType& output)
 {
   if (run)
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Forward(input, network[i]->OutputParameter());
+      boost::apply_visitor(ForwardVisitor(input,
+          boost::apply_visitor(outputParameterVisitor, network[i])),
+          network[i]);
     }
   }
 
-  output = network.front()->OutputParameter();
+  output = boost::apply_visitor(outputParameterVisitor, network.front());
   for (size_t i = 1; i < network.size(); ++i)
   {
-    output += network[i]->OutputParameter();
+    output += boost::apply_visitor(outputParameterVisitor, network[i]);
   }
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-void AddMergeType<InputType, OutputType, CustomLayers...>::Backward(
-    const InputType& /* input */,
-    const OutputType& gy,
-    OutputType& g)
+template<typename eT>
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::Backward(
+    const arma::Mat<eT>& /* input */,
+    const arma::Mat<eT>& gy,
+    arma::Mat<eT>& g)
 {
   if (run)
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Backward(network[i]->OutputParameter(), gy,
-          network[i]->Delta());
+      boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+          outputParameterVisitor, network[i]), gy,
+          boost::apply_visitor(deltaVisitor, network[i])), network[i]);
     }
 
-    g = network[0]->Delta();
+    g = boost::apply_visitor(deltaVisitor, network[0]);
     for (size_t i = 1; i < network.size(); ++i)
     {
-      g += network[i]->Delta();
+      g += boost::apply_visitor(deltaVisitor, network[i]);
     }
   }
   else
     g = gy;
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-void AddMergeType<InputType, OutputType, CustomLayers...>::Backward(
-    const InputType& /* input */,
-    const OutputType& gy,
-    OutputType& g,
+template<typename eT>
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::Backward(
+    const arma::Mat<eT>& /* input */,
+    const arma::Mat<eT>& gy,
+    arma::Mat<eT>& g,
     const size_t index)
 {
-  network[index]->Backward(network[index]->OutputParameter(), gy,
-      network[index]->Delta());
-  g = network[index]->Delta();
+  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+      outputParameterVisitor, network[index]), gy,
+      boost::apply_visitor(deltaVisitor, network[index])), network[index]);
+  g = boost::apply_visitor(deltaVisitor, network[index]);
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-void AddMergeType<InputType, OutputType, CustomLayers...>::Gradient(
-    const InputType& input,
-    const OutputType& error,
-    OutputType& /* gradient */)
+template<typename eT>
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::Gradient(
+    const arma::Mat<eT>& input,
+    const arma::Mat<eT>& error,
+    arma::Mat<eT>& /* gradient */ )
 {
   if (run)
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Gradient(input, error);
+      boost::apply_visitor(GradientVisitor(input, error), network[i]);
     }
   }
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
-void AddMergeType<InputType, OutputType, CustomLayers...>::Gradient(
-    const InputType& input,
-    const OutputType& error,
-    OutputType& /* gradient */,
+template<typename eT>
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::Gradient(
+    const arma::Mat<eT>& input,
+    const arma::Mat<eT>& error,
+    arma::Mat<eT>& /* gradient */,
     const size_t index)
 {
-  network[index]->Gradient(input, error);
+  boost::apply_visitor(GradientVisitor(input, error), network[index]);
 }
 
-template<typename InputType, typename OutputType,
+template<typename InputDataType, typename OutputDataType,
          typename... CustomLayers>
 template<typename Archive>
-void AddMergeType<InputType, OutputType, CustomLayers...>::serialize(
+void AddMerge<InputDataType, OutputDataType, CustomLayers...>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   // Be sure to clear other layers before loading.
