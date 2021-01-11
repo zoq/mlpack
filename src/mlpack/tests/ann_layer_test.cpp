@@ -2115,97 +2115,97 @@ using namespace mlpack::ann;
 //   REQUIRE(layer1.InDepth() == layer2.InDepth());
 // }
 
-// /**
-//  * Tests the BatchNorm Layer, compares the layers parameters with
-//  * the values from another implementation.
-//  * Link to the implementation - http://cthorey.github.io./backpropagation/
-//  */
-// TEST_CASE("BatchNormTest", "[ANNLayerTest]")
-// {
-//   arma::mat input, output;
-//   input << 5.1 << 3.5 << 1.4 << arma::endr
-//         << 4.9 << 3.0 << 1.4 << arma::endr
-//         << 4.7 << 3.2 << 1.3 << arma::endr;
+/**
+ * Tests the BatchNorm Layer, compares the layers parameters with
+ * the values from another implementation.
+ * Link to the implementation - http://cthorey.github.io./backpropagation/
+ */
+TEST_CASE("BatchNormTest", "[ANNLayerTest]")
+{
+  arma::mat input, output;
+  input << 5.1 << 3.5 << 1.4 << arma::endr
+        << 4.9 << 3.0 << 1.4 << arma::endr
+        << 4.7 << 3.2 << 1.3 << arma::endr;
 
-//   // BatchNorm layer with average parameter set to true.
-//   BatchNorm<> model(input.n_rows);
-//   model.Reset();
+  // BatchNorm layer with average parameter set to true.
+  BatchNorm model(input.n_rows);
+  model.Reset();
 
-//   // BatchNorm layer with average parameter set to false.
-//   BatchNorm<> model2(input.n_rows, 1e-5, false);
-//   model2.Reset();
+  // BatchNorm layer with average parameter set to false.
+  BatchNorm model2(input.n_rows, 1e-5, false);
+  model2.Reset();
 
-//   // Non-Deteministic Forward Pass Test.
-//   model.Deterministic() = false;
-//   model.Forward(input, output);
+  // Non-Deteministic Forward Pass Test.
+  model.Deterministic() = false;
+  model.Forward(input, output);
 
-//   // Value calculates using torch.nn.BatchNorm2d(momentum = None).
-//   arma::mat result;
-//   result << 1.1658 << 0.1100 << -1.2758 << arma::endr
-//          << 1.2579 << -0.0699 << -1.1880 << arma::endr
-//          << 1.1737 << 0.0958 << -1.2695 << arma::endr;
+  // Value calculates using torch.nn.BatchNorm2d(momentum = None).
+  arma::mat result;
+  result << 1.1658 << 0.1100 << -1.2758 << arma::endr
+         << 1.2579 << -0.0699 << -1.1880 << arma::endr
+         << 1.1737 << 0.0958 << -1.2695 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
+  CheckMatrices(output, result, 1e-1);
 
-//   model2.Forward(input, output);
-//   CheckMatrices(output, result, 1e-1);
-//   result.clear();
+  model2.Forward(input, output);
+  CheckMatrices(output, result, 1e-1);
+  result.clear();
 
-//   // Values calculated using torch.nn.BatchNorm2d(momentum = None).
-//   output = model.TrainingMean();
-//   result << 3.33333333 << arma::endr
-//          << 3.1 << arma::endr
-//          << 3.06666666 << arma::endr;
+  // Values calculated using torch.nn.BatchNorm2d(momentum = None).
+  output = model.TrainingMean();
+  result << 3.33333333 << arma::endr
+         << 3.1 << arma::endr
+         << 3.06666666 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
+  CheckMatrices(output, result, 1e-1);
 
-//   // Values calculated using torch.nn.BatchNorm2d().
-//   output = model2.TrainingMean();
-//   result << 0.3333 << arma::endr
-//          << 0.3100 << arma::endr
-//          << 0.3067 << arma::endr;
+  // Values calculated using torch.nn.BatchNorm2d().
+  output = model2.TrainingMean();
+  result << 0.3333 << arma::endr
+         << 0.3100 << arma::endr
+         << 0.3067 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
-//   result.clear();
+  CheckMatrices(output, result, 1e-1);
+  result.clear();
 
-//   // Values calculated using torch.nn.BatchNorm2d(momentum = None).
-//   output = model.TrainingVariance();
-//   result << 3.4433 << arma::endr
-//          << 3.0700 << arma::endr
-//          << 2.9033 << arma::endr;
+  // Values calculated using torch.nn.BatchNorm2d(momentum = None).
+  output = model.TrainingVariance();
+  result << 3.4433 << arma::endr
+         << 3.0700 << arma::endr
+         << 2.9033 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
-//   result.clear();
+  CheckMatrices(output, result, 1e-1);
+  result.clear();
 
-//   // Values calculated using torch.nn.BatchNorm2d().
-//   output = model2.TrainingVariance();
-//   result << 1.2443 << arma::endr
-//          << 1.2070 << arma::endr
-//          << 1.1903 << arma::endr;
+  // Values calculated using torch.nn.BatchNorm2d().
+  output = model2.TrainingVariance();
+  result << 1.2443 << arma::endr
+         << 1.2070 << arma::endr
+         << 1.1903 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
-//   result.clear();
+  CheckMatrices(output, result, 1e-1);
+  result.clear();
 
-//   // Deterministic Forward Pass test.
-//   model.Deterministic() = true;
-//   model.Forward(input, output);
+  // Deterministic Forward Pass test.
+  model.Deterministic() = true;
+  model.Forward(input, output);
 
-//   // Values calculated using torch.nn.BatchNorm2d(momentum = None).
-//   result << 0.9521 << 0.0898 << -1.0419 << arma::endr
-//          << 1.0273 << -0.0571 << -0.9702 << arma::endr
-//          << 0.9586 << 0.0783 << -1.0368 << arma::endr;
+  // Values calculated using torch.nn.BatchNorm2d(momentum = None).
+  result << 0.9521 << 0.0898 << -1.0419 << arma::endr
+         << 1.0273 << -0.0571 << -0.9702 << arma::endr
+         << 0.9586 << 0.0783 << -1.0368 << arma::endr;
 
-//   CheckMatrices(output, result, 1e-1);
+  CheckMatrices(output, result, 1e-1);
 
-//   // Values calculated using torch.nn.BatchNorm2d().
-//   model2.Deterministic() = true;
-//   model2.Forward(input, output);
+  // Values calculated using torch.nn.BatchNorm2d().
+  model2.Deterministic() = true;
+  model2.Forward(input, output);
 
-//   result << 4.2731 << 2.8388 << 0.9562 << arma::endr
-//          << 4.1779 << 2.4485 << 0.9921 << arma::endr
-//          << 4.0268 << 2.6519 << 0.9105 << arma::endr;
-//   CheckMatrices(output, result, 1e-1);
-// }
+  result << 4.2731 << 2.8388 << 0.9562 << arma::endr
+         << 4.1779 << 2.4485 << 0.9921 << arma::endr
+         << 4.0268 << 2.6519 << 0.9105 << arma::endr;
+  CheckMatrices(output, result, 1e-1);
+}
 
 // /**
 //  * BatchNorm layer numerical gradient test.
