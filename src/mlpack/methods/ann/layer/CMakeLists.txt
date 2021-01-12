@@ -11,8 +11,8 @@ set(SOURCES
   adaptive_mean_pooling_impl.hpp
   # alpha_dropout.hpp
   # alpha_dropout_impl.hpp
-  # atrous_convolution.hpp
-  # atrous_convolution_impl.hpp
+  atrous_convolution.hpp
+  atrous_convolution_impl.hpp
   # base_layer.hpp
   batch_norm.hpp
   batch_norm_impl.hpp

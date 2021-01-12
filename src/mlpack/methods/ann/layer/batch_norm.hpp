@@ -50,8 +50,8 @@ namespace ann /** Artificial Neural Network. */ {
  * @tparam OutputType The type of the layer's Outputs. The layer automatically
  *    cast inputs to this type (Default: arma::mat).
  */
-template <typename inputType = arma::mat, typename OutputType = arma::mat>
-class BatchNormType : public Layer<inputType, OutputType>
+template <typename InputType = arma::mat, typename OutputType = arma::mat>
+class BatchNormType : public Layer<InputType, OutputType>
 {
  public:
   //! Create the BatchNorm object.
@@ -86,7 +86,7 @@ nd variance.
    * @param input Input data for the layer
    * @param output Resulting output activations.
    */
-  void Forward(const inputType& input, OutputType& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Backward pass through the layer.
@@ -95,7 +95,7 @@ nd variance.
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const inputType& input,
+  void Backward(const InputType& input,
                 const OutputType& gy,
                 OutputType& g);
 
@@ -106,7 +106,7 @@ nd variance.
    * @param error The calculated error
    * @param gradient The calculated gradient.
    */
-  void Gradient(const inputType& input,
+  void Gradient(const InputType& input,
                 const OutputType& error,
                 OutputType& gradient);
 

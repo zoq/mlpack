@@ -21,8 +21,8 @@
 namespace mlpack {
 namespace ann { /** Artificial Neural Network. */
 
-template<typename inputType, typename OutputType>
-BatchNormType<inputType, OutputType>::BatchNormType() :
+template<typename InputType, typename OutputType>
+BatchNormType<InputType, OutputType>::BatchNormType() :
     size(0),
     eps(1e-8),
     average(true),
@@ -35,8 +35,8 @@ BatchNormType<inputType, OutputType>::BatchNormType() :
   // Nothing to do here.
 }
 
-template <typename inputType, typename OutputType>
-BatchNormType<inputType, OutputType>::BatchNormType(
+template <typename InputType, typename OutputType>
+BatchNormType<InputType, OutputType>::BatchNormType(
     const size_t size,
     const double eps,
     const bool average,
@@ -55,8 +55,8 @@ BatchNormType<inputType, OutputType>::BatchNormType(
   runningVariance.ones(size, 1);
 }
 
-template<typename inputType, typename OutputType>
-void BatchNormType<inputType, OutputType>::Reset()
+template<typename InputType, typename OutputType>
+void BatchNormType<InputType, OutputType>::Reset()
 {
   // Gamma acts as the scaling parameters for the normalized output.
   gamma = arma::mat(weights.memptr(), size, 1, false, false);
@@ -73,9 +73,9 @@ void BatchNormType<inputType, OutputType>::Reset()
   loading = false;
 }
 
-template<typename inputType, typename OutputType>
-void BatchNormType<inputType, OutputType>::Forward(
-    const inputType& input,
+template<typename InputType, typename OutputType>
+void BatchNormType<InputType, OutputType>::Forward(
+    const InputType& input,
     OutputType& output)
 {
   Log::Assert(input.n_rows % size == 0, "Input features must be divisible \
@@ -100,7 +100,7 @@ void BatchNormType<inputType, OutputType>::Forward(
 
     // Input corresponds to output from convolution layer.
     // Use a cube for simplicity.
-    arma::cube inputTemp(const_cast<inputType&>(input).memptr(),
+    arma::cube inputTemp(const_cast<InputType&>(input).memptr(),
         inputSize, size, batchSize, false, false);
 
     // Initialize output to same size and values for convenience.
@@ -165,9 +165,9 @@ void BatchNormType<inputType, OutputType>::Forward(
   }
 }
 
-template<typename inputType, typename OutputType>
-void BatchNormType<inputType, OutputType>::Backward(
-    const inputType& input,
+template<typename InputType, typename OutputType>
+void BatchNormType<InputType, OutputType>::Backward(
+    const InputType& input,
     const OutputType& gy,
     OutputType& g)
 {
@@ -202,9 +202,9 @@ void BatchNormType<inputType, OutputType>::Backward(
   gTemp.each_slice() += normTemp;
 }
 
-template<typename inputType, typename OutputType>
-void BatchNormType<inputType, OutputType>::Gradient(
-    const inputType& /* input */,
+template<typename InputType, typename OutputType>
+void BatchNormType<InputType, OutputType>::Gradient(
+    const InputType& /* input */,
     const OutputType& error,
     OutputType& gradient)
 {
@@ -221,9 +221,9 @@ void BatchNormType<inputType, OutputType>::Gradient(
   gradient.submat(gamma.n_elem, 0, gradient.n_elem - 1, 0) = temp.t();
 }
 
-template<typename inputType, typename OutputType>
+template<typename InputType, typename OutputType>
 template<typename Archive>
-void BatchNormType<inputType, OutputType>::serialize(
+void BatchNormType<InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(size));
