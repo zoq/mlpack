@@ -17,6 +17,7 @@
 #define MLPACK_METHODS_ANN_LAYER_ALPHA_DROPOUT_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -140,7 +141,7 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
 
 // Convenience typedefs.
 
-// Standard Adaptive max pooling layer.
+// Standard alpha dropout layer.
 typedef AlphaDropoutType<arma::mat, arma::mat> AlphaDropout;
 } // namespace ann
 } // namespace mlpack
