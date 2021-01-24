@@ -18,6 +18,7 @@
 #include <mlpack/methods/ann/layer/add.hpp>
 // #include <mlpack/methods/ann/layer/add_merge.hpp>
 #include <mlpack/methods/ann/layer/alpha_dropout.hpp>
+#include <mlpack/methods/ann/layer/atrous_convolution.hpp>
 #include <mlpack/methods/ann/layer/base_layer.hpp>
 #include <mlpack/methods/ann/layer/batch_norm.hpp>
 #include <mlpack/methods/ann/layer/bilinear_interpolation.hpp>

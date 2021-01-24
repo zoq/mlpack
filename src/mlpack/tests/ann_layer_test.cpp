@@ -2600,191 +2600,191 @@ TEST_CASE("SimpleMultiplyMergeLayerTest", "[ANNLayerTest]")
   }
 }
 
-// /**
-//  * Simple Atrous Convolution layer test.
-//  */
-// TEST_CASE("SimpleAtrousConvolutionLayerTest", "[ANNLayerTest]")
-// {
-//   arma::mat output, input, delta;
+/**
+ * Simple Atrous Convolution layer test.
+ */
+TEST_CASE("SimpleAtrousConvolutionLayerTest", "[ANNLayerTest]")
+{
+  arma::mat output, input, delta;
 
-//   AtrousConvolution<> module1(1, 1, 3, 3, 1, 1, 0, 0, 7, 7, 2, 2);
-//   // Test the Forward function.
-//   input = arma::linspace<arma::colvec>(0, 48, 49);
-//   module1.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
-//   module1.Parameters()(0) = 1.0;
-//   module1.Parameters()(8) = 2.0;
-//   module1.Reset();
-//   module1.Forward(input, output);
-//   // Value calculated using tensorflow.nn.atrous_conv2d()
-//   REQUIRE(arma::accu(output) == 792.0);
+  AtrousConvolution module1(1, 1, 3, 3, 1, 1, 0, 0, 7, 7, 2, 2);
+  // Test the Forward function.
+  input = arma::linspace<arma::colvec>(0, 48, 49);
+  module1.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
+  module1.Parameters()(0) = 1.0;
+  module1.Parameters()(8) = 2.0;
+  module1.Reset();
+  module1.Forward(input, output);
+  // Value calculated using tensorflow.nn.atrous_conv2d()
+  REQUIRE(arma::accu(output) == 792.0);
 
-//   // Test the Backward function.
-//   module1.Backward(input, output, delta);
-//   REQUIRE(arma::accu(delta) == 2376);
+  // Test the Backward function.
+  module1.Backward(input, output, delta);
+  REQUIRE(arma::accu(delta) == 2376);
 
-//   AtrousConvolution<> module2(1, 1, 3, 3, 2, 2, 0, 0, 7, 7, 2, 2);
-//   // Test the forward function.
-//   input = arma::linspace<arma::colvec>(0, 48, 49);
-//   module2.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
-//   module2.Parameters()(0) = 1.0;
-//   module2.Parameters()(3) = 1.0;
-//   module2.Parameters()(6) = 1.0;
-//   module2.Reset();
-//   module2.Forward(input, output);
-//   // Value calculated using tensorflow.nn.conv2d()
-//   REQUIRE(arma::accu(output) == 264.0);
+  AtrousConvolution module2(1, 1, 3, 3, 2, 2, 0, 0, 7, 7, 2, 2);
+  // Test the forward function.
+  input = arma::linspace<arma::colvec>(0, 48, 49);
+  module2.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
+  module2.Parameters()(0) = 1.0;
+  module2.Parameters()(3) = 1.0;
+  module2.Parameters()(6) = 1.0;
+  module2.Reset();
+  module2.Forward(input, output);
+  // Value calculated using tensorflow.nn.conv2d()
+  REQUIRE(arma::accu(output) == 264.0);
 
-//   // Test the backward function.
-//   module2.Backward(input, output, delta);
-//   REQUIRE(arma::accu(delta) == 792.0);
-// }
+  // Test the backward function.
+  module2.Backward(input, output, delta);
+  REQUIRE(arma::accu(delta) == 792.0);
+}
 
-// /**
-//  * Atrous Convolution layer numerical gradient test.
-//  */
-// TEST_CASE("GradientAtrousConvolutionLayerTest", "[ANNLayerTest]")
-// {
-//   // Add function gradient instantiation.
-//   struct GradientFunction
-//   {
-//     GradientFunction() :
-//         input(arma::linspace<arma::colvec>(0, 35, 36)),
-//         target(arma::mat("1"))
-//     {
-//       model = new FFN<NegativeLogLikelihood<>, RandomInitialization>();
-//       model->Predictors() = input;
-//       model->Responses() = target;
-//       model->Add<IdentityLayer<> >();
-//       model->Add<AtrousConvolution<> >(1, 1, 3, 3, 1, 1, 0, 0, 6, 6, 2, 2);
-//       model->Add<LogSoftMax<> >();
-//     }
+/**
+ * Atrous Convolution layer numerical gradient test.
+ */
+TEST_CASE("GradientAtrousConvolutionLayerTest", "[ANNLayerTest]")
+{
+  // Add function gradient instantiation.
+  struct GradientFunction
+  {
+    GradientFunction() :
+        input(arma::linspace<arma::colvec>(0, 35, 36)),
+        target(arma::mat("1"))
+    {
+      model = new FFN<NegativeLogLikelihood<>, RandomInitialization>();
+      model->Predictors() = input;
+      model->Responses() = target;
+      model->Add<IdentityLayer>();
+      model->Add<AtrousConvolution>(1, 1, 3, 3, 1, 1, 0, 0, 6, 6, 2, 2);
+      model->Add<LogSoftMax>();
+    }
 
-//     ~GradientFunction()
-//     {
-//       delete model;
-//     }
+    ~GradientFunction()
+    {
+      delete model;
+    }
 
-//     double Gradient(arma::mat& gradient) const
-//     {
-//       double error = model->Evaluate(model->Parameters(), 0, 1);
-//       model->Gradient(model->Parameters(), 0, gradient, 1);
-//       return error;
-//     }
+    double Gradient(arma::mat& gradient) const
+    {
+      double error = model->Evaluate(model->Parameters(), 0, 1);
+      model->Gradient(model->Parameters(), 0, gradient, 1);
+      return error;
+    }
 
-//     arma::mat& Parameters() { return model->Parameters(); }
+    arma::mat& Parameters() { return model->Parameters(); }
 
-//     FFN<NegativeLogLikelihood<>, RandomInitialization>* model;
-//     arma::mat input, target;
-//   } function;
+    FFN<NegativeLogLikelihood<>, RandomInitialization>* model;
+    arma::mat input, target;
+  } function;
 
-//   // TODO: this tolerance seems far higher than necessary. The implementation
-//   // should be checked.
-//   REQUIRE(CheckGradient(function) <= 0.2);
-// }
+  // TODO: this tolerance seems far higher than necessary. The implementation
+  // should be checked.
+  REQUIRE(CheckGradient(function) <= 0.2);
+}
 
-// /**
-//  * Test the functions to access and modify the parameters of the
-//  * AtrousConvolution layer.
-//  */
-// TEST_CASE("AtrousConvolutionLayerParametersTest", "[ANNLayerTest]")
-// {
-//   // Parameter order for the constructor: inSize, outSize, kW, kH, dW, dH, padW,
-//   // padH, inputWidth, inputHeight, dilationW, dilationH, paddingType ("none").
-//   AtrousConvolution<> layer1(1, 2, 3, 4, 5, 6, std::make_tuple(7, 8),
-//       std::make_tuple(9, 10), 11, 12, 13, 14);
-//   AtrousConvolution<> layer2(2, 3, 4, 5, 6, 7, std::make_tuple(8, 9),
-//       std::make_tuple(10, 11), 12, 13, 14, 15);
+/**
+ * Test the functions to access and modify the parameters of the
+ * AtrousConvolution layer.
+ */
+TEST_CASE("AtrousConvolutionLayerParametersTest", "[ANNLayerTest]")
+{
+  // Parameter order for the constructor: inSize, outSize, kW, kH, dW, dH, padW,
+  // padH, inputWidth, inputHeight, dilationW, dilationH, paddingType ("none").
+  AtrousConvolution layer1(1, 2, 3, 4, 5, 6, std::make_tuple(7, 8),
+      std::make_tuple(9, 10), 11, 12, 13, 14);
+  AtrousConvolution layer2(2, 3, 4, 5, 6, 7, std::make_tuple(8, 9),
+      std::make_tuple(10, 11), 12, 13, 14, 15);
 
-//   // Make sure we can get the parameters successfully.
-//   REQUIRE(layer1.InputWidth() == 11);
-//   REQUIRE(layer1.InputHeight() == 12);
-//   REQUIRE(layer1.KernelWidth() == 3);
-//   REQUIRE(layer1.KernelHeight() == 4);
-//   REQUIRE(layer1.StrideWidth() == 5);
-//   REQUIRE(layer1.StrideHeight() == 6);
-//   REQUIRE(layer1.Padding().PadHTop() == 9);
-//   REQUIRE(layer1.Padding().PadHBottom() == 10);
-//   REQUIRE(layer1.Padding().PadWLeft() == 7);
-//   REQUIRE(layer1.Padding().PadWRight() == 8);
-//   REQUIRE(layer1.DilationWidth() == 13);
-//   REQUIRE(layer1.DilationHeight() == 14);
+  // Make sure we can get the parameters successfully.
+  REQUIRE(layer1.InputWidth() == 11);
+  REQUIRE(layer1.InputHeight() == 12);
+  REQUIRE(layer1.KernelWidth() == 3);
+  REQUIRE(layer1.KernelHeight() == 4);
+  REQUIRE(layer1.StrideWidth() == 5);
+  REQUIRE(layer1.StrideHeight() == 6);
+  REQUIRE(layer1.Padding().PadHTop() == 9);
+  REQUIRE(layer1.Padding().PadHBottom() == 10);
+  REQUIRE(layer1.Padding().PadWLeft() == 7);
+  REQUIRE(layer1.Padding().PadWRight() == 8);
+  REQUIRE(layer1.DilationWidth() == 13);
+  REQUIRE(layer1.DilationHeight() == 14);
 
-//   // Now modify the parameters to match the second layer.
-//   layer1.InputWidth() = 12;
-//   layer1.InputHeight() = 13;
-//   layer1.KernelWidth() = 4;
-//   layer1.KernelHeight() = 5;
-//   layer1.StrideWidth() = 6;
-//   layer1.StrideHeight() = 7;
-//   layer1.Padding().PadHTop() = 10;
-//   layer1.Padding().PadHBottom() = 11;
-//   layer1.Padding().PadWLeft() = 8;
-//   layer1.Padding().PadWRight() = 9;
-//   layer1.DilationWidth() = 14;
-//   layer1.DilationHeight() = 15;
+  // Now modify the parameters to match the second layer.
+  layer1.InputWidth() = 12;
+  layer1.InputHeight() = 13;
+  layer1.KernelWidth() = 4;
+  layer1.KernelHeight() = 5;
+  layer1.StrideWidth() = 6;
+  layer1.StrideHeight() = 7;
+  layer1.Padding().PadHTop() = 10;
+  layer1.Padding().PadHBottom() = 11;
+  layer1.Padding().PadWLeft() = 8;
+  layer1.Padding().PadWRight() = 9;
+  layer1.DilationWidth() = 14;
+  layer1.DilationHeight() = 15;
 
-//   // Now ensure all results are the same.
-//   REQUIRE(layer1.InputWidth() == layer2.InputWidth());
-//   REQUIRE(layer1.InputHeight() == layer2.InputHeight());
-//   REQUIRE(layer1.KernelWidth() == layer2.KernelWidth());
-//   REQUIRE(layer1.KernelHeight() == layer2.KernelHeight());
-//   REQUIRE(layer1.StrideWidth() == layer2.StrideWidth());
-//   REQUIRE(layer1.StrideHeight() == layer2.StrideHeight());
-//   REQUIRE(layer1.Padding().PadHTop() == layer2.Padding().PadHTop());
-//   REQUIRE(layer1.Padding().PadHBottom() ==
-//                       layer2.Padding().PadHBottom());
-//   REQUIRE(layer1.Padding().PadWLeft() ==
-//                       layer2.Padding().PadWLeft());
-//   REQUIRE(layer1.Padding().PadWRight() ==
-//                       layer2.Padding().PadWRight());
-//   REQUIRE(layer1.DilationWidth() == layer2.DilationWidth());
-//   REQUIRE(layer1.DilationHeight() == layer2.DilationHeight());
-// }
+  // Now ensure all results are the same.
+  REQUIRE(layer1.InputWidth() == layer2.InputWidth());
+  REQUIRE(layer1.InputHeight() == layer2.InputHeight());
+  REQUIRE(layer1.KernelWidth() == layer2.KernelWidth());
+  REQUIRE(layer1.KernelHeight() == layer2.KernelHeight());
+  REQUIRE(layer1.StrideWidth() == layer2.StrideWidth());
+  REQUIRE(layer1.StrideHeight() == layer2.StrideHeight());
+  REQUIRE(layer1.Padding().PadHTop() == layer2.Padding().PadHTop());
+  REQUIRE(layer1.Padding().PadHBottom() ==
+                      layer2.Padding().PadHBottom());
+  REQUIRE(layer1.Padding().PadWLeft() ==
+                      layer2.Padding().PadWLeft());
+  REQUIRE(layer1.Padding().PadWRight() ==
+                      layer2.Padding().PadWRight());
+  REQUIRE(layer1.DilationWidth() == layer2.DilationWidth());
+  REQUIRE(layer1.DilationHeight() == layer2.DilationHeight());
+}
 
-// /**
-//  * Test that the padding options are working correctly in Atrous Convolution
-//  * layer.
-//  */
-// TEST_CASE("AtrousConvolutionLayerPaddingTest", "[ANNLayerTest]")
-// {
-//   arma::mat output, input, delta;
+/**
+ * Test that the padding options are working correctly in Atrous Convolution
+ * layer.
+ */
+TEST_CASE("AtrousConvolutionLayerPaddingTest", "[ANNLayerTest]")
+{
+  arma::mat output, input, delta;
 
-//   // Check valid padding option.
-//   AtrousConvolution<> module1(1, 1, 3, 3, 1, 1,
-//       std::tuple<size_t, size_t>(1, 1), std::tuple<size_t, size_t>(1, 1), 7, 7,
-//       2, 2, "valid");
+  // Check valid padding option.
+  AtrousConvolution module1(1, 1, 3, 3, 1, 1,
+      std::tuple<size_t, size_t>(1, 1), std::tuple<size_t, size_t>(1, 1), 7, 7,
+      2, 2, "valid");
 
-//   // Test the Forward function.
-//   input = arma::linspace<arma::colvec>(0, 48, 49);
-//   module1.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
-//   module1.Reset();
-//   module1.Forward(input, output);
+  // Test the Forward function.
+  input = arma::linspace<arma::colvec>(0, 48, 49);
+  module1.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
+  module1.Reset();
+  module1.Forward(input, output);
 
-//   REQUIRE(arma::accu(output) == 0);
-//   REQUIRE(output.n_rows == 9);
-//   REQUIRE(output.n_cols == 1);
+  REQUIRE(arma::accu(output) == 0);
+  REQUIRE(output.n_rows == 9);
+  REQUIRE(output.n_cols == 1);
 
-//   // Test the Backward function.
-//   module1.Backward(input, output, delta);
+  // Test the Backward function.
+  module1.Backward(input, output, delta);
 
-//   // Check same padding option.
-//   AtrousConvolution<> module2(1, 1, 3, 3, 1, 1,
-//       std::tuple<size_t, size_t>(0, 0), std::tuple<size_t, size_t>(0, 0), 7, 7,
-//       2, 2, "same");
+  // Check same padding option.
+  AtrousConvolution module2(1, 1, 3, 3, 1, 1,
+      std::tuple<size_t, size_t>(0, 0), std::tuple<size_t, size_t>(0, 0), 7, 7,
+      2, 2, "same");
 
-//   // Test the forward function.
-//   input = arma::linspace<arma::colvec>(0, 48, 49);
-//   module2.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
-//   module2.Reset();
-//   module2.Forward(input, output);
+  // Test the forward function.
+  input = arma::linspace<arma::colvec>(0, 48, 49);
+  module2.Parameters() = arma::mat(9 + 1, 1, arma::fill::zeros);
+  module2.Reset();
+  module2.Forward(input, output);
 
-//   REQUIRE(arma::accu(output) == 0);
-//   REQUIRE(output.n_rows == 49);
-//   REQUIRE(output.n_cols == 1);
+  REQUIRE(arma::accu(output) == 0);
+  REQUIRE(output.n_rows == 49);
+  REQUIRE(output.n_cols == 1);
 
-//   // Test the backward function.
-//   module2.Backward(input, output, delta);
-// }
+  // Test the backward function.
+  module2.Backward(input, output, delta);
+}
 
 /**
  * Tests the LayerNorm layer.
