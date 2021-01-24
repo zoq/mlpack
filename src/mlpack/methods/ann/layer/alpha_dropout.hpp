@@ -40,10 +40,10 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
- *         arma::sp_mat or arma::cube).
- * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
- *         arma::sp_mat or arma::cube).
+ * @tparam InputType The type of the layer's inputs. The layer automatically
+ *    cast inputs to this type (Default: arma::mat).
+ * @tparam OutputType The type of the layer's Outputs. The layer automatically
+ *    cast inputs to this type (Default: arma::mat).
  */
 template <typename InputType = arma::mat, typename OutputType = arma::mat>
 class AlphaDropoutType : public Layer<InputType, OutputType>
