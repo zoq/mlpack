@@ -27,20 +27,20 @@ namespace ann /** Artificial Neural Network. */ {
  * different known points in the grid. This way, we represent any arbitrary
  * point, present within the grid, as a function of those four points.
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
 template <
-    typename InputDataType = arma::mat,
-    typename OutputDataType = arma::mat
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
 >
-class BilinearInterpolation
+class BilinearInterpolationType : public Layer<InputType, OutputType>
 {
  public:
-  //! Create the Bilinear Interpolation object.
-  BilinearInterpolation();
+  //! Create the BilinearInterpolationType object.
+  BilinearInterpolationType();
 
   /**
    * The constructor for the Bilinear Interpolation.
@@ -51,11 +51,11 @@ class BilinearInterpolation
    * @param outColSize Number of output columns.
    * @param depth Number of input slices.
    */
-  BilinearInterpolation(const size_t inRowSize,
-                        const size_t inColSize,
-                        const size_t outRowSize,
-                        const size_t outColSize,
-                        const size_t depth);
+  BilinearInterpolationType(const size_t inRowSize,
+                            const size_t inColSize,
+                            const size_t outRowSize,
+                            const size_t outColSize,
+                            const size_t depth);
 
   /**
    * Forward pass through the layer. The layer interpolates
@@ -64,8 +64,7 @@ class BilinearInterpolation
    * @param input The input matrix.
    * @param output The resulting interpolated output matrix.
    */
-  template<typename eT>
-  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Ordinary feed backward pass of a neural network, calculating the function
@@ -78,20 +77,19 @@ class BilinearInterpolation
    * @param gradient The computed backward gradient.
    * @param output The resulting down-sampled output.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& /*input*/,
-                const arma::Mat<eT>& gradient,
-                arma::Mat<eT>& output);
+  void Backward(const InputType& /*input*/,
+                const OutputType& gradient,
+                OutputType& output);
 
   //! Get the output parameter.
-  OutputDataType const& OutputParameter() const { return outputParameter; }
+  OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
+  OutputType& OutputParameter() { return outputParameter; }
 
   //! Get the delta.
-  OutputDataType const& Delta() const { return delta; }
+  OutputType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
+  OutputType& Delta() { return delta; }
 
   //! Get the row size of the input.
   size_t const& InRowSize() const { return inRowSize; }
@@ -127,21 +125,31 @@ class BilinearInterpolation
  private:
   //! Locally stored row size of the input.
   size_t inRowSize;
+
   //! Locally stored column size of the input.
   size_t inColSize;
+
   //! Locally stored row size of the output.
   size_t outRowSize;
+
   //! Locally stored column size of the input.
   size_t outColSize;
+
   //! Locally stored depth of the input.
   size_t depth;
+
   //! Locally stored number of input points.
   size_t batchSize;
+
   //! Locally-stored delta object.
-  OutputDataType delta;
+  OutputType delta;
+
   //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
+  OutputType outputParameter;
 }; // class BilinearInterpolation
+
+// Standard BilinearInterpolation layer.
+typedef BilinearInterpolationType<arma::mat, arma::mat> BilinearInterpolation;
 
 } // namespace ann
 } // namespace mlpack

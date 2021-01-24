@@ -14,7 +14,6 @@
 
 #include <mlpack/prereqs.hpp>
 #include <mlpack/methods/ann/layer/layer_traits.hpp>
-#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -23,12 +22,15 @@ namespace ann /** Artificial Neural Network. */ {
  * Implementation of the Add module class. The Add module applies a bias term
  * to the incoming data.
  *
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  */
-template <typename InputType = arma::mat, typename OutputType = arma::mat>
+template <
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
+>
 class AddType : public Layer<InputType, OutputType>
 {
  public:
@@ -72,6 +74,26 @@ class AddType : public Layer<InputType, OutputType>
                 const OutputType& error,
                 OutputType& gradient);
 
+  //! Get the parameters.
+  OutputType const& Parameters() const { return weights; }
+  //! Modify the parameters.
+  OutputType& Parameters() { return weights; }
+
+  //! Get the output parameter.
+  OutputType const& OutputParameter() const { return outputParameter; }
+  //! Modify the output parameter.
+  OutputType& OutputParameter() { return outputParameter; }
+
+  //! Get the delta.
+  OutputType const& Delta() const { return delta; }
+  //! Modify the delta.
+  OutputType& Delta() { return delta; }
+
+  //! Get the gradient.
+  OutputType const& Gradient() const { return gradient; }
+  //! Modify the gradient.
+  OutputType& Gradient() { return gradient; }
+
   //! Get the output size.
   size_t OutputSize() const { return outSize; }
 
@@ -90,12 +112,20 @@ class AddType : public Layer<InputType, OutputType>
 
   //! Locally-stored weight object.
   OutputType weights;
+
+  //! Locally-stored delta object.
+  OutputType delta;
+
+  //! Locally-stored gradient object.
+  OutputType gradient;
+
+  //! Locally-stored output parameter object.
+  OutputType outputParameter;
 }; // class Add
 
-// Convenience typedefs.
-
-// Standard add layer.
+// Standard Add layer.
 typedef AddType<arma::mat, arma::mat> Add;
+
 } // namespace ann
 } // namespace mlpack
 

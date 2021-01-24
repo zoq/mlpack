@@ -23,7 +23,6 @@
 
 #include "layer_types.hpp"
 #include "padding.hpp"
-#include "layer.hpp"
 
 namespace mlpack{
 namespace ann /** Artificial Neural Network. */ {
@@ -38,23 +37,23 @@ namespace ann /** Artificial Neural Network. */ {
  * @tparam ForwardConvolutionRule Atrous Convolution to perform forward process.
  * @tparam BackwardConvolutionRule Atrous Convolution to perform backward process.
  * @tparam GradientConvolutionRule Atrous Convolution to calculate gradient.
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  */
 template <
     typename ForwardConvolutionRule = NaiveConvolution<ValidConvolution>,
     typename BackwardConvolutionRule = NaiveConvolution<FullConvolution>,
     typename GradientConvolutionRule = NaiveConvolution<ValidConvolution>,
-    typename InputType = arma::mat,
-    typename OutputType = arma::mat
+    typename InputDataType = arma::mat,
+    typename OutputDataType = arma::mat
 >
-class AtrousConvolutionType : public Layer<InputType, OutputType>
+class AtrousConvolution
 {
  public:
   //! Create the AtrousConvolution object.
-  AtrousConvolutionType();
+  AtrousConvolution();
 
   /**
    * Create the AtrousConvolution object using the specified number of
@@ -75,19 +74,19 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param dilationHeight The space between the cells of filters in y direction.
    * @param paddingType The type of padding (Valid or Same). Defaults to None.
    */
-  AtrousConvolutionType(const size_t inSize,
-                        const size_t outSize,
-                        const size_t kernelWidth,
-                        const size_t kernelHeight,
-                        const size_t strideWidth = 1,
-                        const size_t strideHeight = 1,
-                        const size_t padW = 0,
-                        const size_t padH = 0,
-                        const size_t inputWidth = 0,
-                        const size_t inputHeight = 0,
-                        const size_t dilationWidth = 1,
-                        const size_t dilationHeight = 1,
-                        const std::string& paddingType = "None");
+  AtrousConvolution(const size_t inSize,
+                    const size_t outSize,
+                    const size_t kernelWidth,
+                    const size_t kernelHeight,
+                    const size_t strideWidth = 1,
+                    const size_t strideHeight = 1,
+                    const size_t padW = 0,
+                    const size_t padH = 0,
+                    const size_t inputWidth = 0,
+                    const size_t inputHeight = 0,
+                    const size_t dilationWidth = 1,
+                    const size_t dilationHeight = 1,
+                    const std::string& paddingType = "None");
 
   /**
    * Create the AtrousConvolution object using the specified number of
@@ -112,19 +111,19 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param dilationHeight The space between the cells of filters in y direction.
    * @param paddingType The type of padding (Valid/Same/None). Defaults to None.
    */
-  AtrousConvolutionType(const size_t inSize,
-                        const size_t outSize,
-                        const size_t kernelWidth,
-                        const size_t kernelHeight,
-                        const size_t strideWidth,
-                        const size_t strideHeight,
-                        const std::tuple<size_t, size_t>& padW,
-                        const std::tuple<size_t, size_t>& padH,
-                        const size_t inputWidth = 0,
-                        const size_t inputHeight = 0,
-                        const size_t dilationWidth = 1,
-                        const size_t dilationHeight = 1,
-                        const std::string& paddingType = "None");
+  AtrousConvolution(const size_t inSize,
+                    const size_t outSize,
+                    const size_t kernelWidth,
+                    const size_t kernelHeight,
+                    const size_t strideWidth,
+                    const size_t strideHeight,
+                    const std::tuple<size_t, size_t>& padW,
+                    const std::tuple<size_t, size_t>& padH,
+                    const size_t inputWidth = 0,
+                    const size_t inputHeight = 0,
+                    const size_t dilationWidth = 1,
+                    const size_t dilationHeight = 1,
+                    const std::string& paddingType = "None");
 
   /*
    * Set the weight and bias term.
@@ -138,7 +137,8 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  void Forward(const InputType& input, OutputType& output);
+  template<typename eT>
+  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
 
   /**
    * Ordinary feed backward pass of a neural network, calculating the function
@@ -149,9 +149,10 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const InputType& /* input */,
-                const OutputType& gy,
-                OutputType& g);
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g);
 
   /*
    * Calculate the gradient using the output delta and the input activation.
@@ -160,9 +161,15 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param error The calculated error.
    * @param gradient The calculated gradient.
    */
-  void Gradient(const InputType& /* input */,
-                const OutputType& error,
-                OutputType& gradient);
+  template<typename eT>
+  void Gradient(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& error,
+                arma::Mat<eT>& gradient);
+
+  //! Get the parameters.
+  OutputDataType const& Parameters() const { return weights; }
+  //! Modify the parameters.
+  OutputDataType& Parameters() { return weights; }
 
   //! Get the weight of the layer.
   arma::cube const& Weight() const { return weight; }
@@ -173,6 +180,21 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
   arma::mat const& Bias() const { return bias; }
   //! Modify the bias of the layer.
   arma::mat& Bias() { return bias; }
+
+  //! Get the output parameter.
+  OutputDataType const& OutputParameter() const { return outputParameter; }
+  //! Modify the output parameter.
+  OutputDataType& OutputParameter() { return outputParameter; }
+
+  //! Get the delta.
+  OutputDataType const& Delta() const { return delta; }
+  //! Modify the delta.
+  OutputDataType& Delta() { return delta; }
+
+  //! Get the gradient.
+  OutputDataType const& Gradient() const { return gradient; }
+  //! Modify the gradient.
+  OutputDataType& Gradient() { return gradient; }
 
   //! Get the input width.
   size_t InputWidth() const { return inputWidth; }
@@ -231,9 +253,9 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
   size_t& DilationHeight() { return dilationHeight; }
 
   //! Get the internal Padding layer.
-  ann::Padding const& Padding() const { return padding; }
+  ann::Padding<> const& Padding() const { return padding; }
   //! Modify the internal Padding layer.
-  ann::Padding& Padding() { return padding; }
+  ann::Padding<>& Padding() { return padding; }
 
   //! Get size of the weight matrix.
   size_t WeightSize() const
@@ -283,9 +305,10 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  void Rotate180(const arma::cube& input, arma::cube& output)
+  template<typename eT>
+  void Rotate180(const arma::Cube<eT>& input, arma::Cube<eT>& output)
   {
-    output = arma::cube(input.n_rows, input.n_cols, input.n_slices);
+    output = arma::Cube<eT>(input.n_rows, input.n_cols, input.n_slices);
 
     // * left-right flip, up-down flip */
     for (size_t s = 0; s < output.n_slices; s++)
@@ -298,7 +321,8 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  void Rotate180(const InputType& input, OutputType& output)
+  template<typename eT>
+  void Rotate180(const arma::Mat<eT>& input, arma::Mat<eT>& output)
   {
     // * left-right flip, up-down flip */
     output = arma::fliplr(arma::flipud(input));
@@ -326,7 +350,7 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
   size_t strideHeight;
 
   //! Locally-stored weight object.
-  OutputType weights;
+  OutputDataType weights;
 
   //! Locally-stored weight object.
   arma::cube weight;
@@ -365,27 +389,17 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
   arma::cube gradientTemp;
 
   //! Locally-stored padding layer.
-  ann::Padding padding;
+  ann::Padding<> padding;
 
   //! Locally-stored delta object.
-  OutputType delta;
+  OutputDataType delta;
 
   //! Locally-stored gradient object.
-  OutputType gradient;
+  OutputDataType gradient;
 
   //! Locally-stored output parameter object.
-  OutputType outputParameter;
+  OutputDataType outputParameter;
 }; // class AtrousConvolution
-
-// Convenience typedefs.
-
-// Standard Atrous Convolution layer.
-typedef AtrousConvolutionType <
-    NaiveConvolution<ValidConvolution>,
-    NaiveConvolution<FullConvolution>,
-    NaiveConvolution<ValidConvolution>,
-    arma::mat,
-    arma::mat> AtrousConvolution;
 
 } // namespace ann
 } // namespace mlpack

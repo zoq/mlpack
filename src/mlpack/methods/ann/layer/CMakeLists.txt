@@ -1,21 +1,21 @@
 # Define the files we need to compile
 # Anything not in this list will not be compiled into mlpack.
 set(SOURCES
-  add.hpp
-  add_impl.hpp
+  # add.hpp
+  # add_impl.hpp
   # add_merge.hpp
   # add_merge_impl.hpp
   adaptive_max_pooling.hpp
   adaptive_max_pooling_impl.hpp
   adaptive_mean_pooling.hpp
   adaptive_mean_pooling_impl.hpp
-  alpha_dropout.hpp
-  alpha_dropout_impl.hpp
-  atrous_convolution.hpp
-  atrous_convolution_impl.hpp
+  # alpha_dropout.hpp
+  # alpha_dropout_impl.hpp
+  # atrous_convolution.hpp
+  # atrous_convolution_impl.hpp
   # base_layer.hpp
-  batch_norm.hpp
-  batch_norm_impl.hpp
+  # batch_norm.hpp
+  # batch_norm_impl.hpp
   # bilinear_interpolation.hpp
   # bilinear_interpolation_impl.hpp
   # concat.hpp

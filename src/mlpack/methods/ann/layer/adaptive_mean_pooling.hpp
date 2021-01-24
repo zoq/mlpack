@@ -43,7 +43,7 @@ class AdaptiveMeanPoolingType : public Layer<InputType, OutputType>
    * @param outputHeight Height of the output.
    */
   AdaptiveMeanPoolingType(const size_t outputWidth,
-                      const size_t outputHeight);
+                          const size_t outputHeight);
 
   /**
    * Create the AdaptiveMeanPooling object.
@@ -133,7 +133,7 @@ class AdaptiveMeanPoolingType : public Layer<InputType, OutputType>
   }
 
   //! Locally stored MeanPooling Object.
-  MeanPooling<InputType, OutputType> poolingLayer;
+  MeanPoolingType<InputType, OutputType> poolingLayer;
 
   //! Locally-stored output width.
   size_t outputWidth;

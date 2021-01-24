@@ -13,8 +13,6 @@
 #define MLPACK_METHODS_ANN_LAYER_PADDING_HPP
 
 #include <mlpack/prereqs.hpp>
-#include <mlpack/methods/ann/layer/layer_traits.hpp>
-
 #include "layer.hpp"
 
 namespace mlpack {
@@ -24,12 +22,15 @@ namespace ann /** Artificial Neural Network. */ {
  * Implementation of the Padding module class. The Padding module applies a bias term
  * to the incoming data.
  *
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  */
-template <typename InputType = arma::mat, typename OutputType = arma::mat>
+template <
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
+>
 class PaddingType : public Layer<InputType, OutputType>
 {
  public:
@@ -42,9 +43,9 @@ class PaddingType : public Layer<InputType, OutputType>
    * @param padHBottom Bottom padding height of the input.
    */
   PaddingType(const size_t padWLeft = 0,
-          const size_t padWRight = 0,
-          const size_t padHTop = 0,
-          const size_t padHBottom = 0);
+              const size_t padWRight = 0,
+              const size_t padHTop = 0,
+              const size_t padHBottom = 0);
 
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
@@ -67,6 +68,16 @@ class PaddingType : public Layer<InputType, OutputType>
   void Backward(const InputType& /* input */,
                 const OutputType& gy,
                 OutputType& g);
+
+  //! Get the output parameter.
+  OutputType const& OutputParameter() const { return outputParameter; }
+  //! Modify the output parameter.
+  OutputType& OutputParameter() { return outputParameter; }
+
+  //! Get the delta.
+  OutputType const& Delta() const { return delta; }
+  //! Modify the delta.
+  OutputType& Delta() { return delta; }
 
   //! Get the left padding width.
   size_t PadWLeft() const { return padWLeft; }
@@ -110,11 +121,14 @@ class PaddingType : public Layer<InputType, OutputType>
   //! Locally-stored number of rows and columns of input.
   size_t nRows, nCols;
 
-}; // class Padding
+  //! Locally-stored delta object.
+  OutputType delta;
 
-// Convenience typedefs.
+  //! Locally-stored output parameter object.
+  OutputType outputParameter;
+}; // class PaddingType
 
-// Standard Adaptive max pooling layer.
+// Standard Padding layer.
 typedef PaddingType<arma::mat, arma::mat> Padding;
 
 } // namespace ann

@@ -14,7 +14,6 @@
 #define MLPACK_METHODS_ANN_LAYER_BATCHNORM_HPP
 
 #include <mlpack/prereqs.hpp>
-#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -45,17 +44,20 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  */
-template <typename InputType = arma::mat, typename OutputType = arma::mat>
-class BatchNormType : public Layer<InputType, OutputType>
+template <
+  typename InputDataType = arma::mat,
+  typename OutputDataType = arma::mat
+>
+class BatchNorm
 {
  public:
   //! Create the BatchNorm object.
-  BatchNormType();
+  BatchNorm();
 
   /**
    * Create the BatchNorm layer object for a specified number of input units.
@@ -64,11 +66,9 @@ class BatchNormType : public Layer<InputType, OutputType>
    * @param eps The epsilon added to variance to ensure numerical stability.
    * @param average Boolean to determine whether cumulative average is used for
    *                updating the parameters or momentum is used.
-   * @param momentum Parameter used to to update the running mean a  //! Locally-stored parameters.
-  OutputTypeType weights;
-nd variance.
+   * @param momentum Parameter used to to update the running mean and variance.
    */
-  BatchNormType(const size_t size,
+  BatchNorm(const size_t size,
             const double eps = 1e-8,
             const bool average = true,
             const double momentum = 0.1);
@@ -86,7 +86,8 @@ nd variance.
    * @param input Input data for the layer
    * @param output Resulting output activations.
    */
-  void Forward(const InputType& input, OutputType& output);
+  template<typename eT>
+  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
 
   /**
    * Backward pass through the layer.
@@ -95,9 +96,10 @@ nd variance.
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const InputType& input,
-                const OutputType& gy,
-                OutputType& g);
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& input,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g);
 
   /**
    * Calculate the gradient using the output delta and the input activations.
@@ -106,29 +108,45 @@ nd variance.
    * @param error The calculated error
    * @param gradient The calculated gradient.
    */
-  void Gradient(const InputType& input,
-                const OutputType& error,
-                OutputType& gradient);
+  template<typename eT>
+  void Gradient(const arma::Mat<eT>& input,
+                const arma::Mat<eT>& error,
+                arma::Mat<eT>& gradient);
 
   //! Get the parameters.
-  OutputType const& Parameters() const { return weights; }
+  OutputDataType const& Parameters() const { return weights; }
   //! Modify the parameters.
-  OutputType& Parameters() { return weights; }
+  OutputDataType& Parameters() { return weights; }
+
+  //! Get the output parameter.
+  OutputDataType const& OutputParameter() const { return outputParameter; }
+  //! Modify the output parameter.
+  OutputDataType& OutputParameter() { return outputParameter; }
+
+  //! Get the delta.
+  OutputDataType const& Delta() const { return delta; }
+  //! Modify the delta.
+  OutputDataType& Delta() { return delta; }
+
+  //! Get the gradient.
+  OutputDataType const& Gradient() const { return gradient; }
+  //! Modify the gradient.
+  OutputDataType& Gradient() { return gradient; }
 
   //! Get the value of deterministic parameter.
-  bool const& Deterministic() const { return deterministic; }
+  bool Deterministic() const { return deterministic; }
   //! Modify the value of deterministic parameter.
   bool& Deterministic() { return deterministic; }
 
   //! Get the mean over the training data.
-  OutputType const& TrainingMean() const { return runningMean; }
+  OutputDataType const& TrainingMean() const { return runningMean; }
   //! Modify the mean over the training data.
-  OutputType& TrainingMean() { return runningMean; }
+  OutputDataType& TrainingMean() { return runningMean; }
 
   //! Get the variance over the training data.
-  OutputType const& TrainingVariance() const { return runningVariance; }
+  OutputDataType const& TrainingVariance() const { return runningVariance; }
   //! Modify the variance over the training data.
-  OutputType& TrainingVariance() { return runningVariance; }
+  OutputDataType& TrainingVariance() { return runningVariance; }
 
   //! Get the number of input units / channels.
   size_t InputSize() const { return size; }
@@ -169,19 +187,19 @@ nd variance.
   bool loading;
 
   //! Locally-stored scale parameter.
-  OutputType gamma;
+  OutputDataType gamma;
 
   //! Locally-stored shift parameter.
-  OutputType beta;
+  OutputDataType beta;
 
   //! Locally-stored mean object.
-  OutputType mean;
+  OutputDataType mean;
 
   //! Locally-stored variance object.
-  OutputType variance;
+  OutputDataType variance;
 
   //! Locally-stored parameters.
-  OutputType weights;
+  OutputDataType weights;
 
   /**
    * If true then mean and variance over the training set will be considered
@@ -197,10 +215,19 @@ nd variance.
   double averageFactor;
 
   //! Locally-stored mean object.
-  OutputType runningMean;
+  OutputDataType runningMean;
 
   //! Locally-stored variance object.
-  OutputType runningVariance;
+  OutputDataType runningVariance;
+
+  //! Locally-stored gradient object.
+  OutputDataType gradient;
+
+  //! Locally-stored delta object.
+  OutputDataType delta;
+
+  //! Locally-stored output parameter object.
+  OutputDataType outputParameter;
 
   //! Locally-stored normalized input.
   arma::cube normalized;
@@ -208,11 +235,6 @@ nd variance.
   //! Locally-stored zero mean input.
   arma::cube inputMean;
 }; // class BatchNorm
-
-// Convenience typedefs.
-
-// Standard Batch Norm layer.
-typedef BatchNormType<arma::mat, arma::mat> BatchNorm;
 
 } // namespace ann
 } // namespace mlpack
