@@ -83,10 +83,10 @@ set(SOURCES
   # parametric_relu_impl.hpp
   # positional_encoding.hpp
   # positional_encoding_impl.hpp
-  # recurrent.hpp
-  # recurrent_impl.hpp
-  # recurrent_attention.hpp
-  # recurrent_attention_impl.hpp
+  recurrent.hpp
+  recurrent_impl.hpp
+  recurrent_attention.hpp
+  recurrent_attention_impl.hpp
   # reinforce_normal.hpp
   # reinforce_normal_impl.hpp
   # reparametrization.hpp
