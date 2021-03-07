@@ -69,6 +69,9 @@ class CELUType : public Layer<InputType, OutputType>
    */
   CELUType(const double alpha = 1.0);
 
+  //! Clone the CELUType object. This handles polymorphism correctly.
+  CELUType* Clone() const { return new CELUType(*this); }
+
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
    * f(x) by propagating the activity forward through f.
@@ -95,7 +98,7 @@ class CELUType : public Layer<InputType, OutputType>
   double& Alpha() { return alpha; }
 
   //! Get the value of deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
   //! Modify the value of deterministic parameter.
   bool& Deterministic() { return deterministic; }
 

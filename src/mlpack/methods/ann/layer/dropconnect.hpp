@@ -73,6 +73,9 @@ class DropConnectType : public Layer<InputType, OutputType>
                   const size_t outSize,
                   const double ratio = 0.5);
 
+  //! Clone the DropConnectType object. This handles polymorphism correctly.
+  DropConnectType* Clone() const { return new DropConnectType(*this); }
+
   /**
    * Ordinary feed forward pass of the DropConnect layer.
    *
@@ -110,7 +113,7 @@ class DropConnectType : public Layer<InputType, OutputType>
   OutputType& Parameters() { return weights; }
 
   //! The value of the deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
 
   //! Modify the value of the deterministic parameter.
   bool& Deterministic() { return deterministic; }

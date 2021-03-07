@@ -127,6 +127,8 @@ class ELUType : public Layer<InputType, OutputType>
    */
   ELUType(const double alpha);
 
+  //! Clone the ELUType object. This handles polymorphism correctly.
+  ELUType* Clone() const { return new ELUType(*this); }
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
    * f(x) by propagating the activity forward through f.
@@ -153,7 +155,7 @@ class ELUType : public Layer<InputType, OutputType>
   double& Alpha() { return alpha; }
 
   //! Get the value of deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
   //! Modify the value of deterministic parameter.
   bool& Deterministic() { return deterministic; }
 

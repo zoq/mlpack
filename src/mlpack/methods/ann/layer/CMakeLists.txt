@@ -9,13 +9,13 @@ set(SOURCES
   adaptive_max_pooling_impl.hpp
   adaptive_mean_pooling.hpp
   adaptive_mean_pooling_impl.hpp
-  alpha_dropout.hpp
-  alpha_dropout_impl.hpp
-  atrous_convolution.hpp
-  atrous_convolution_impl.hpp
+  # alpha_dropout.hpp
+  # alpha_dropout_impl.hpp
+  # atrous_convolution.hpp
+  # atrous_convolution_impl.hpp
   # base_layer.hpp
-  batch_norm.hpp
-  batch_norm_impl.hpp
+  # batch_norm.hpp
+  # batch_norm_impl.hpp
   # bilinear_interpolation.hpp
   # bilinear_interpolation_impl.hpp
   # concat.hpp

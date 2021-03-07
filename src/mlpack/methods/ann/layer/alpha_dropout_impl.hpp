@@ -22,8 +22,8 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputType, typename OutputType>
-AlphaDropoutType<InputType, OutputType>::AlphaDropoutType(
+template<typename InputDataType, typename OutputDataType>
+AlphaDropout<InputDataType, OutputDataType>::AlphaDropout(
     const double ratio,
     const double alphaDash) :
     ratio(ratio),
@@ -33,9 +33,10 @@ AlphaDropoutType<InputType, OutputType>::AlphaDropoutType(
   Ratio(ratio);
 }
 
-template<typename InputType, typename OutputType>
-void AlphaDropoutType<InputType, OutputType>::Forward(
-    const InputType& input, OutputType& output)
+template<typename InputDataType, typename OutputDataType>
+template<typename eT>
+void AlphaDropout<InputDataType, OutputDataType>::Forward(
+    const arma::Mat<eT>& input, arma::Mat<eT>& output)
 {
   // The dropout mask will not be multiplied in the deterministic mode
   // (during testing).
@@ -48,22 +49,23 @@ void AlphaDropoutType<InputType, OutputType>::Forward(
     // Set values to alphaDash with probability ratio.  Then apply affine
     // transformation so as to keep mean and variance of outputs to their
     // original values.
-    mask = arma::randu<InputType>(input.n_rows, input.n_cols);
+    mask = arma::randu< arma::Mat<eT> >(input.n_rows, input.n_cols);
     mask.transform( [&](double val) { return (val > ratio); } );
     output = (input % mask + alphaDash * (1 - mask)) * a + b;
   }
 }
 
-template<typename InputType, typename OutputType>
-void AlphaDropoutType<InputType, OutputType>::Backward(
-    const InputType& /* input */, const OutputType& gy, OutputType& g)
+template<typename InputDataType, typename OutputDataType>
+template<typename eT>
+void AlphaDropout<InputDataType, OutputDataType>::Backward(
+    const arma::Mat<eT>& /* input */, const arma::Mat<eT>& gy, arma::Mat<eT>& g)
 {
   g = gy % mask * a;
 }
 
-template<typename InputType, typename OutputType>
+template<typename InputDataType, typename OutputDataType>
 template<typename Archive>
-void AlphaDropoutType<InputType, OutputType>::serialize(
+void AlphaDropout<InputDataType, OutputDataType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(ratio));

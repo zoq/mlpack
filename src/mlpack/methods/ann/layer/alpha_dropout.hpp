@@ -40,13 +40,14 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam InputType The type of the layer's inputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
- * @tparam OutputType The type of the layer's Outputs. The layer automatically
- *    cast inputs to this type (Default: arma::mat).
+ * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
+ * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ *         arma::sp_mat or arma::cube).
  */
-template <typename InputType = arma::mat, typename OutputType = arma::mat>
-class AlphaDropoutType : public Layer<InputType, OutputType>
+template <typename InputDataType = arma::mat,
+          typename OutputDataType = arma::mat>
+class AlphaDropout
 {
  public:
   /**
@@ -55,7 +56,7 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
    * @param ratio The probability of setting a value to alphaDash.
    * @param alphaDash The dropout scaling parameter.
    */
-  AlphaDropoutType(const double ratio = 0.5,
+  AlphaDropout(const double ratio = 0.5,
                const double alphaDash = -alpha * lambda);
 
   /**
@@ -64,7 +65,8 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  void Forward(const InputType& input, OutputType& output);
+  template<typename eT>
+  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
 
   /**
    * Ordinary feed backward pass of the alpha_dropout layer.
@@ -73,22 +75,23 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const InputType& /* input */,
-                const OutputType& gy,
-                OutputType& g);
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g);
 
   //! Get the output parameter.
-  OutputType const& OutputParameter() const { return outputParameter; }
+  OutputDataType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputType& OutputParameter() { return outputParameter; }
+  OutputDataType& OutputParameter() { return outputParameter; }
 
   //! Get the detla.
-  OutputType const& Delta() const { return delta; }
+  OutputDataType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputType& Delta() { return delta; }
+  OutputDataType& Delta() { return delta; }
 
   //! The value of the deterministic parameter.
-  bool const& Deterministic() const { return deterministic; }
+  bool Deterministic() const { return deterministic; }
   //! Modify the value of the deterministic parameter.
   bool& Deterministic() { return deterministic; }
 
@@ -105,7 +108,7 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
   double AlphaDash() const {return alphaDash; }
 
   //! Get the mask.
-  OutputType const& Mask() const {return mask;}
+  OutputDataType const& Mask() const {return mask;}
 
   //! Modify the probability of setting a value to alphaDash. As
   //! 'a' and 'b' depend on 'ratio', modify them as well.
@@ -124,13 +127,13 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
 
  private:
   //! Locally-stored delta object.
-  OutputType delta;
+  OutputDataType delta;
 
   //! Locally-stored output parameter object.
-  OutputType outputParameter;
+  OutputDataType outputParameter;
 
   //! Locally-stored mast object.
-  OutputType mask;
+  OutputDataType mask;
 
   //! The probability of setting a value to aplhaDash.
   double ratio;
@@ -153,11 +156,6 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
   //! Value to be added to a*x for affine transformation.
   double b;
 }; // class AlphaDropout
-
-// Convenience typedefs.
-
-// Standard Alpha Dropout layer.
-typedef AlphaDropoutType<arma::mat, arma::mat> AlphaDropout;
 
 } // namespace ann
 } // namespace mlpack
