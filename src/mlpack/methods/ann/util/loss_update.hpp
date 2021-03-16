@@ -18,9 +18,9 @@ namespace mlpack {
 namespace ann /** Artificial Neural Network. */{
 
 /**
- * Get the los from the given layer/sub-layer.
+ * Get the loss from the given layer/sub-layer.
  *
- * @tparam Layer The type of the given layer.
+ * @tparam LayerType The type of the given layer.
  * @param layer The layer to get the loss for.
  * @return The layer loss.
  */
