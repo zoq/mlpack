@@ -15,10 +15,6 @@
 
 #include <mlpack/prereqs.hpp>
 
-// #include "../visitor/delete_visitor.hpp"
-// #include "../visitor/delta_visitor.hpp"
-// #include "../visitor/output_parameter_visitor.hpp"
-
 #include "layer_types.hpp"
 
 namespace mlpack {
@@ -118,7 +114,7 @@ class MultiplyMergeType : public Layer<InputType, OutputType>
   OutputType& Gradient() { return gradient; }
 
   //! Return the model modules.
-  std::vector<Layer<>*>& Model()
+  std::vector<Layer<InputType, OutputType>*>& Model()
   {
     if (model)
     {
@@ -151,19 +147,10 @@ class MultiplyMergeType : public Layer<InputType, OutputType>
   bool ownsLayer;
 
   //! Locally-stored network modules.
-  std::vector<Layer<>*> network;
+  std::vector<Layer<InputType, OutputType>*> network;
 
   //! Locally-stored empty list of modules.
-  std::vector<Layer<>*> empty;
-
-  //! Locally-stored delete visitor module object.
-  // DeleteVisitor deleteVisitor;
-
-  //! Locally-stored output parameter visitor module object.
-  // OutputParameterVisitor outputParameterVisitor;
-
-  //! Locally-stored delta visitor module object.
-  // DeltaVisitor deltaVisitor;
+  std::vector<Layer<InputType, OutputType>*> empty;
 
   //! Locally-stored delta object.
   OutputType delta;

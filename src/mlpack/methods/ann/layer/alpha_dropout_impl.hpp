@@ -22,8 +22,8 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputDataType, typename OutputDataType>
-AlphaDropout<InputDataType, OutputDataType>::AlphaDropout(
+template<typename InputType, typename OutputType>
+AlphaDropoutType<InputType, OutputType>::AlphaDropoutType(
     const double ratio,
     const double alphaDash) :
     ratio(ratio),
@@ -33,10 +33,9 @@ AlphaDropout<InputDataType, OutputDataType>::AlphaDropout(
   Ratio(ratio);
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void AlphaDropout<InputDataType, OutputDataType>::Forward(
-    const arma::Mat<eT>& input, arma::Mat<eT>& output)
+template<typename InputType, typename OutputType>
+void AlphaDropoutType<InputType, OutputType>::Forward(
+    const InputType& input, OutputType& output)
 {
   // The dropout mask will not be multiplied in the deterministic mode
   // (during testing).
@@ -55,17 +54,18 @@ void AlphaDropout<InputDataType, OutputDataType>::Forward(
   }
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void AlphaDropout<InputDataType, OutputDataType>::Backward(
-    const arma::Mat<eT>& /* input */, const arma::Mat<eT>& gy, arma::Mat<eT>& g)
+template<typename InputType, typename OutputType>
+void AlphaDropoutType<InputType, OutputType>::Backward(
+    const InputType& /* input */,
+    const InputType& gy,
+    OutputType& g)
 {
   g = gy % mask * a;
 }
 
-template<typename InputDataType, typename OutputDataType>
+template<typename InputType, typename OutputType>
 template<typename Archive>
-void AlphaDropout<InputDataType, OutputDataType>::serialize(
+void AlphaDropoutType<InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(ratio));

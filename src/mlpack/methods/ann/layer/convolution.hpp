@@ -22,6 +22,7 @@
 
 #include "layer_types.hpp"
 #include "padding.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

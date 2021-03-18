@@ -30,6 +30,8 @@
 #include <mlpack/methods/ann/init_rules/glorot_init.hpp>
 #include <mlpack/methods/ann/regularizer/no_regularizer.hpp>
 
+#include "layer.hpp"
+
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 

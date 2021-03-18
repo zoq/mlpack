@@ -31,6 +31,7 @@
 
 #include "layer_types.hpp"
 #include <algorithm>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

@@ -23,11 +23,11 @@ template<
     typename InputDataType,
     typename OutputDataType
 >
-ConcatPerformance<
+ConcatPerformanceType<
     OutputLayerType,
     InputDataType,
     OutputDataType
->::ConcatPerformance(const size_t inSize, OutputLayerType&& outputLayer) :
+>::ConcatPerformanceType(const size_t inSize, OutputLayerType&& outputLayer) :
     inSize(inSize),
     outputLayer(std::move(outputLayer))
 {
@@ -39,12 +39,11 @@ template<
     typename InputDataType,
     typename OutputDataType
 >
-template<typename eT>
-double ConcatPerformance<
+double ConcatPerformanceType<
     OutputLayerType,
     InputDataType,
     OutputDataType
->::Forward(const arma::Mat<eT>& input, arma::Mat<eT>& target)
+>::Forward(const InputType& input, OutputType& output)
 {
   const size_t elements = input.n_elem / inSize;
 
@@ -63,15 +62,14 @@ template<
     typename InputDataType,
     typename OutputDataType
 >
-template<typename eT>
-void ConcatPerformance<
+void ConcatPerformanceType<
     OutputLayerType,
     InputDataType,
     OutputDataType
 >::Backward(
-    const arma::Mat<eT>& input,
-    const arma::Mat<eT>& target,
-    arma::Mat<eT>& output)
+    const InputType& input,
+    const InputType& target,
+    OutputType& output)
 {
   const size_t elements = input.n_elem / inSize;
 
@@ -98,7 +96,7 @@ template<
     typename OutputDataType
 >
 template<typename Archive>
-void ConcatPerformance<
+void ConcatPerformanceType<
     OutputLayerType,
     InputDataType,
     OutputDataType

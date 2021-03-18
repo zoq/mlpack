@@ -12,6 +12,7 @@
 #define MLPACK_METHODS_ANN_LAYER_BILINEAR_INTERPOLATION_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

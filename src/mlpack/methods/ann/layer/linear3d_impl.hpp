@@ -41,6 +41,7 @@ Linear3DType<InputType, OutputType, RegularizerType>::Linear3DType(
 template<typename InputType, typename OutputType, typename RegularizerType>
 Linear3DType<InputType, OutputType, RegularizerType>::Linear3DType(
     const Linear3DType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     weights(layer.weights),

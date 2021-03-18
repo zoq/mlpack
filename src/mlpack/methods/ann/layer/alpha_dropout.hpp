@@ -17,6 +17,7 @@
 #define MLPACK_METHODS_ANN_LAYER_ALPHA_DROPOUT_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -40,14 +41,14 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
-template <typename InputDataType = arma::mat,
-          typename OutputDataType = arma::mat>
-class AlphaDropout
+template <typename InputType = arma::mat,
+          typename OutputType = arma::mat>
+class AlphaDropoutType : public Layer<InputType, OutputType>
 {
  public:
   /**
@@ -56,7 +57,7 @@ class AlphaDropout
    * @param ratio The probability of setting a value to alphaDash.
    * @param alphaDash The dropout scaling parameter.
    */
-  AlphaDropout(const double ratio = 0.5,
+  AlphaDropoutType(const double ratio = 0.5,
                const double alphaDash = -alpha * lambda);
 
   /**
@@ -65,8 +66,7 @@ class AlphaDropout
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  template<typename eT>
-  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Ordinary feed backward pass of the alpha_dropout layer.
@@ -75,20 +75,19 @@ class AlphaDropout
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& /* input */,
-                const arma::Mat<eT>& gy,
-                arma::Mat<eT>& g);
+  void Backward(const InputType& /* input */,
+                const InputType& gy,
+                OutputType& g);
 
   //! Get the output parameter.
-  OutputDataType const& OutputParameter() const { return outputParameter; }
+  OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
+  OutputType& OutputParameter() { return outputParameter; }
 
   //! Get the detla.
-  OutputDataType const& Delta() const { return delta; }
+  OutputType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
+  OutputType& Delta() { return delta; }
 
   //! The value of the deterministic parameter.
   bool Deterministic() const { return deterministic; }
@@ -108,7 +107,7 @@ class AlphaDropout
   double AlphaDash() const {return alphaDash; }
 
   //! Get the mask.
-  OutputDataType const& Mask() const {return mask;}
+  OutputType const& Mask() const {return mask;}
 
   //! Modify the probability of setting a value to alphaDash. As
   //! 'a' and 'b' depend on 'ratio', modify them as well.
@@ -127,13 +126,13 @@ class AlphaDropout
 
  private:
   //! Locally-stored delta object.
-  OutputDataType delta;
+  OutputType delta;
 
   //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
+  OutputType outputParameter;
 
   //! Locally-stored mast object.
-  OutputDataType mask;
+  OutputType mask;
 
   //! The probability of setting a value to aplhaDash.
   double ratio;
@@ -156,6 +155,9 @@ class AlphaDropout
   //! Value to be added to a*x for affine transformation.
   double b;
 }; // class AlphaDropout
+
+// Standard Alpha Dropout layer.
+typedef AlphaDropoutType<arma::mat, arma::mat> AlphaDropout;
 
 } // namespace ann
 } // namespace mlpack

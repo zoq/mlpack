@@ -128,6 +128,34 @@ class Layer
                         const OutputType& /* gy */,
                         OutputType& /* g */)
   { /* Nothing to do here */ }
+  
+  /**
+   * Performs a backpropagation step through the specified layer, with respect to the
+   * given input. In general this method makes the assumption Forward(input,
+   * output) has been called before, with the same input. If you do not respect
+   * this rule, Backward(input, gy, g, index) might compute incorrect results.
+   *
+   * In general input and gy and g are matrices and index is an nsigned integer. However, some special
+   * sub-classes like table layers might expect something else. Please, refer to
+   * each module specification for further information.
+   *
+   * A backpropagation step consist of computing of computing the gradient
+   * output input with respect to the output of the layer and given error.
+   *
+   * During the backward pass our goal is to use 'gy' in order to compute the
+   * downstream gradients (g). We assume that the upstream gradient (gy) has
+   * already been computed and is passed to the layer.
+   *
+   * @param * (input) The propagated input activation.
+   * @param * (gy) The backpropagated error.
+   * @param * (g) The calculated gradient.
+   * @param * (index) Layer index to calculate the backward pass.
+   */
+  virtual void Backward(const InputType& /* input */,
+                        const OutputType& /* gy */,
+                        OutputType& /* g */,
+                        const size_t /* index */)
+  { /* Nothing to do here */ }
 
   /**
    * Computing the gradient of the layer with respect to its own input. This is
@@ -144,6 +172,25 @@ class Layer
   virtual void Gradient(const InputType& /* input */,
                         const OutputType& /* error */,
                         OutputType& /* gradient */)
+  { /* Nothing to do here */ }
+
+  /**
+   * Computing the gradient of a specific layer with respect to its own input. This is
+   * returned in gradient.
+   *
+   * The layer parameters (weights and biases) are updated accordingly using the
+   * computed gradient not by the layer itself, instead they are updated by the
+   * network that holds the instantiated layer.
+   *
+   * @param * (input) The input parameter used for calculating the gradient.
+   * @param * (error) The calculated error.
+   * @param * (gradient) The calculated gradient.
+   * @param * (index) Layer index to calculate the gradient.
+   */
+  virtual void Gradient(const InputType& /* input */,
+                const InputType& /* error */,
+                OutputType& /* gradient */,
+                const size_t /* index */)
   { /* Nothing to do here */ }
 
   /**

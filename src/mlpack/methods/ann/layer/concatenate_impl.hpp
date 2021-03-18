@@ -31,6 +31,7 @@ ConcatenateType(const InputType& concat) :
 template<typename InputType, typename OutputType>
 ConcatenateType<InputType, OutputType>::
 ConcatenateType(const ConcatenateType& layer) :
+  Layer<InputType, OutputType>(layer),
   inRows(layer.inRows),
   weights(layer.weights),
   delta(layer.delta),

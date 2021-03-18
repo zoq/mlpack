@@ -18,6 +18,7 @@
 #include "layer_types.hpp"
 #include "add_merge.hpp"
 #include "sequential.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

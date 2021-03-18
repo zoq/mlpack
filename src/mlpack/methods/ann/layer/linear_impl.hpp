@@ -42,6 +42,7 @@ LinearType<InputType, OutputType, RegularizerType>::LinearType(
 template<typename InputType, typename OutputType, typename RegularizerType>
 LinearType<InputType, OutputType, RegularizerType>::LinearType(
     const LinearType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     weights(layer.weights),
