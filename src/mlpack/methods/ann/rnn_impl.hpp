@@ -555,7 +555,7 @@ void RNN<OutputLayerType, InitializationRuleType,
     arma::mat& gradient)
 {
   size_t offset = 0;
-  for (LayerTypes<CustomLayers...>& layer : network)
+  for (Layer<InputType, OutputType>& layer : network)
   {
     offset += GradientUpdate(layer, gradient, offset);
   }
@@ -625,39 +625,39 @@ template<typename Archive>
 void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
-  // ar(CEREAL_NVP(parameter));
-  // ar(CEREAL_NVP(rho));
-  // ar(CEREAL_NVP(single));
-  // ar(CEREAL_NVP(inputSize));
-  // ar(CEREAL_NVP(outputSize));
-  // ar(CEREAL_NVP(targetSize));
-  // ar(CEREAL_NVP(reset));
+//   ar(CEREAL_NVP(parameter));
+//   ar(CEREAL_NVP(rho));
+//   ar(CEREAL_NVP(single));
+//   ar(CEREAL_NVP(inputSize));
+//   ar(CEREAL_NVP(outputSize));
+//   ar(CEREAL_NVP(targetSize));
+//   ar(CEREAL_NVP(reset));
 
-  // if (cereal::is_loading<Archive>())
-  // {
-  //   std::for_each(network.begin(), network.end(),
-  //       boost::apply_visitor(deleteVisitor));
-  //   network.clear();
-  // }
+//   if (cereal::is_loading<Archive>())
+//   {
+//     for (auto it = network.begin(); it != network.end(); ++it)
+//         delete it;
+//     network.clear();
+//   }
 
-  // ar(CEREAL_VECTOR_VARIANT_POINTER(network));
+//   ar(CEREAL_VECTOR_VARIANT_POINTER(network));
 
-  // // If we are loading, we need to initialize the weights.
-  // if (cereal::is_loading<Archive>())
-  // {
-  //   size_t offset = 0;
-  //   for (LayerTypes<CustomLayers...>& layer : network)
-  //   {
-  //     offset += boost::apply_visitor(WeightSetVisitor(parameter, offset),
-  //         layer);
+//   // If we are loading, we need to initialize the weights.
+//   if (cereal::is_loading<Archive>())
+//   {
+//     size_t offset = 0;
+//     for (Layer<InputType, OutputType>& layer : network)
+//     {
+//       offset += boost::apply_visitor(WeightSetVisitor(parameter, offset),
+//           layer);
 
-  //     boost::apply_visitor(resetVisitor, layer);
-  //   }
+//       boost::apply_visitor(resetVisitor, layer);
+//     }
 
-  //   deterministic = true;
-  //   ResetDeterministic();
-  // }
-}
+//     deterministic = true;
+//     ResetDeterministic();
+//   }
+// }
 
 } // namespace ann
 } // namespace mlpack

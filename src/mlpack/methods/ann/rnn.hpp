@@ -284,7 +284,7 @@ class RNN
    *
    * @param layer The Layer to be added to the model.
    */
-  void Add(LayerTypes<InputType, OutputType>* layer) { network.push_back(layer); }
+  void Add(Layer<InputType, OutputType>* layer) { network.push_back(layer); }
 
   //! Return the number of separable functions (the number of predictor points).
   size_t NumFunctions() const { return numFunctions; }
@@ -389,7 +389,7 @@ class RNN
   bool single;
 
   //! Locally-stored model modules.
-  std::vector<LayerTypes<InputType, OutputType>* > network;
+  std::vector<Layer<InputType, OutputType>* > network;
 
   //! The matrix of data points (predictors).
   arma::cube predictors;
