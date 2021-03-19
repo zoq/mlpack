@@ -222,7 +222,7 @@ void AtrousConvolutionType<
 
     for (size_t inMap = 0; inMap < inSize; inMap++, outMapIdx++)
     {
-      arma::Mat<eT> convOutput;
+      OutputType convOutput;
 
       if (padding.PadWLeft() != 0 || padding.PadWRight() != 0 ||
           padding.PadHTop() != 0 || padding.PadHBottom() != 0)

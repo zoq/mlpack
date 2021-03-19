@@ -206,14 +206,14 @@ void GRUType<InputType, OutputType>::Backward(
     gradIterator = outParameter.end();
   }
 
-  arma::Mat<eT> gyLocal;
+  InputType gyLocal;
   if ((outParameter.size() - backwardStep  - 1) % rho != 0 && backwardStep != 0)
   {
     gyLocal = gy + output2GateModule->Delta();
   }
   else
   {
-    gyLocal = arma::Mat<eT>(((arma::Mat<eT>&) gy).memptr(), gy.n_rows,
+    gyLocal = InputType(((InputType&) gy).memptr(), gy.n_rows,
         gy.n_cols, false, false);
   }
 
@@ -357,27 +357,27 @@ template<typename Archive>
 void GRUType<InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
-  // If necessary, clean memory from the old model.
-  if (cereal::is_loading<Archive>())
-  {
-    boost::apply_visitor(deleteVisitor, input2GateModule);
-    boost::apply_visitor(deleteVisitor, output2GateModule);
-    boost::apply_visitor(deleteVisitor, outputHidden2GateModule);
-    boost::apply_visitor(deleteVisitor, inputGateModule);
-    boost::apply_visitor(deleteVisitor, forgetGateModule);
-    boost::apply_visitor(deleteVisitor, hiddenStateModule);
-  }
+  // // If necessary, clean memory from the old model.
+  // if (cereal::is_loading<Archive>())
+  // {
+  //   boost::apply_visitor(deleteVisitor, input2GateModule);
+  //   boost::apply_visitor(deleteVisitor, output2GateModule);
+  //   boost::apply_visitor(deleteVisitor, outputHidden2GateModule);
+  //   boost::apply_visitor(deleteVisitor, inputGateModule);
+  //   boost::apply_visitor(deleteVisitor, forgetGateModule);
+  //   boost::apply_visitor(deleteVisitor, hiddenStateModule);
+  // }
 
-  ar(CEREAL_NVP(inSize));
-  ar(CEREAL_NVP(outSize));
-  ar(CEREAL_NVP(rho));
+  // ar(CEREAL_NVP(inSize));
+  // ar(CEREAL_NVP(outSize));
+  // ar(CEREAL_NVP(rho));
 
-  ar(CEREAL_VARIANT_POINTER(input2GateModule));
-  ar(CEREAL_VARIANT_POINTER(output2GateModule));
-  ar(CEREAL_VARIANT_POINTER(outputHidden2GateModule));
-  ar(CEREAL_VARIANT_POINTER(inputGateModule));
-  ar(CEREAL_VARIANT_POINTER(forgetGateModule));
-  ar(CEREAL_VARIANT_POINTER(hiddenStateModule));
+  // ar(CEREAL_VARIANT_POINTER(input2GateModule));
+  // ar(CEREAL_VARIANT_POINTER(output2GateModule));
+  // ar(CEREAL_VARIANT_POINTER(outputHidden2GateModule));
+  // ar(CEREAL_VARIANT_POINTER(inputGateModule));
+  // ar(CEREAL_VARIANT_POINTER(forgetGateModule));
+  // ar(CEREAL_VARIANT_POINTER(hiddenStateModule));
 }
 
 } // namespace ann

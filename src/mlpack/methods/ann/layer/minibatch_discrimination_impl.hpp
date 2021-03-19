@@ -50,7 +50,6 @@ void MiniBatchDiscriminationType<InputType, OutputType>::Reset()
 }
 
 template<typename InputType, typename OutputType>
-template<typename eT>
 void MiniBatchDiscriminationType<InputType, OutputType>::Forward(
     const InputType& input, OutputType& output)
 {
@@ -86,14 +85,13 @@ void MiniBatchDiscriminationType<InputType, OutputType>::Forward(
 }
 
 template<typename InputType, typename OutputType>
-template<typename eT>
 void MiniBatchDiscriminationType<InputType, OutputType>::Backward(
     const InputType& /* input */,
     const InputType& gy,
     OutputType& g)
 {
   g = gy.head_rows(A);
-  arma::Mat<eT> gM = gy.tail_rows(B);
+  InputType gM = gy.tail_rows(B);
   deltaM.zeros(B, C, batchSize);
 
   for (size_t i = 0; i < M.n_slices; ++i)
@@ -117,7 +115,6 @@ void MiniBatchDiscriminationType<InputType, OutputType>::Backward(
 }
 
 template<typename InputType, typename OutputType>
-template<typename eT>
 void MiniBatchDiscriminationType<InputType, OutputType>::Gradient(
     const InputType& input,
     const InputType& /* error */,
