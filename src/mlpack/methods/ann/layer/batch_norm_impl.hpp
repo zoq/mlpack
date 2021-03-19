@@ -100,11 +100,11 @@ void BatchNormType<InputType, OutputType>::Forward(
 
     // Input corresponds to output from convolution layer.
     // Use a cube for simplicity.
-    arma::cube inputTemp(const_cast<arma::Mat<eT>&>(input).memptr(),
+    arma::cube inputTemp(const_cast<InputType&>(input).memptr(),
         inputSize, size, batchSize, false, false);
 
     // Initialize output to same size and values for convenience.
-    arma::cube outputTemp(const_cast<arma::Mat<eT>&>(output).memptr(),
+    arma::cube outputTemp(const_cast<OutputType&>(output).memptr(),
         inputSize, size, batchSize, false, false);
     outputTemp = inputTemp;
 
@@ -151,7 +151,7 @@ void BatchNormType<InputType, OutputType>::Forward(
   {
     // Normalize the input and scale and shift the output.
     output = input;
-    arma::cube outputTemp(const_cast<arma::Mat<eT>&>(output).memptr(),
+    arma::cube outputTemp(const_cast<InputType&>(output).memptr(),
         input.n_rows / size, size, batchSize, false, false);
 
     outputTemp.each_slice() -= arma::repmat(runningMean.t(),
@@ -174,9 +174,9 @@ void BatchNormType<InputType, OutputType>::Backward(
   const arma::mat stdInv = 1.0 / arma::sqrt(variance + eps);
 
   g.set_size(arma::size(input));
-  arma::cube gyTemp(const_cast<arma::Mat<eT>&>(gy).memptr(),
+  arma::cube gyTemp(const_cast<InputType&>(gy).memptr(),
       input.n_rows / size, size, input.n_cols, false, false);
-  arma::cube gTemp(const_cast<arma::Mat<eT>&>(g).memptr(),
+  arma::cube gTemp(const_cast<OutputType&>(g).memptr(),
       input.n_rows / size, size, input.n_cols, false, false);
 
   // Step 1: dl / dxhat.
@@ -203,14 +203,13 @@ void BatchNormType<InputType, OutputType>::Backward(
 }
 
 template<typename InputType, typename OutputType>
-template<typename eT>
 void BatchNormType<InputType, OutputType>::Gradient(
     const InputType& input,
     const InputType& error,
     OutputType& gradient)
 {
   gradient.set_size(size + size, 1);
-  arma::cube errorTemp(const_cast<arma::Mat<eT>&>(error).memptr(),
+  arma::cube errorTemp(const_cast<InputType&>(error).memptr(),
       error.n_rows / size, size, error.n_cols, false, false);
 
   // Step 5: dl / dy * xhat.

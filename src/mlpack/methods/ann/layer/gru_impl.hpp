@@ -16,21 +16,17 @@
 // In case it hasn't yet been included.
 #include "gru.hpp"
 
-#include "../visitor/forward_visitor.hpp"
-#include "../visitor/backward_visitor.hpp"
-#include "../visitor/gradient_visitor.hpp"
-
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputDataType, typename OutputDataType>
-GRU<InputDataType, OutputDataType>::GRU()
+template<typename InputType, typename OutputType>
+GRUType<InputType, OutputType>::GRUType()
 {
   // Nothing to do here.
 }
 
-template <typename InputDataType, typename OutputDataType>
-GRU<InputDataType, OutputDataType>::GRU(
+template <typename InputType, typename OutputType>
+GRUType<InputType, OutputType>::GRUType(
     const size_t inSize,
     const size_t outSize,
     const size_t rho) :
@@ -76,10 +72,10 @@ GRU<InputDataType, OutputDataType>::GRU(
   gradIterator = outParameter.end();
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void GRU<InputDataType, OutputDataType>::Forward(
-    const arma::Mat<eT>& input, arma::Mat<eT>& output)
+template<typename InputType, typename OutputType>
+void GRU<InputType, OutputType>::Forward(
+    const InputType& input,
+    OutputType& output)
 {
   if (input.n_cols != batchSize)
   {
@@ -89,7 +85,7 @@ void GRU<InputDataType, OutputDataType>::Forward(
     // Batch size better not change during an iteration...
     if (outParameter.size() > 1)
     {
-      Log::Fatal << "GRU<>::Forward(): batch size cannot change during a "
+      Log::Fatal << "GRU::Forward(): batch size cannot change during a "
           << "forward pass!" << std::endl;
     }
 
@@ -103,56 +99,48 @@ void GRU<InputDataType, OutputDataType>::Forward(
   }
 
   // Process the input linearly(zt, rt, ot).
-  boost::apply_visitor(ForwardVisitor(input,
-      boost::apply_visitor(outputParameterVisitor, input2GateModule)),
-      input2GateModule);
+  input2GateModule->Forward(input, input2GateModule->OutputParameter());
 
   // Process the output(zt, rt) linearly.
-  boost::apply_visitor(ForwardVisitor(*prevOutput,
-      boost::apply_visitor(outputParameterVisitor, output2GateModule)),
-      output2GateModule);
+  output2GateModule->Forward(*prevOutput, 
+      output2GateModule->OutputParameter());
+      
 
   // Merge the outputs(zt and rt).
-  output = (boost::apply_visitor(outputParameterVisitor,
-      input2GateModule).submat(0, 0, 2 * outSize - 1, batchSize - 1) +
-      boost::apply_visitor(outputParameterVisitor, output2GateModule));
+  output = (input2GateModule->OutputParameter().submat(0, 0, 2 * outSize - 1, batchSize - 1) +
+      output2GateModule->OutputParameter());
 
   // Pass the first outSize through inputGate(it).
-  boost::apply_visitor(ForwardVisitor(output.submat(
-      0, 0, 1 * outSize - 1, batchSize - 1), boost::apply_visitor(
-      outputParameterVisitor, inputGateModule)), inputGateModule);
+  inputGateModule->Forward(output.submat(
+      0, 0, 1 * outSize - 1, batchSize - 1), 
+      inputGateModule->OutputParameter());
 
   // Pass the second through forgetGate.
-  boost::apply_visitor(ForwardVisitor(output.submat(
+  forgetGateModule->Forward(output.submat(
       1 * outSize, 0, 2 * outSize - 1, batchSize - 1),
-      boost::apply_visitor(outputParameterVisitor, forgetGateModule)),
-      forgetGateModule);
+      forgetGateModule->OutputParameter());
 
-  arma::mat modInput = (boost::apply_visitor(outputParameterVisitor,
-      forgetGateModule) % *prevOutput);
+  arma::mat modInput = (forgetGateModule->OutputParameter() % *prevOutput);
 
   // Pass that through the outputHidden2GateModule.
-  boost::apply_visitor(ForwardVisitor(modInput,
-      boost::apply_visitor(outputParameterVisitor, outputHidden2GateModule)),
-      outputHidden2GateModule);
+  outputHidden2GateModule->Forward(modInput,
+      outputHidden2GateModule->OutputParameter());
 
   // Merge for ot.
-  arma::mat outputH = boost::apply_visitor(outputParameterVisitor,
-      input2GateModule).submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1) +
-      boost::apply_visitor(outputParameterVisitor, outputHidden2GateModule);
+  arma::mat outputH = input2GateModule->OutputParameter().submat(
+      2 * outSize, 0, 3 * outSize - 1, batchSize - 1) +
+      outputHidden2GateModule->OutputParameter();
 
   // Pass it through hiddenGate.
-  boost::apply_visitor(ForwardVisitor(outputH,
-      boost::apply_visitor(outputParameterVisitor, hiddenStateModule)),
-      hiddenStateModule);
+  hiddenStateModule->Forward(outputH,
+      hiddenStateModule->OutputParameter());
 
   // Update the output (nextOutput): cmul1 + cmul2
   // Where cmul1 is input gate * prevOutput and
   // cmul2 is (1 - input gate) * hidden gate.
-  output = (boost::apply_visitor(outputParameterVisitor, inputGateModule)
-      % (*prevOutput - boost::apply_visitor(outputParameterVisitor,
-      hiddenStateModule))) + boost::apply_visitor(outputParameterVisitor,
-      hiddenStateModule);
+  output = (inputGateModule->OutputParameter()
+      % (*prevOutput - hiddenStateModule->OutputParameter())) +
+      hiddenStateModule->OutputParameter();
 
   forwardStep++;
   if (forwardStep == rho)
@@ -191,10 +179,11 @@ void GRU<InputDataType, OutputDataType>::Forward(
   }
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void GRU<InputDataType, OutputDataType>::Backward(
-  const arma::Mat<eT>& input, const arma::Mat<eT>& gy, arma::Mat<eT>& g)
+template<typename InputType, typename OutputType>
+void GRUType<InputType, OutputType>::Backward(
+    const InputType& /* input */,
+    const InputType& gy,
+    OutputType& g)
 {
   if (input.n_cols != batchSize)
   {
@@ -204,7 +193,7 @@ void GRU<InputDataType, OutputDataType>::Backward(
     // Batch size better not change during an iteration...
     if (outParameter.size() > 1)
     {
-      Log::Fatal << "GRU<>::Forward(): batch size cannot change during a "
+      Log::Fatal << "GRU::Forward(): batch size cannot change during a "
           << "forward pass!" << std::endl;
     }
 
@@ -220,7 +209,7 @@ void GRU<InputDataType, OutputDataType>::Backward(
   arma::Mat<eT> gyLocal;
   if ((outParameter.size() - backwardStep  - 1) % rho != 0 && backwardStep != 0)
   {
-    gyLocal = gy + boost::apply_visitor(deltaVisitor, output2GateModule);
+    gyLocal = gy + output2GateModule->Delta();
   }
   else
   {
@@ -235,90 +224,80 @@ void GRU<InputDataType, OutputDataType>::Backward(
 
   // Delta zt.
   arma::mat dZt = gyLocal % (*backIterator -
-      boost::apply_visitor(outputParameterVisitor,
-      hiddenStateModule));
+      hiddenStateModule->OutputParameter());
 
   // Delta ot.
   arma::mat dOt = gyLocal % (arma::ones<arma::mat>(outSize, batchSize) -
-      boost::apply_visitor(outputParameterVisitor, inputGateModule));
+      inputGateModule->OutputParameter());
 
   // Delta of input gate.
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, inputGateModule), dZt,
-      boost::apply_visitor(deltaVisitor, inputGateModule)),
-      inputGateModule);
+  inputGateModule->Backward(
+      inputGateModule->OutputParameter(), dZt,
+      inputGateModule->Delta())
 
   // Delta of hidden gate.
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, hiddenStateModule), dOt,
-      boost::apply_visitor(deltaVisitor, hiddenStateModule)),
-      hiddenStateModule);
+  hiddenStateModule->Backward(
+      hiddenStateModule->OutputParameter(), dOt,
+      hiddenStateModule->Delta())
+      
 
   // Delta of outputHidden2GateModule.
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, outputHidden2GateModule),
-      boost::apply_visitor(deltaVisitor, hiddenStateModule),
-      boost::apply_visitor(deltaVisitor, outputHidden2GateModule)),
-      outputHidden2GateModule);
+  outputHidden2GateModule->Backward(
+      outputHidden2GateModule->OutputParameter(),
+      hiddenStateModule->Delta(),
+      outputHidden2GateModule->Delta());
 
   // Delta rt.
-  arma::mat dRt = boost::apply_visitor(deltaVisitor, outputHidden2GateModule) %
-      *backIterator;
+  arma::mat dRt = outputHidden2GateModule->Delta() % *backIterator;
 
   // Delta of forget gate.
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, forgetGateModule), dRt,
-      boost::apply_visitor(deltaVisitor, forgetGateModule)),
-      forgetGateModule);
+  forgetGateModule->Backward(
+      forgetGateModule->OutputParameter(), dRt,
+      forgetGateModule->Delta());
 
   // Put delta zt.
-  prevError.submat(0, 0, 1 * outSize - 1, batchSize - 1) = boost::apply_visitor(
-      deltaVisitor, inputGateModule);
+  prevError.submat(0, 0, 1 * outSize - 1, batchSize - 1) = 
+      inputGateModule->Delta();
 
   // Put delta rt.
   prevError.submat(1 * outSize, 0, 2 * outSize - 1, batchSize - 1) =
-      boost::apply_visitor(deltaVisitor, forgetGateModule);
+      forgetGateModule->Delta();
 
   // Put delta ot.
   prevError.submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1) =
-      boost::apply_visitor(deltaVisitor, hiddenStateModule);
+      hiddenStateModule->Delta();
 
   // Get delta ht - 1 for input gate and forget gate.
   arma::mat prevErrorSubview = prevError.submat(0, 0, 2 * outSize - 1,
       batchSize - 1);
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, input2GateModule),
+  output2GateModule->Backward(
+      input2GateModule->OutputParameter(),
       prevErrorSubview,
-      boost::apply_visitor(deltaVisitor, output2GateModule)),
-      output2GateModule);
+      output2GateModule->Delta());
 
   // Add delta ht - 1 from hidden state.
-  boost::apply_visitor(deltaVisitor, output2GateModule) +=
-      boost::apply_visitor(deltaVisitor, outputHidden2GateModule) %
-      boost::apply_visitor(outputParameterVisitor, forgetGateModule);
+  output2GateModule->Delta() += outputHidden2GateModule->Delta() %
+      forgetGateModule->OutputParameter();
 
   // Add delta ht - 1 from ht.
-  boost::apply_visitor(deltaVisitor, output2GateModule) += gyLocal %
-      boost::apply_visitor(outputParameterVisitor, inputGateModule);
+  output2GateModule->Delta() += gyLocal % 
+      inputGateModule->OutputParameter();
 
   // Get delta input.
-  boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-      outputParameterVisitor, input2GateModule), prevError,
-      boost::apply_visitor(deltaVisitor, input2GateModule)),
-      input2GateModule);
+  input2GateModule->Backward(input2GateModule->OutputParameter(),
+      prevError, input2GateModule->Delta());
 
   backwardStep++;
   backIterator--;
 
-  g = boost::apply_visitor(deltaVisitor, input2GateModule);
+  g = input2GateModule->Delta();
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void GRU<InputDataType, OutputDataType>::Gradient(
-    const arma::Mat<eT>& input,
-    const arma::Mat<eT>& /* error */,
-    arma::Mat<eT>& /* gradient */)
+template<typename InputType, typename OutputType>
+void GRUType<InputType, OutputType>::Gradient(
+    const InputType& input,
+    const InputType& /* error */,
+    OutputType& /* gradient */)
 {
   if (input.n_cols != batchSize)
   {
@@ -328,7 +307,7 @@ void GRU<InputDataType, OutputDataType>::Gradient(
     // Batch size better not change during an iteration...
     if (outParameter.size() > 1)
     {
-      Log::Fatal << "GRU<>::Forward(): batch size cannot change during a "
+      Log::Fatal << "GRU::Forward(): batch size cannot change during a "
           << "forward pass!" << std::endl;
     }
 
@@ -346,24 +325,20 @@ void GRU<InputDataType, OutputDataType>::Gradient(
     gradIterator = --(--outParameter.end());
   }
 
-  boost::apply_visitor(GradientVisitor(input, prevError), input2GateModule);
+  input2GateModule->Gradient(input, prevError);
 
-  boost::apply_visitor(GradientVisitor(
-      *gradIterator,
-      prevError.submat(0, 0, 2 * outSize - 1, batchSize - 1)),
-      output2GateModule);
+  output2GateModule->Gradient(*gradIterator,
+      prevError.submat(0, 0, 2 * outSize - 1, batchSize - 1));
 
-  boost::apply_visitor(GradientVisitor(
-      *gradIterator % boost::apply_visitor(outputParameterVisitor,
-      forgetGateModule),
-      prevError.submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1)),
-      outputHidden2GateModule);
+  outputHidden2GateModule->Gradient(*gradIterator %
+      forgetGateModule->OutputParameter(),
+      prevError.submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1));
 
   gradIterator--;
 }
 
-template<typename InputDataType, typename OutputDataType>
-void GRU<InputDataType, OutputDataType>::ResetCell(const size_t /* size */)
+template<typename InputType, typename OutputType>
+void GRUType<InputType, OutputType>::ResetCell(const size_t /* size */)
 {
   outParameter.clear();
   outParameter.emplace_back(allZeros.memptr(),
@@ -377,9 +352,9 @@ void GRU<InputDataType, OutputDataType>::ResetCell(const size_t /* size */)
   backwardStep = 0;
 }
 
-template<typename InputDataType, typename OutputDataType>
+template<typename InputType, typename OutputType>
 template<typename Archive>
-void GRU<InputDataType, OutputDataType>::serialize(
+void GRUType<InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   // If necessary, clean memory from the old model.

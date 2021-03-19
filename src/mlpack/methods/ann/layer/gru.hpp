@@ -31,12 +31,10 @@
 
 #include <mlpack/prereqs.hpp>
 
-#include "../visitor/delta_visitor.hpp"
-#include "../visitor/output_parameter_visitor.hpp"
-
 #include "layer_types.hpp"
 #include "add_merge.hpp"
 #include "sequential.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -46,20 +44,20 @@ namespace ann /** Artificial Neural Network. */ {
  *
  * This cell can be used in RNN networks.
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
 template <
-    typename InputDataType = arma::mat,
-    typename OutputDataType = arma::mat
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
 >
-class GRU
+class GRUType : public Layer<InputType, OutputType>
 {
  public:
   //! Create the GRU object.
-  GRU();
+  GRUType();
 
   /**
    * Create the GRU layer object using the specified parameters.
@@ -68,9 +66,9 @@ class GRU
    * @param outSize The number of output units.
    * @param rho Maximum number of steps to backpropagate through time (BPTT).
    */
-  GRU(const size_t inSize,
-      const size_t outSize,
-      const size_t rho = std::numeric_limits<size_t>::max());
+  GRUType(const size_t inSize,
+          const size_t outSize,
+          const size_t rho = std::numeric_limits<size_t>::max());
 
   /**
    * Ordinary feed forward pass of a neural network, evaluating the function
@@ -79,8 +77,7 @@ class GRU
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  template<typename eT>
-  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Ordinary feed backward pass of a neural network, calculating the function
@@ -91,10 +88,9 @@ class GRU
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& /* input */,
-                const arma::Mat<eT>& gy,
-                arma::Mat<eT>& g);
+  void Backward(const InputType& /* input */,
+                const InputType& gy,
+                OutputType& g);
 
   /*
    * Calculate the gradient using the output delta and the input activation.
@@ -103,10 +99,9 @@ class GRU
    * @param error The calculated error.
    * @param gradient The calculated gradient.
    */
-  template<typename eT>
-  void Gradient(const arma::Mat<eT>& input,
-                const arma::Mat<eT>& /* error */,
-                arma::Mat<eT>& /* gradient */);
+  void Gradient(const InputType& input,
+                const InputType& /* error */,
+                OutputType& /* gradient */);
 
   /*
    * Resets the cell to accept a new input. This breaks the BPTT chain starts a
@@ -127,24 +122,24 @@ class GRU
   size_t& Rho() { return rho; }
 
   //! Get the parameters.
-  OutputDataType const& Parameters() const { return weights; }
+  OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
-  OutputDataType& Parameters() { return weights; }
+  OutputType& Parameters() { return weights; }
 
   //! Get the output parameter.
-  OutputDataType const& OutputParameter() const { return outputParameter; }
+  OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
+  OutputType& OutputParameter() { return outputParameter; }
 
   //! Get the delta.
-  OutputDataType const& Delta() const { return delta; }
+  OutputType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
+  OutputType& Delta() { return delta; }
 
   //! Get the gradient.
-  OutputDataType const& Gradient() const { return gradient; }
+  OutputType const& Gradient() const { return gradient; }
   //! Modify the gradient.
-  OutputDataType& Gradient() { return gradient; }
+  OutputType& Gradient() { return gradient; }
 
   //! Get the model modules.
   std::vector<LayerTypes<> >& Model() { return network; }
@@ -175,7 +170,7 @@ class GRU
   size_t batchSize;
 
   //! Locally-stored weight object.
-  OutputDataType weights;
+  OutputType weights;
 
   //! Locally-stored input 2 gate module.
   LayerTypes<> input2GateModule;
@@ -194,12 +189,6 @@ class GRU
 
   //! Locally-stored forget gate module.
   LayerTypes<> forgetGateModule;
-
-  //! Locally-stored output parameter visitor.
-  OutputParameterVisitor outputParameterVisitor;
-
-  //! Locally-stored delta visitor.
-  DeltaVisitor deltaVisitor;
 
   //! Locally-stored delete visitor.
   DeleteVisitor deleteVisitor;
@@ -238,14 +227,17 @@ class GRU
   bool deterministic;
 
   //! Locally-stored delta object.
-  OutputDataType delta;
+  OutputType delta;
 
   //! Locally-stored gradient object.
-  OutputDataType gradient;
+  OutputType gradient;
 
   //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
+  OutputType outputParameter;
 }; // class GRU
+
+// Standard GRU layer. 
+typedef GRUType<arma::mat, arma::mat> GRU;
 
 } // namespace ann
 } // namespace mlpack

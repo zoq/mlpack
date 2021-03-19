@@ -48,7 +48,7 @@ void AlphaDropoutType<InputType, OutputType>::Forward(
     // Set values to alphaDash with probability ratio.  Then apply affine
     // transformation so as to keep mean and variance of outputs to their
     // original values.
-    mask = arma::randu< arma::Mat<eT> >(input.n_rows, input.n_cols);
+    mask = arma::randu<InputType>(input.n_rows, input.n_cols);
     mask.transform( [&](double val) { return (val > ratio); } );
     output = (input % mask + alphaDash * (1 - mask)) * a + b;
   }

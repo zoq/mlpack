@@ -1474,129 +1474,129 @@ TEST_CASE("WriteCellStateParamLSTMLayerTest", "[ANNLayerTest]")
  * Test that the functions that can modify and access the parameters of the
  * GRU layer work.
  */
-// TEST_CASE("GRULayerParametersTest", "[ANNLayerTest]")
-// {
-//   // Parameter order : inSize, outSize, rho.
-//   GRU<> layer1(1, 2, 3);
-//   GRU<> layer2(1, 2, 4);
+TEST_CASE("GRULayerParametersTest", "[ANNLayerTest]")
+{
+  // Parameter order : inSize, outSize, rho.
+  GRU layer1(1, 2, 3);
+  GRU layer2(1, 2, 4);
 
-//   // Make sure we can get the parameters successfully.
-//   REQUIRE(layer1.InSize() == 1);
-//   REQUIRE(layer1.OutSize() == 2);
-//   REQUIRE(layer1.Rho() == 3);
+  // Make sure we can get the parameters successfully.
+  REQUIRE(layer1.InSize() == 1);
+  REQUIRE(layer1.OutSize() == 2);
+  REQUIRE(layer1.Rho() == 3);
 
-//   // Now modify the parameters to match the second layer.
-//   layer1.Rho() = 4;
+  // Now modify the parameters to match the second layer.
+  layer1.Rho() = 4;
 
-//   // Now ensure all the results are the same.
-//   REQUIRE(layer1.InSize() == layer2.InSize());
-//   REQUIRE(layer1.OutSize() == layer2.OutSize());
-//   REQUIRE(layer1.Rho() == layer2.Rho());
-// }
+  // Now ensure all the results are the same.
+  REQUIRE(layer1.InSize() == layer2.InSize());
+  REQUIRE(layer1.OutSize() == layer2.OutSize());
+  REQUIRE(layer1.Rho() == layer2.Rho());
+}
 
-// /**
-//  * Check if the gradients computed by GRU cell are close enough to the
-//  * approximation of the gradients.
-//  */
-// TEST_CASE("GradientGRULayerTest", "[ANNLayerTest]")
-// {
-//   // GRU function gradient instantiation.
-//   struct GradientFunction
-//   {
-//     GradientFunction() :
-//         input(arma::randu(1, 1, 5)),
-//         target(arma::ones(1, 1, 5))
-//     {
-//       const size_t rho = 5;
+/**
+ * Check if the gradients computed by GRU cell are close enough to the
+ * approximation of the gradients.
+ */
+TEST_CASE("GradientGRULayerTest", "[ANNLayerTest]")
+{
+  // GRU function gradient instantiation.
+  struct GradientFunction
+  {
+    GradientFunction() :
+        input(arma::randu(1, 1, 5)),
+        target(arma::ones(1, 1, 5))
+    {
+      const size_t rho = 5;
 
-//       model = new RNN<NegativeLogLikelihood<> >(rho);
-//       model->Predictors() = input;
-//       model->Responses() = target;
-//       model->Add<IdentityLayer<> >();
-//       model->Add<Linear<> >(1, 10);
-//       model->Add<GRU<> >(10, 3, rho);
-//       model->Add<LogSoftMax<> >();
-//     }
+      model = new RNN<NegativeLogLikelihood<> >(rho);
+      model->Predictors() = input;
+      model->Responses() = target;
+      model->Add<IdentityLayer>();
+      model->Add<Linear>(1, 10);
+      model->Add<GRU>(10, 3, rho);
+      model->Add<LogSoftMax>();
+    }
 
-//     ~GradientFunction()
-//     {
-//       delete model;
-//     }
+    ~GradientFunction()
+    {
+      delete model;
+    }
 
-//     double Gradient(arma::mat& gradient) const
-//     {
-//       arma::mat output;
-//       double error = model->Evaluate(model->Parameters(), 0, 1);
-//       model->Gradient(model->Parameters(), 0, gradient, 1);
-//       return error;
-//     }
+    double Gradient(arma::mat& gradient) const
+    {
+      arma::mat output;
+      double error = model->Evaluate(model->Parameters(), 0, 1);
+      model->Gradient(model->Parameters(), 0, gradient, 1);
+      return error;
+    }
 
-//     arma::mat& Parameters() { return model->Parameters(); }
+    arma::mat& Parameters() { return model->Parameters(); }
 
-//     RNN<NegativeLogLikelihood<> >* model;
-//     arma::cube input, target;
-//   } function;
+    RNN<NegativeLogLikelihood<> >* model;
+    arma::cube input, target;
+  } function;
 
-//   REQUIRE(CheckGradient(function) <= 1e-4);
-// }
+  REQUIRE(CheckGradient(function) <= 1e-4);
+}
 
-// /**
-//  * GRU layer manual forward test.
-//  */
-// TEST_CASE("ForwardGRULayerTest", "[ANNLayerTest]")
-// {
-//   // This will make it easier to clean memory later.
-//   GRU<>* gruAlloc = new GRU<>(3, 3, 5);
-//   GRU<>& gru = *gruAlloc;
+/**
+ * GRU layer manual forward test.
+ */
+TEST_CASE("ForwardGRULayerTest", "[ANNLayerTest]")
+{
+  // This will make it easier to clean memory later.
+  GRU* gruAlloc = new GRU(3, 3, 5);
+  GRU& gru = *gruAlloc;
 
-//   // Initialize the weights to all ones.
-//   NetworkInitialization<ConstInitialization>
-//     networkInit(ConstInitialization(1));
-//   networkInit.Initialize(gru.Model(), gru.Parameters());
+  // Initialize the weights to all ones.
+  NetworkInitialization<ConstInitialization>
+    networkInit(ConstInitialization(1));
+  networkInit.Initialize(gru.Model(), gru.Parameters());
 
-//   // Provide input of all ones.
-//   arma::mat input = arma::ones(3, 1);
-//   arma::mat output;
+  // Provide input of all ones.
+  arma::mat input = arma::ones(3, 1);
+  arma::mat output;
 
-//   gru.Forward(input, output);
+  gru.Forward(input, output);
 
-//   // Compute the z_t gate output.
-//   arma::mat expectedOutput = arma::ones(3, 1);
-//   expectedOutput *= -4;
-//   expectedOutput = arma::exp(expectedOutput);
-//   expectedOutput = arma::ones(3, 1) / (arma::ones(3, 1) + expectedOutput);
-//   expectedOutput = (arma::ones(3, 1)  - expectedOutput) % expectedOutput;
+  // Compute the z_t gate output.
+  arma::mat expectedOutput = arma::ones(3, 1);
+  expectedOutput *= -4;
+  expectedOutput = arma::exp(expectedOutput);
+  expectedOutput = arma::ones(3, 1) / (arma::ones(3, 1) + expectedOutput);
+  expectedOutput = (arma::ones(3, 1)  - expectedOutput) % expectedOutput;
 
-//   // For the first input the output should be equal to the output of
-//   // gate z_t as the previous output fed to the cell is all zeros.
-//   REQUIRE(arma::as_scalar(arma::trans(output) * expectedOutput) <= 1e-2);
+  // For the first input the output should be equal to the output of
+  // gate z_t as the previous output fed to the cell is all zeros.
+  REQUIRE(arma::as_scalar(arma::trans(output) * expectedOutput) <= 1e-2);
 
-//   expectedOutput = output;
+  expectedOutput = output;
 
-//   gru.Forward(input, output);
+  gru.Forward(input, output);
 
-//   double s = arma::as_scalar(arma::sum(expectedOutput));
+  double s = arma::as_scalar(arma::sum(expectedOutput));
 
-//   // Compute the value of z_t gate for the second input.
-//   arma::mat z_t = arma::ones(3, 1);
-//   z_t *= -(s + 4);
-//   z_t = arma::exp(z_t);
-//   z_t = arma::ones(3, 1) / (arma::ones(3, 1) + z_t);
+  // Compute the value of z_t gate for the second input.
+  arma::mat z_t = arma::ones(3, 1);
+  z_t *= -(s + 4);
+  z_t = arma::exp(z_t);
+  z_t = arma::ones(3, 1) / (arma::ones(3, 1) + z_t);
 
-//   // Compute the value of o_t gate for the second input.
-//   arma::mat o_t = arma::ones(3, 1);
-//   o_t *= -(arma::as_scalar(arma::sum(expectedOutput % z_t)) + 4);
-//   o_t = arma::exp(o_t);
-//   o_t = arma::ones(3, 1) / (arma::ones(3, 1) + o_t);
+  // Compute the value of o_t gate for the second input.
+  arma::mat o_t = arma::ones(3, 1);
+  o_t *= -(arma::as_scalar(arma::sum(expectedOutput % z_t)) + 4);
+  o_t = arma::exp(o_t);
+  o_t = arma::ones(3, 1) / (arma::ones(3, 1) + o_t);
 
-//   // Expected output for the second input.
-//   expectedOutput = z_t % expectedOutput + (arma::ones(3, 1) - z_t) % o_t;
+  // Expected output for the second input.
+  expectedOutput = z_t % expectedOutput + (arma::ones(3, 1) - z_t) % o_t;
 
-//   REQUIRE(arma::as_scalar(arma::trans(output) * expectedOutput) <= 1e-2);
+  REQUIRE(arma::as_scalar(arma::trans(output) * expectedOutput) <= 1e-2);
 
-//   LayerTypes<> layer(gruAlloc);
-//   boost::apply_visitor(DeleteVisitor(), layer);
-// }
+  LayerTypes<> layer(gruAlloc);
+  boost::apply_visitor(DeleteVisitor(), layer);
+}
 
 /**
  * Simple concat module test.

@@ -58,7 +58,6 @@ RBFType<InputType, OutputType, Activation>::RBFType(
 
 template<typename InputType, typename OutputType,
          typename Activation>
-template<typename eT>
 void RBFType<InputType, OutputType, Activation>::Forward(
     const InputType& input,
     OutputType& output)
@@ -78,7 +77,6 @@ void RBFType<InputType, OutputType, Activation>::Forward(
 
 template<typename InputType, typename OutputType,
          typename Activation>
-template<typename eT>
 void RBFType<InputType, OutputType, Activation>::Backward(
     const InputType& /* input */,
     const InputType& /* gy */,
