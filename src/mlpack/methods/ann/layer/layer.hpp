@@ -216,6 +216,9 @@ class Layer
     return model;
   }
 
+  virtual void Add(Layer<InputType, OutputType>* /* layer */ )
+  { /* Nothing to do here */ }
+
   //! Get the parameters.
   virtual OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
@@ -287,6 +290,12 @@ class Layer
   //! Modify the input height.
   virtual size_t& InputHeight() { return inputHeight; }
 
+  //! Get the value of run parameter.
+  virtual bool Run() const { return run; }
+
+  //! Modify the value of run parameter.
+  virtual bool& Run() { return run; }
+
  private:
   //! Locally-stored output width.
   size_t outputWidth;
@@ -317,6 +326,10 @@ class Layer
 
   //! If true testing mode otherwise training mode.
   bool deterministic;
+
+  //! Parameter which indicates if the Forward/Backward method should be called
+  //! before merging the output.
+  bool run;
 
   //! Locally-stored gradient object.
   OutputType gradient;

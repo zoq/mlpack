@@ -1,14 +1,16 @@
 # Define the files we need to compile
 # Anything not in this list will not be compiled into mlpack.
 set(SOURCES
-  load_output_parameter.hpp
-  output_width_update.hpp
   deterministic_update.hpp
-  loss_update.hpp
-  reset_update.hpp
   gradient_update.hpp
+  load_output_parameter.hpp
+  loss_update.hpp
   output_height_update.hpp
+  output_width_update.hpp
+  reset_update.hpp
+  run_set.hpp
   save_output_parameter.hpp
+  weight_size.hpp
 )
 
 # Add directory name to sources.

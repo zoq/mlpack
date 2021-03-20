@@ -16,24 +16,19 @@
 // In case it hasn't been included yet.
 #include "brnn.hpp"
 
-#include "visitor/load_output_parameter_visitor.hpp"
-#include "visitor/save_output_parameter_visitor.hpp"
-#include "visitor/forward_visitor.hpp"
-#include "visitor/backward_visitor.hpp"
-#include "visitor/reset_cell_visitor.hpp"
-#include "visitor/gradient_set_visitor.hpp"
-#include "visitor/gradient_visitor.hpp"
-#include "visitor/weight_set_visitor.hpp"
-#include "visitor/run_set_visitor.hpp"
+#include "util/run_set.hpp"
+#include "util/weight_size.hpp"
+#include "util/load_output_parameter.hpp"
+#include "util/save_output_parameter.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::BRNN(
+    InitializationRuleType, InputType, OutputType>::BRNN(
     const size_t rho,
     const bool single,
     OutputLayerType outputLayer,
@@ -60,30 +55,30 @@ BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::~BRNN()
+    InitializationRuleType, InputType, OutputType>::~BRNN()
 {
   // Remove the last layers from the forward and backward RNNs, as they are held
-  // in mergeLayer.  So, when we use DeleteVisitor with mergeLayer, those two
+  // in mergeLayer.  So, when we use delete with mergeLayer, those two
   // layers will be properly (and not doubly) freed.
   forwardRNN.network.pop_back();
   backwardRNN.network.pop_back();
 
   // Clean up layers that we allocated.
-  boost::apply_visitor(DeleteVisitor(), mergeLayer);
-  boost::apply_visitor(DeleteVisitor(), mergeOutput);
+  delete mergeLayer;
+  delete mergeOutput;
 }
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename OptimizerType>
 typename std::enable_if<
       HasMaxIterations<OptimizerType, size_t&(OptimizerType::*)()>
       ::value, void>::type
 BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::WarnMessageMaxIterations
+    InitializationRuleType, InputType, OutputType>::WarnMessageMaxIterations
 (OptimizerType& optimizer, size_t samples) const
 {
   if (optimizer.MaxIterations() < samples &&
@@ -101,13 +96,13 @@ BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename OptimizerType>
 typename std::enable_if<
       !HasMaxIterations<OptimizerType, size_t&(OptimizerType::*)()>
       ::value, void>::type
 BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::WarnMessageMaxIterations
+    InitializationRuleType, InputType, OutputType>::WarnMessageMaxIterations
 (OptimizerType& /* optimizer */, size_t /* samples */) const
 {
   return;
@@ -115,10 +110,10 @@ BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename OptimizerType>
 double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Train(
+    InitializationRuleType, InputType, OutputType>::Train(
     arma::cube predictors,
     arma::cube responses,
     OptimizerType& optimizer)
@@ -150,10 +145,10 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename OptimizerType>
 double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Train(
+    InitializationRuleType, InputType, OutputType>::Train(
     arma::cube predictors,
     arma::cube responses)
 {
@@ -184,9 +179,9 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Predict(
+    InitializationRuleType, InputType, OutputType>::Predict(
     arma::cube predictors, arma::cube& results, const size_t batchSize)
 {
   forwardRNN.rho = backwardRNN.rho = rho;
@@ -230,40 +225,34 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
           predictors.slice(rho - seqNum - 1).colptr(begin),
           predictors.n_rows, effectiveBatchSize, false, true)));
 
-      boost::apply_visitor(SaveOutputParameterVisitor(results1),
-          forwardRNN.network.back());
-      boost::apply_visitor(SaveOutputParameterVisitor(results2),
-          backwardRNN.network.back());
+      SaveOutputParameter(forwardRNN.network.back(), results1)
+      SaveOutputParameter(backwardRNN.network.back(), results2),
     }
     reverse(results1.begin(), results1.end());
 
     // Forward outputs from both RNN's through merge layer for each time step.
     for (size_t seqNum = 0; seqNum < rho; ++seqNum)
     {
-      boost::apply_visitor(LoadOutputParameterVisitor(results1),
-          forwardRNN.network.back());
-      boost::apply_visitor(LoadOutputParameterVisitor(results2),
-          backwardRNN.network.back());
+      LoadOutputParameter(forwardRNN.network.back(), results1);
+      LoadOutputParameter(backwardRNN.network.back(), results2);          
 
-      boost::apply_visitor(ForwardVisitor(input,
-          boost::apply_visitor(outputParameterVisitor, mergeLayer)),
-          mergeLayer);
-      boost::apply_visitor(ForwardVisitor(
-          boost::apply_visitor(outputParameterVisitor, mergeLayer),
-          boost::apply_visitor(outputParameterVisitor, mergeOutput)),
-          mergeOutput);
+      mergeLayer->Forward(input,
+          mergeLayer->OutputParameter());
+      mergeOutput->Forward(
+          mergeLayer->OutputParameter(),
+          mergeOutput->OutputParameter());
       results.slice(seqNum).submat(0, begin, results.n_rows - 1, begin +
           effectiveBatchSize - 1) =
-          boost::apply_visitor(outputParameterVisitor, mergeOutput);
+          mergeOutput->OutputParameter();
     }
   }
 }
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Evaluate(
+    InitializationRuleType, InputType, OutputType>::Evaluate(
     const arma::mat& /* parameters */,
     const size_t begin,
     const size_t batchSize,
@@ -307,15 +296,13 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
         predictors.slice(rho - seqNum - 1).colptr(begin),
         predictors.n_rows, batchSize, false, true));
 
-    boost::apply_visitor(SaveOutputParameterVisitor(results1),
-        forwardRNN.network.back());
-    boost::apply_visitor(SaveOutputParameterVisitor(results2),
-        backwardRNN.network.back());
+    SaveOutputParameter(forwardRNN.network.back(), results1);
+    SaveOutputParameter(backwardRNN.network.back(), results2);
   }
   if (outputSize == 0)
   {
-    outputSize = boost::apply_visitor(outputParameterVisitor,
-        forwardRNN.network.back()).n_elem / batchSize;
+    outputSize = (forwardRNN.network.back()->OutputParameter()).n_elem /
+        batchSize;
     forwardRNN.outputSize = backwardRNN.outputSize = outputSize;
   }
   reverse(results1.begin(), results1.end());
@@ -328,20 +315,16 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
     {
       responseSeq = seqNum;
     }
-    boost::apply_visitor(LoadOutputParameterVisitor(results1),
-        forwardRNN.network.back());
-    boost::apply_visitor(LoadOutputParameterVisitor(results2),
-        backwardRNN.network.back());
+    LoadOutputParameter(forwardRNN.network.back(), results1);
+    LoadOutputParameter(backwardRNN.network.back(), results2);
 
-    boost::apply_visitor(ForwardVisitor(input,
-        boost::apply_visitor(outputParameterVisitor, mergeLayer)),
-        mergeLayer);
-    boost::apply_visitor(ForwardVisitor(
-        boost::apply_visitor(outputParameterVisitor, mergeLayer),
-        boost::apply_visitor(outputParameterVisitor, mergeOutput)),
-        mergeOutput);
+    mergeLayer->Forward(input,
+        mergeLayer->OutputParameter());
+    mergeOutput->Forward(
+        mergeLayer->OutputParameter(),
+        mergeOutput->OutputParameter());
     performance += outputLayer.Forward(
-        boost::apply_visitor(outputParameterVisitor, mergeOutput),
+        mergeOutput->OutputParameter(),
         arma::mat(responses.slice(responseSeq).colptr(begin),
         responses.n_rows, batchSize, false, true));
   }
@@ -350,9 +333,9 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Evaluate(
+    InitializationRuleType, InputType, OutputType>::Evaluate(
     const arma::mat& parameters,
     const size_t begin,
     const size_t batchSize)
@@ -362,10 +345,10 @@ double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename GradType>
 double BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::
+    InitializationRuleType, InputType, OutputType>::
 EvaluateWithGradient(const arma::mat& /* parameters */,
                      const size_t begin,
                      GradType& gradient,
@@ -427,20 +410,16 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
 
     for (size_t l = 0; l < networkSize; ++l)
     {
-      boost::apply_visitor(SaveOutputParameterVisitor(
-          forwardRNNOutputParameter), forwardRNN.network[l]);
-      boost::apply_visitor(SaveOutputParameterVisitor(
-          backwardRNNOutputParameter), backwardRNN.network[l]);
+      SaveOutputParameter(forwardRNN.network[l], forwardRNNOutputParameter);
+      SaveOutputParameter(backwardRNN.network[l], backwardRNNOutputParameter);
     }
-    boost::apply_visitor(SaveOutputParameterVisitor(results1),
-        forwardRNN.network.back());
-    boost::apply_visitor(SaveOutputParameterVisitor(results2),
-        backwardRNN.network.back());
+    SaveOutputParameter(forwardRNN.network.back(), results1);
+    SaveOutputParameter(backwardRNN.network.back(), results2);
   }
   if (outputSize == 0)
   {
-    outputSize = boost::apply_visitor(outputParameterVisitor,
-        forwardRNN.network.back()).n_elem / batchSize;
+    outputSize = (forwardRNN.network.back()->OutputParameter()).n_elem /
+        batchSize;
     forwardRNN.outputSize = backwardRNN.outputSize = outputSize;
   }
 
@@ -466,16 +445,13 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
     {
       responseSeq = seqNum;
     }
-    boost::apply_visitor(LoadOutputParameterVisitor(
-          results1), forwardRNN.network.back());
-    boost::apply_visitor(LoadOutputParameterVisitor(
-          results2), backwardRNN.network.back());
-    boost::apply_visitor(ForwardVisitor(input,
-        boost::apply_visitor(outputParameterVisitor, mergeLayer)),
-        mergeLayer);
-    boost::apply_visitor(ForwardVisitor(
-        boost::apply_visitor(outputParameterVisitor, mergeLayer),
-        results.slice(seqNum)), mergeOutput);
+    LoadOutputParameter(forwardRNN.network.back(), results1);
+    LoadOutputParameter(backwardRNN.network.back(), results2);
+    mergeLayer->Forward(input,
+        mergeLayer->OutputParameter());
+    mergeOutput->Forward(
+        mergeLayer->OutputParameter(),
+        results.slice(seqNum));
     performance += outputLayer.Forward(results.slice(seqNum),
         arma::mat(responses.slice(responseSeq).colptr(begin),
         responses.n_rows, batchSize, false, true));
@@ -504,8 +480,7 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
           responses.n_rows, batchSize, false, true), error);
     }
 
-    boost::apply_visitor(BackwardVisitor(results.slice(seqNum), error, delta),
-        mergeOutput);
+    mergeOutput->Backward(results.slice(seqNum), error, delta);
     allDelta.push_back(arma::mat(delta));
   }
 
@@ -523,33 +498,26 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
     forwardGradient.zeros();
     for (size_t l = 0; l < networkSize; ++l)
     {
-      boost::apply_visitor(LoadOutputParameterVisitor(
-          forwardRNNOutputParameter),
-          forwardRNN.network[networkSize - 1 - l]);
+      LoadOutputParameter(forwardRNN.network[networkSize - 1 - l],
+          forwardRNNOutputParameter)
     }
-    boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-        outputParameterVisitor, forwardRNN.network.back()),
-        allDelta[rho - seqNum - 1], delta, 0),
-        mergeLayer);
+    mergeLayer->Backward(
+        forwardRNN.network.back()->OutputParameter(),
+        allDelta[rho - seqNum - 1], delta, 0);
 
     for (size_t i = 2; i < networkSize; ++i)
     {
-      boost::apply_visitor(BackwardVisitor(
-          boost::apply_visitor(outputParameterVisitor,
-          forwardRNN.network[networkSize - i]),
-          boost::apply_visitor(deltaVisitor,
-          forwardRNN.network[networkSize - i + 1]),
-          boost::apply_visitor(deltaVisitor,
-          forwardRNN.network[networkSize - i])),
-          forwardRNN.network[networkSize - i]);
+      forwardRNN.network[networkSize - i]->Backward(
+          forwardRNN.network[networkSize - i]->OutputParameter(),
+          forwardRNN.network[networkSize - i + 1]->Delta(),
+          forwardRNN.network[networkSize - i]->Delta());
     }
     forwardRNN.Gradient(
         arma::mat(predictors.slice(rho - seqNum - 1).colptr(begin),
         predictors.n_rows, batchSize, false, true));
-    boost::apply_visitor(GradientVisitor(
-        boost::apply_visitor(outputParameterVisitor,
-        forwardRNN.network[networkSize - 2]),
-        allDelta[rho - seqNum - 1], 0), mergeLayer);
+    mergeLayer->Gradient(
+        forwardRNN.network[networkSize - 2]->OutputParameter(),
+        allDelta[rho - seqNum - 1], 0);
     totalGradient += forwardGradient;
   }
 
@@ -562,32 +530,27 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
     backwardGradient.zeros();
     for (size_t l = 0; l < networkSize; ++l)
     {
-      boost::apply_visitor(LoadOutputParameterVisitor(
-          backwardRNNOutputParameter),
-          backwardRNN.network[networkSize - 1 - l]);
+      LoadOutputParameter(backwardRNN.network[networkSize - 1 - l],
+          backwardRNNOutputParameter)
     }
-    boost::apply_visitor(BackwardVisitor(
-        boost::apply_visitor(outputParameterVisitor,
-        backwardRNN.network.back()),
-        allDelta[seqNum], delta, 1), mergeLayer);
+    mergeLayer->Backward(
+        backwardRNN.network.back()->OutputParameter(),
+        allDelta[seqNum], delta, 1);
     for (size_t i = 2; i < networkSize; ++i)
     {
-      boost::apply_visitor(BackwardVisitor(
-        boost::apply_visitor(outputParameterVisitor,
-        backwardRNN.network[networkSize - i]), boost::apply_visitor(
-        deltaVisitor, backwardRNN.network[networkSize - i + 1]),
-        boost::apply_visitor(deltaVisitor,
-        backwardRNN.network[networkSize - i])),
-        backwardRNN.network[networkSize - i]);
+      backwardRNN.network[networkSize - i]->Backward(
+        backwardRNN.network[networkSize - i]->OutputParameter(),
+        backwardRNN.network[networkSize - i + 1]->Delta(),
+        backwardRNN.network[networkSize - i]->Delta());
+        
     }
 
     backwardRNN.Gradient(
         arma::mat(predictors.slice(seqNum).colptr(begin),
         predictors.n_rows, batchSize, false, true));
-    boost::apply_visitor(GradientVisitor(
-        std::move(boost::apply_visitor(outputParameterVisitor,
-        backwardRNN.network[networkSize - 2])),
-        allDelta[seqNum], 1), mergeLayer);
+    mergeLayer->Gradient(std::move(
+        backwardRNN.network[networkSize - 2]->OutputParameter()),
+        allDelta[seqNum], 1);
     totalGradient += backwardGradient;
   }
   return performance;
@@ -595,9 +558,9 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Gradient(
+    InitializationRuleType, InputType, OutputType>::Gradient(
     const arma::mat& parameters,
     const size_t begin,
     arma::mat& gradient,
@@ -608,9 +571,9 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Shuffle()
+    InitializationRuleType, InputType, OutputType>::Shuffle()
 {
   arma::cube newPredictors, newResponses;
   math::ShuffleData(predictors, responses, newPredictors, newResponses);
@@ -621,10 +584,10 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template <class LayerType, class... Args>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Add(Args... args)
+    InitializationRuleType, InputType, OutputType>::Add(Args... args)
 {
   forwardRNN.network.push_back(new LayerType(args...));
   backwardRNN.network.push_back(new LayerType(args...));
@@ -632,42 +595,39 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::
-Add(LayerTypes<CustomLayers...> layer)
+    InitializationRuleType, InputType, OutputType>::
+Add(LayerTypes<InputType, OutputType>* layer)
 {
   forwardRNN.network.push_back(layer);
-  backwardRNN.network.push_back(boost::apply_visitor(copyVisitor, layer));
+  backwardRNN.network.push_back(layer->Clone());
 }
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::ResetParameters()
+    InitializationRuleType, InputType, OutputType>::ResetParameters()
 {
   if (!reset)
   {
     // TODO: what if we call ResetParameters() multiple times?  Do we have to
     // remove any existing mergeLayer?
-    boost::apply_visitor(AddVisitor<CustomLayers...>(
-        forwardRNN.network.back()), mergeLayer);
-    boost::apply_visitor(AddVisitor<CustomLayers...>(
-        backwardRNN.network.back()), mergeLayer);
-    boost::apply_visitor(RunSetVisitor(false), mergeLayer);
+    mergeLayer->Add(forwardRNN.network.back());
+    mergeLayer->Add(backwardRNN.network.back());
+    RunSet(mergeLayer, false);
   }
 
   ResetDeterministic();
 
   // Reset the network parameter with the given initialization rule.
-  NetworkInitialization<InitializationRuleType,
-                        CustomLayers...> networkInit(initializeRule);
+  NetworkInitialization<InitializationRuleType> networkInit(initializeRule);
+  
   size_t rnnWeights = 0;
   for (size_t i = 0; i < forwardRNN.network.size(); ++i)
   {
-    rnnWeights += boost::apply_visitor(weightSizeVisitor,
-        forwardRNN.network[i]);
+    rnnWeights += WeightSize(forwardRNN.network[i]);
   }
 
   parameter.set_size(2 * rnnWeights, 1);
@@ -688,9 +648,9 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::Reset()
+    InitializationRuleType, InputType, OutputType>::Reset()
 {
   ResetParameters();
   forwardRNN.ResetCells();
@@ -703,9 +663,9 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::ResetDeterministic()
+    InitializationRuleType, InputType, OutputType>::ResetDeterministic()
 {
   forwardRNN.deterministic = this->deterministic;
   backwardRNN.deterministic = this->deterministic;
@@ -715,10 +675,10 @@ void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
 
 template<typename OutputLayerType, typename MergeLayerType,
          typename MergeOutputType, typename InitializationRuleType,
-         typename... CustomLayers>
+         typename InputType, typename OutputType>
 template<typename Archive>
 void BRNN<OutputLayerType, MergeLayerType, MergeOutputType,
-    InitializationRuleType, CustomLayers...>::serialize(
+    InitializationRuleType, InputType, OutputType>::serialize(
     Archive& ar, const uint32_t version)
 {
   ar(CEREAL_NVP(parameter));

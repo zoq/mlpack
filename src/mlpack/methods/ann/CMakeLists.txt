@@ -5,8 +5,8 @@ set(SOURCES
   ffn_impl.hpp
   rnn.hpp
   rnn_impl.hpp
-  #brnn.hpp
-  #brnn_impl.hpp
+  brnn.hpp
+  brnn_impl.hpp
   #layer_names.hpp
 )
 
