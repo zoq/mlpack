@@ -131,6 +131,10 @@ class AddMergeType : public Layer<InputType, OutputType>
    */
   void Add(Layer<InputType, OutputType>* layer) { network.push_back(layer); }
 
+  //TODO : should this layer have a Clone() function ?
+  //! Clone the AddMergeType object. This handles polymorphism correctly.
+  AddMergeType* Clone() const { return new AddMergeType(*this); }
+
   //! Get the input parameter.
   InputType const& InputParameter() const { return inputParameter; }
   //! Modify the input parameter.

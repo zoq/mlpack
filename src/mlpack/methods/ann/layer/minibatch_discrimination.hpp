@@ -107,6 +107,11 @@ class MiniBatchDiscriminationType
                 const InputType& /* error */,
                 OutputType& gradient);
 
+  //! Clone the MiniBatchDiscriminationType object. This handles polymorphism
+  //  correctly.
+  MiniBatchDiscriminationType* Clone() const
+      { return new MiniBatchDiscriminationType(*this); }
+
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.

@@ -70,6 +70,11 @@ class ConcatPerformanceType : public Layer<InputType, OutputType>
                 const InputType& target,
                 OutputType& output);
 
+  //! Clone the ConcatPerformanceType object. This handles polymorphism 
+  //  correctly.
+  ConcatPerformanceType* Clone() const
+      { return new ConcatPerformanceType(*this); }
+
   //! Get the output parameter.
   OutputType& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

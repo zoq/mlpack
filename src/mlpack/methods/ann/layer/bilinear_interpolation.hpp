@@ -82,6 +82,11 @@ class BilinearInterpolationType : public Layer<InputType, OutputType>
                 const OutputType& gradient,
                 OutputType& output);
 
+  //! Clone the BilinearInterpolationType object. This handles polymorphism 
+  //  correctly.
+  BilinearInterpolationType* Clone() const
+      { return new BilinearInterpolationType(*this); }
+
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

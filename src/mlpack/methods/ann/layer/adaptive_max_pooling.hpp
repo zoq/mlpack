@@ -47,7 +47,8 @@ class AdaptiveMaxPoolingType : public Layer<InputType, OutputType>
   /**
    * Create the AdaptiveMaxPooling object.
    *
-   * @param outputShape A two-value tuple indicating width and height of the output.
+   * @param outputShape A two-value tuple indicating width and height of the
+   * output.
    */
   AdaptiveMaxPoolingType(const std::tuple<size_t, size_t>& outputShape);
 
@@ -72,6 +73,11 @@ class AdaptiveMaxPoolingType : public Layer<InputType, OutputType>
   void Backward(const InputType& input,
                 const OutputType& gy,
                 OutputType& g);
+
+  //! Clone the AdaptiveMaxPoolingType object. This handles polymorphism 
+  //  correctly.
+  AdaptiveMaxPoolingType* Clone() const
+      { return new AdaptiveMaxPoolingType(*this); }
 
   //! Get the input width.
   size_t const& InputWidth() const { return poolingLayer.InputWidth(); }

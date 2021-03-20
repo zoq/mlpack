@@ -123,6 +123,9 @@ class LSTMType : public Layer<InputType, OutputType>
                 const InputType& gy,
                 OutputType& g);
 
+  //! Clone the LSTMType object. This handles polymorphism correctly.
+  LSTMType* Clone() const { return new LSTMType(*this); }  
+  
   /*
    * Reset the layer parameter.
    */

@@ -103,6 +103,9 @@ class GRUType : public Layer<InputType, OutputType>
                 const InputType& /* error */,
                 OutputType& /* gradient */);
 
+  //! Clone the GRUType object. This handles polymorphism correctly.
+  GRUType* Clone() const { return new GRUType(*this); }    
+
   /*
    * Resets the cell to accept a new input. This breaks the BPTT chain starts a
    * new one.

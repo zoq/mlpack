@@ -79,6 +79,9 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
                 const InputType& gy,
                 OutputType& g);
 
+  //! Clone the AlphaDropoutType object. This handles polymorphism correctly.
+  AlphaDropoutType* Clone() const { return new AlphaDropoutType(*this); }
+
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

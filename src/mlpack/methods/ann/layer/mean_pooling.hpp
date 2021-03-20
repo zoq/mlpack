@@ -74,6 +74,9 @@ class MeanPoolingType : public Layer<InputType, OutputType>
                 const OutputType& gy,
                 OutputType& g);
 
+  //! Clone the MeanPoolingType object. This handles polymorphism correctly.
+  MeanPoolingType* Clone() const { return new MeanPoolingType(*this); }  
+
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

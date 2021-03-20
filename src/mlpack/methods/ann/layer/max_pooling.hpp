@@ -94,6 +94,9 @@ class MaxPoolingType : public Layer<InputType, OutputType>
                 const OutputType& gy,
                 OutputType& g);
 
+  //! Clone the MaxPoolingType object. This handles polymorphism correctly.
+  MaxPoolingType* Clone() const { return new MaxPoolingType(*this); }  
+
   //! Get the output parameter.
   const OutputType& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

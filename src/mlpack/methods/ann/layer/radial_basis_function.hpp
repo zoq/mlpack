@@ -87,6 +87,9 @@ class RBFType : public Layer<InputType, OutputType>
                 const InputType& /* gy */,
                 OutputType& /* g */);
 
+  //! Clone the RBFType object. This handles polymorphism correctly.
+  RBFType* Clone() const { return new RBFType(*this); }
+
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.

@@ -164,6 +164,11 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
                 const InputType& error,
                 OutputType& gradient);
 
+  //! Clone the AtrousConvolutionType object. This handles polymorphism 
+  //  correctly.
+  AtrousConvolutionType* Clone() const
+      { return new AtrousConvolutionType(*this); }
+
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.

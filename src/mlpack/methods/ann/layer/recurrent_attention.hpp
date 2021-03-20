@@ -108,6 +108,11 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
                 const OutputType& /* error */,
                 OutputType& /* gradient */);
 
+  //! Clone the RecurrentAttentionType object. This handles polymorphism
+  //  correctly.
+  RecurrentAttentionType* Clone() const
+      { return new RecurrentAttentionType(*this); }
+
   //! Get the model modules.
   std::vector<Layer<InputType, OutputType> *>& Model() { return network; }
 

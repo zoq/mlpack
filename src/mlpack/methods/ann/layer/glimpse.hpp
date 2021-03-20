@@ -127,6 +127,9 @@ class GlimpseType : public Layer<InputType, OutputType>
                 const OutputType& gy,
                 OutputType& g);
 
+  //! Clone the GlimpseType object. This handles polymorphism correctly.
+  GlimpseType* Clone() const { return new GlimpseType(*this); }
+
   //! Get the output parameter.
   const OutputType& OutputParameter() const {return outputParameter; }
   //! Modify the output parameter.

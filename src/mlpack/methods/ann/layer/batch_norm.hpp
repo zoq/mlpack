@@ -111,6 +111,9 @@ class BatchNormType : public Layer<InputType, OutputType>
                 const InputType& error,
                 OutputType& gradient);
 
+  //! Clone the BatchNormType object. This handles polymorphism correctly.
+  BatchNormType* Clone() const { return new BatchNormType(*this); }
+
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.

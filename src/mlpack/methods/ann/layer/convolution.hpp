@@ -150,6 +150,9 @@ class ConvolutionType : public Layer<InputType, OutputType>
                 const OutputType& error,
                 OutputType& gradient);
 
+  //! Clone the ConvolutionType object. This handles polymorphism correctly.
+  ConvolutionType* Clone() const { return new ConvolutionType(*this); }
+
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
