@@ -262,7 +262,7 @@ class RNN
    */
   void Gradient(const InputType& parameters,
                 const size_t begin,
-                arma::mat& gradient,
+                OutputType& gradient,
                 const size_t batchSize);
 
   /**

@@ -15,10 +15,14 @@
 #include <mlpack/prereqs.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
+#include "../visitor/delta_visitor.hpp"
+#include "../visitor/output_parameter_visitor.hpp"
+#include "../visitor/reset_visitor.hpp"
+#include "../visitor/weight_size_visitor.hpp"
+
 #include "layer_types.hpp"
 #include "add_merge.hpp"
 #include "sequential.hpp"
-#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -40,23 +44,23 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam  InputType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
 template <
-    typename InputType = arma::mat,
-    typename OutputType = arma::mat
+    typename InputDataType = arma::mat,
+    typename OutputDataType = arma::mat
 >
-class RecurrentAttentionType: public Layer<InputType, OutputType>
+class RecurrentAttention
 {
  public:
   /**
    * Default constructor: this will not give a usable RecurrentAttention object,
    * so be sure to set all the parameters before use.
    */
-  RecurrentAttentionType();
+  RecurrentAttention();
 
   /**
    * Create the RecurrentAttention object using the specified modules.
@@ -67,7 +71,7 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
    * @param rho Maximum number of steps to backpropagate through time (BPTT).
    */
   template<typename RNNModuleType, typename ActionModuleType>
-  RecurrentAttentionType(const size_t outSize,
+  RecurrentAttention(const size_t outSize,
                      const RNNModuleType& rnn,
                      const ActionModuleType& action,
                      const size_t rho);
@@ -79,8 +83,8 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-
-  void Forward(const InputType& input, OutputType& output);
+  template<typename eT>
+  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
 
   /**
    * Ordinary feed backward pass of a neural network, calculating the function
@@ -91,10 +95,10 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-
-  void Backward(const InputType& /* input */,
-                const OutputType& gy,
-                OutputType& g);
+  template<typename eT>
+  void Backward(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& gy,
+                arma::Mat<eT>& g);
 
   /*
    * Calculate the gradient using the output delta and the input activation.
@@ -103,18 +107,13 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
    * @param * (error) The calculated error.
    * @param * (gradient) The calculated gradient.
    */
-
-  void Gradient(const InputType& /* input */,
-                const OutputType& /* error */,
-                OutputType& /* gradient */);
-
-  //! Clone the RecurrentAttentionType object. This handles polymorphism
-  //  correctly.
-  RecurrentAttentionType* Clone() const
-      { return new RecurrentAttentionType(*this); }
+  template<typename eT>
+  void Gradient(const arma::Mat<eT>& /* input */,
+                const arma::Mat<eT>& /* error */,
+                arma::Mat<eT>& /* gradient */);
 
   //! Get the model modules.
-  std::vector<Layer<InputType, OutputType> *>& Model() { return network; }
+  std::vector<LayerTypes<>>& Model() { return network; }
 
     //! The value of the deterministic parameter.
   bool Deterministic() const { return deterministic; }
@@ -122,24 +121,24 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
   bool& Deterministic() { return deterministic; }
 
   //! Get the parameters.
-  OutputType const& Parameters() const { return parameters; }
+  OutputDataType const& Parameters() const { return parameters; }
   //! Modify the parameters.
-  OutputType& Parameters() { return parameters; }
+  OutputDataType& Parameters() { return parameters; }
 
   //! Get the output parameter.
-  OutputType const& OutputParameter() const { return outputParameter; }
+  OutputDataType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputType& OutputParameter() { return outputParameter; }
+  OutputDataType& OutputParameter() { return outputParameter; }
 
   //! Get the delta.
-  OutputType const& Delta() const { return delta; }
+  OutputDataType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputType& Delta() { return delta; }
+  OutputDataType& Delta() { return delta; }
 
   //! Get the gradient.
-  OutputType const& Gradient() const { return gradient; }
+  OutputDataType const& Gradient() const { return gradient; }
   //! Modify the gradient.
-  OutputType& Gradient() { return gradient; }
+  OutputDataType& Gradient() { return gradient; }
 
   //! Get the module output size.
   size_t OutSize() const { return outSize; }
@@ -162,15 +161,20 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
     // Gradient of the action module.
     if (backwardStep == (rho - 1))
     {
-          actionModule->Gradient(initialInput, actionError)
+      boost::apply_visitor(GradientVisitor(initialInput, actionError),
+          actionModule);
     }
     else
     {
-          actionModule->Gradient(actionModule->outputParameter(),actionError);
+      boost::apply_visitor(GradientVisitor(boost::apply_visitor(
+          outputParameterVisitor, actionModule), actionError),
+          actionModule);
     }
 
     // Gradient of the recurrent module.
-    rnnModule->Gradient(rnnModule->outputParameter(), recurrentError);
+    boost::apply_visitor(GradientVisitor(boost::apply_visitor(
+        outputParameterVisitor, rnnModule), recurrentError),
+        rnnModule);
 
     attentionGradient += intermediateGradient;
   }
@@ -179,10 +183,10 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
   size_t outSize;
 
   //! Locally-stored start module.
-  Layer<InputType, OutputType> rnnModule;
+  LayerTypes<> rnnModule;
 
   //! Locally-stored input module.
-  Layer<InputType, OutputType> actionModule;
+  LayerTypes<> actionModule;
 
   //! Number of steps to backpropagate through time (BPTT).
   size_t rho;
@@ -197,52 +201,62 @@ class RecurrentAttentionType: public Layer<InputType, OutputType>
   bool deterministic;
 
   //! Locally-stored weight object.
-  OutputType parameters;
+  OutputDataType parameters;
 
   //! Locally-stored model modules.
-  std::vector<Layer<InputType, OutputType>*> network;
+  std::vector<LayerTypes<>> network;
+
+  //! Locally-stored weight size visitor.
+  WeightSizeVisitor weightSizeVisitor;
+
+  //! Locally-stored delta visitor.
+  DeltaVisitor deltaVisitor;
+
+  //! Locally-stored output parameter visitor.
+  OutputParameterVisitor outputParameterVisitor;
 
   //! Locally-stored feedback output parameters.
-  std::vector<OutputType> feedbackOutputParameter;
+  std::vector<arma::mat> feedbackOutputParameter;
 
   //! List of all module parameters for the backward pass (BBTT).
-  std::vector<OutputType> moduleOutputParameter;
+  std::vector<arma::mat> moduleOutputParameter;
 
   //! Locally-stored delta object.
-  OutputType delta;
+  OutputDataType delta;
 
   //! Locally-stored gradient object.
-  OutputType gradient;
+  OutputDataType gradient;
 
   //! Locally-stored output parameter object.
-  OutputType outputParameter;
+  OutputDataType outputParameter;
 
   //! Locally-stored recurrent error parameter.
-  OutputType recurrentError;
+  arma::mat recurrentError;
 
   //! Locally-stored action error parameter.
-  OutputType actionError;
+  arma::mat actionError;
 
   //! Locally-stored action delta.
-  OutputType actionDelta;
+  arma::mat actionDelta;
 
   //! Locally-stored recurrent delta.
-  OutputType rnnDelta;
+  arma::mat rnnDelta;
 
   //! Locally-stored initial action input.
-  InputType initialInput;
+  arma::mat initialInput;
+
+  //! Locally-stored reset visitor.
+  ResetVisitor resetVisitor;
 
   //! Locally-stored attention gradient.
-  OutputType attentionGradient;
+  arma::mat attentionGradient;
 
   //! Locally-stored intermediate gradient for the attention module.
-  OutputType intermediateGradient;
+  arma::mat intermediateGradient;
 }; // class RecurrentAttention
 
 } // namespace ann
 } // namespace mlpack
-
-typedef RecurrentAttentionType<arma::mat, arma::mat> RecurrentAttention;
 
 // Include implementation.
 #include "recurrent_attention_impl.hpp"

@@ -93,7 +93,7 @@ class AlphaDropoutType : public Layer<InputType, OutputType>
   OutputType& Delta() { return delta; }
 
   //! The value of the deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
   //! Modify the value of the deterministic parameter.
   bool& Deterministic() { return deterministic; }
 

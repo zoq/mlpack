@@ -14,6 +14,7 @@
 
 #include <mlpack/prereqs.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <mlpack/methods/ann/loss_functions/negative_log_likelihood.hpp>
 #include "layer_types.hpp"
 #include "layer.hpp"
 
@@ -53,7 +54,7 @@ class ConcatPerformanceType : public Layer<InputType, OutputType>
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  double Forward(const InputType& input, OutputType& output);
+  double Forward(const InputType& input, OutputType& target);
 
   /**
    * Ordinary feed backward pass of a neural network. The negative log

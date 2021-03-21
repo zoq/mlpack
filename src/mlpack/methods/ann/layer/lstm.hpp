@@ -337,6 +337,9 @@ class LSTMType : public Layer<InputType, OutputType>
   size_t bpttSteps;
 }; // class LSTM
 
+// Standard LSTM layer
+typedef LSTMType<arma::mat, arma::mat> LSTM;
+
 } // namespace ann
 } // namespace mlpack
 

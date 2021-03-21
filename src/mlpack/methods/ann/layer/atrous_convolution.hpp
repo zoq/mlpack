@@ -160,7 +160,7 @@ class AtrousConvolutionType : public Layer<InputType, OutputType>
    * @param error The calculated error.
    * @param gradient The calculated gradient.
    */
-  void Gradient(const InputType& /* input */,
+  void Gradient(const InputType& input,
                 const InputType& error,
                 OutputType& gradient);
 

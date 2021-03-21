@@ -24,11 +24,8 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
     const size_t rho,
     const bool single,
@@ -48,11 +45,8 @@ RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
   /* Nothing to do here */
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
     const RNN& network) :
     rho(network.rho),
@@ -74,11 +68,8 @@ RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
     RNN&& network) :
     rho(std::move(network.rho)),
@@ -97,19 +88,16 @@ RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::RNN(
   // Nothing to do here.
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::~RNN()
 {
   for (size_t i = 0; i != network.size(); ++i)
-    delete netowrk[i];
+    delete network[i];
 }
 
 template<typename OutputLayerType, typename InitializationRuleType,
-         typename... CustomLayers>
+    typename InputType, typename OutputType>
 template<typename OptimizerType>
 typename std::enable_if<
       HasMaxIterations<OptimizerType, size_t&(OptimizerType::*)()>
@@ -130,11 +118,8 @@ WarnMessageMaxIterations(OptimizerType& optimizer, size_t samples) const
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 template<typename OptimizerType>
 typename std::enable_if<
       !HasMaxIterations<OptimizerType, size_t&(OptimizerType::*)()>
@@ -146,13 +131,11 @@ WarnMessageMaxIterations(OptimizerType& /* optimizer */,
   return;
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 template<typename OptimizerType, typename... CallbackTypes>
-double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Train(
+double RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Train(
     arma::cube predictors,
     arma::cube responses,
     OptimizerType& optimizer,
@@ -182,11 +165,10 @@ double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Trai
       << "." << std::endl;
   return out;
 }
-
 template<typename OutputLayerType, typename InitializationRuleType,
-         typename... CustomLayers>
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::ResetCells()
+    InputType, OutputType>::ResetCells()
 {
   for (size_t i = 1; i < network.size(); ++i)
   {
@@ -194,13 +176,11 @@ void RNN<OutputLayerType, InitializationRuleType,
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 template<typename OptimizerType, typename... CallbackTypes>
-double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Train(
+double RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Train(
     arma::cube predictors,
     arma::cube responses,
     CallbackTypes&&... callbacks)
@@ -220,7 +200,8 @@ double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Trai
 
   OptimizerType optimizer;
 
-  WarnMessageMaxIterations<OptimizerType>(optimizer, this->predictors.n_cols);
+  WarnMessageMaxIterations<OptimizerType>(optimizer,
+      this->predictors.n_cols);
 
   // Train the model.
   Timer::Start("rnn_optimization");
@@ -232,12 +213,10 @@ double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Trai
   return out;
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Predict(
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Predict(
     arma::cube predictors, arma::cube& results, const size_t batchSize)
 {
   ResetCells();
@@ -281,13 +260,11 @@ void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Predic
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Evaluate(
-    const arma::mat& /* parameters */,
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+double RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Evaluate(
+    const InputType& /* parameters */,
     const size_t begin,
     const size_t batchSize,
     const bool deterministic)
@@ -342,27 +319,22 @@ double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Eval
   return performance;
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Evaluate(
-    const arma::mat& parameters,
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+double RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Evaluate(
+    const InputType& parameters,
     const size_t begin,
     const size_t batchSize)
 {
   return Evaluate(parameters, begin, batchSize, true);
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 template<typename GradType>
 double RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::
-EvaluateWithGradient(const arma::mat& /* parameters */,
+EvaluateWithGradient(const InputType& /* parameters */,
                      const size_t begin,
                      GradType& gradient,
                      const size_t batchSize)
@@ -475,26 +447,22 @@ EvaluateWithGradient(const arma::mat& /* parameters */,
   return performance;
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Gradient(
-    const arma::mat& parameters,
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Gradient(
+    const InputType& parameters,
     const size_t begin,
-    arma::mat& gradient,
+    OutputType& gradient,
     const size_t batchSize)
 {
   this->EvaluateWithGradient(parameters, begin, gradient, batchSize);
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Shuffle()
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Shuffle()
 {
   arma::cube newPredictors, newResponses;
   math::ShuffleData(predictors, responses, newPredictors, newResponses);
@@ -503,13 +471,10 @@ void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Shuffl
   responses = std::move(newResponses);
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::ResetParameters()
+    InputType, OutputType>::ResetParameters()
 {
   ResetDeterministic();
 
@@ -520,12 +485,10 @@ void RNN<OutputLayerType, InitializationRuleType,
   reset = true;
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Reset()
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Reset()
 {
   ResetParameters();
   ResetCells();
@@ -533,26 +496,20 @@ void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Reset(
   ResetGradients(currentGradient);
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::ResetDeterministic()
+    InputType, OutputType>::ResetDeterministic()
 {
   for (size_t i = 0; i != network.size(); ++i)
     DeterministicUpdate(network[i], deterministic);
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::ResetGradients(
-    arma::mat& gradient)
+    InputType, OutputType>::ResetGradients(
+    OutputType& gradient)
 {
   size_t offset = 0;
   for (Layer<InputType, OutputType>& layer : network)
@@ -561,13 +518,10 @@ void RNN<OutputLayerType, InitializationRuleType,
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::Forward(const InputType& input)
+    InputType, OutputType>::Forward(const InputType& input)
 {
   network.front()->Forward(input, network.front()->OutputParameter());
 
@@ -578,12 +532,10 @@ void RNN<OutputLayerType, InitializationRuleType,
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Backward()
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::Backward()
 {
   network.back()->Backward(network.back()->OutputParameter(),
       error, network.back()->Delta());
@@ -597,13 +549,10 @@ void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::Backwa
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 void RNN<OutputLayerType, InitializationRuleType,
-         CustomLayers...>::Gradient(const InputType& input)
+    InputType, OutputType>::Gradient(const InputType& input)
 {
   InputType inputTemp = input;
   network.front()->Gradient(inputTemp,
@@ -616,13 +565,11 @@ void RNN<OutputLayerType, InitializationRuleType,
   }
 }
 
-template<
-  typename OutputLayerType = NegativeLogLikelihood<>,
-  typename InitializationRuleType = RandomInitialization,
-  typename InputType = arma::mat,
-  typename OutputType = arma::mat>
+template<typename OutputLayerType, typename InitializationRuleType,
+    typename InputType, typename OutputType>
 template<typename Archive>
-void RNN<OutputLayerType, InitializationRuleType, InputType, OutputType>::serialize(
+void RNN<OutputLayerType, InitializationRuleType,
+    InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(parameter));

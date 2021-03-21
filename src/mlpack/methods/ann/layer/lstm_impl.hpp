@@ -371,7 +371,7 @@ template<typename InputType, typename OutputType>
 void LSTMType<InputType, OutputType>::Backward(
   const InputType& /* input */, const InputType& gy, OutputType& g)
 {
-  ErrorType gyLocal;
+  InputType gyLocal;
   if (gradientStepIdx > 0)
   {
     gyLocal = gy + prevError;
@@ -379,7 +379,7 @@ void LSTMType<InputType, OutputType>::Backward(
   else
   {
     // Make an alias.
-    gyLocal = ErrorType(((ErrorType&) gy).memptr(), gy.n_rows, gy.n_cols, false,
+    gyLocal = InputType(((InputType&) gy).memptr(), gy.n_rows, gy.n_cols, false,
         false);
   }
 

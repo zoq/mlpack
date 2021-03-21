@@ -88,7 +88,7 @@ class GRUType : public Layer<InputType, OutputType>
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  void Backward(const InputType& /* input */,
+  void Backward(const InputType& input,
                 const InputType& gy,
                 OutputType& g);
 
@@ -212,13 +212,13 @@ class GRUType : public Layer<InputType, OutputType>
   OutputType allZeros;
 
   //! Iterator pointed to the last output produced by the cell
-  std::list<OutputType>::iterator prevOutput;
+  typename std::list<OutputType>::iterator prevOutput;
 
   //! Iterator pointed to the last output processed by backward
-  std::list<OutputType>::iterator backIterator;
+  typename std::list<OutputType>::iterator backIterator;
 
   //! Iterator pointed to the last output processed by gradient
-  std::list<OutputType>::iterator gradIterator;
+  typename std::list<OutputType>::iterator gradIterator;
 
   //! Locally-stored previous error.
   arma::mat prevError;

@@ -15,12 +15,18 @@
 // In case it hasn't yet been included.
 #include "recurrent.hpp"
 
+#include "../visitor/add_visitor.hpp"
+#include "../visitor/backward_visitor.hpp"
+#include "../visitor/gradient_visitor.hpp"
+#include "../visitor/gradient_zero_visitor.hpp"
+#include "../visitor/input_shape_visitor.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputType, typename OutputType>
-RecurrentType<InputType, OutputType>::RecurrentType() :
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+Recurrent<InputDataType, OutputDataType, CustomLayers...>::Recurrent() :
     rho(0),
     forwardStep(0),
     backwardStep(0),
@@ -31,14 +37,15 @@ RecurrentType<InputType, OutputType>::RecurrentType() :
   // Nothing to do.
 }
 
-template <typename InputType, typename OutputType>
+template <typename InputDataType, typename OutputDataType,
+          typename... CustomLayers>
 template<
     typename StartModuleType,
     typename InputModuleType,
     typename FeedbackModuleType,
     typename TransferModuleType
 >
-RecurrentType<InputType, OutputType>::RecurrentType(
+Recurrent<InputDataType, OutputDataType, CustomLayers...>::Recurrent(
     const StartModuleType& start,
     const InputModuleType& input,
     const FeedbackModuleType& feedback,
@@ -55,33 +62,24 @@ RecurrentType<InputType, OutputType>::RecurrentType(
     deterministic(false),
     ownsLayer(true)
 {
-  initialModule = new Sequential();
-  mergeModule = new AddMerge(false, false, false);
-  recurrentModule = new Sequential(false, false);
+  initialModule = new Sequential<>();
+  mergeModule = new AddMerge<>(false, false, false);
+  recurrentModule = new Sequential<>(false, false);
 
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),initialModule);
-  initialModule->Add(inputModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
+                       initialModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
+                       initialModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                       initialModule);
 
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
-    //                   initialModule);
-
-  initialModule->Add(startModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-     //                  initialModule);
-  initialModule->Add(transferModule);
-
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule), mergeModule);
-  mergeModule->Add(inputModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
-    //                   mergeModule);
-  mergeModule->Add(feedbackModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
-                       //recurrentModule);
-  recurrentModule->Add(mergeModule);
-
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-  //                     recurrentModule);
-  recurrentModule->Add(transferModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule), mergeModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
+                       mergeModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
+                       recurrentModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                       recurrentModule);
 
   network.push_back(initialModule);
   network.push_back(mergeModule);
@@ -89,88 +87,117 @@ RecurrentType<InputType, OutputType>::RecurrentType(
   network.push_back(recurrentModule);
 }
 
-template<typename InputType, typename OutputType>
-RecurrentType<InputType, OutputType>::RecurrentType(
-    const RecurrentType& network) :
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+Recurrent<InputDataType, OutputDataType, CustomLayers...>::Recurrent(
+    const Recurrent& network) :
     rho(network.rho),
     forwardStep(network.forwardStep),
     backwardStep(network.backwardStep),
     gradientStep(network.gradientStep),
     deterministic(network.deterministic),
-    ownsLayer(network.ownsLayer),
-    startModule(network.startModule),
-    inputModule(network.inputModule),
-    feedbackModule(feedbackModule),
-    transferModule(transferModule)
+    ownsLayer(network.ownsLayer)
 {
-  //startModule = boost::apply_visitor(copyVisitor, network.startModule);
-  //startModule = new network->startModule(network.startModule);
+  startModule = boost::apply_visitor(copyVisitor, network.startModule);
+  inputModule = boost::apply_visitor(copyVisitor, network.inputModule);
+  feedbackModule = boost::apply_visitor(copyVisitor, network.feedbackModule);
+  transferModule = boost::apply_visitor(copyVisitor, network.transferModule);
+  initialModule = new Sequential<>();
+  mergeModule = new AddMerge<>(false, false, false);
+  recurrentModule = new Sequential<>(false, false);
 
-  //inputModule = boost::apply_visitor(copyVisitor, network.inputModule);
-  //inputModule = new InputModuleType(network.inputModule);
-  //feedbackModule = boost::apply_visitor(copyVisitor, network.feedbackModule);
-  //feedbackModule = new FeedbackModuleType(network.feedbackModule);
-  //transferModule = boost::apply_visitor(copyVisitor, network.transferModule);
-  //transferModule = new TransferModuleType(network.transferModule);
-  //initialModule = new Sequential<>();
-  //mergeModule = new AddMerge<>(false, false, false);
-  //recurrentModule = new Sequential<>(false, false);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
+                       initialModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
+                       initialModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                       initialModule);
 
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
-    //                   initialModule);
-  initialModule->Add(inputModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
-   //                    initialModule);
-   initialModule->Add(startModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-  //                   initialModule);
-  initialModule->Add(transferModule);
-
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule), mergeModule);
-  mergeModule->Add(inputModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
-  //                     mergeModule);
-  mergeModule->Add(feedbackModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
-  //                     recurrentModule);
-  recurrentModule->Add(mergeModule);
-  //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-   //                    recurrentModule);
-  recurrentModule->Add(transferModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule), mergeModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
+                       mergeModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
+                       recurrentModule);
+  boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                       recurrentModule);
   this->network.push_back(initialModule);
   this->network.push_back(mergeModule);
   this->network.push_back(feedbackModule);
   this->network.push_back(recurrentModule);
 }
 
-template<typename InputType, typename OutputType>
-void RecurrentType<InputType, OutputType>::Forward(
-    const InputType& input, OutputType& output)
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+size_t Recurrent<InputDataType, OutputDataType, CustomLayers...>::InputShape() const
+{
+  const size_t inputShapeStartModule = boost::apply_visitor(InShapeVisitor(), startModule);
+  // Return the input shape of the first module that we have.
+  if (inputShapeStartModule != 0)
+  {
+    return inputShapeStartModule;
+  }
+  // If input shape of first module is 0.
+  else
+  {
+    // Return input shape of the second module that we have.
+    const size_t inputShapeInputModule = boost::apply_visitor(InShapeVisitor(), inputModule);
+    if (inputShapeInputModule != 0)
+    {
+      return inputShapeInputModule;
+    // If the input shape of second module is 0.
+    }
+    else
+    {
+      // Return input shape of the third module that we have.
+      const size_t inputShapeFeedbackModule = boost::apply_visitor(InShapeVisitor(), 
+                                                                   feedbackModule);
+      if (inputShapeFeedbackModule != 0)
+      {
+        return inputShapeFeedbackModule;
+      // If the input shape of the third module is 0.
+      }
+      else
+      {
+        // Return the shape of the fourth module that we have.
+        const size_t inputShapeTransferModule = boost::apply_visitor(InShapeVisitor(),
+                                                                     transferModule);
+        if (inputShapeTransferModule != 0)
+        {
+          return inputShapeTransferModule;
+        }
+        // If the input shape of the fourth module is 0.
+        else
+          return 0;
+      }
+    }
+  }
+}
+
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+template<typename eT>
+void Recurrent<InputDataType, OutputDataType, CustomLayers...>::Forward(
+    const arma::Mat<eT>& input, arma::Mat<eT>& output)
 {
   if (forwardStep == 0)
   {
-    //boost::apply_visitor(ForwardVisitor(input, output), initialModule);
-    initialModule->Forward(input,output);
+    boost::apply_visitor(ForwardVisitor(input, output), initialModule);
   }
   else
   {
-    //boost::apply_visitor(ForwardVisitor(input,
-        //boost::apply_visitor(outputParameterVisitor, inputModule)),
-        //inputModule);
-    inputModule->Forward(input, inputModule->OutputParameter());
+    boost::apply_visitor(ForwardVisitor(input,
+        boost::apply_visitor(outputParameterVisitor, inputModule)),
+        inputModule);
 
-    //boost::apply_visitor(ForwardVisitor(boost::apply_visitor(
-        //outputParameterVisitor, transferModule),
-        //boost::apply_visitor(outputParameterVisitor, feedbackModule)),
-        //feedbackModule);
-    feedbackModule->Forward(transferModule->OutputParameter(), feedbackModule->OutputParameter());
+    boost::apply_visitor(ForwardVisitor(boost::apply_visitor(
+        outputParameterVisitor, transferModule),
+        boost::apply_visitor(outputParameterVisitor, feedbackModule)),
+        feedbackModule);
 
-    //boost::apply_visitor(ForwardVisitor(input, output), recurrentModule);
-    recurrentModule->Forward(input,output);
+    boost::apply_visitor(ForwardVisitor(input, output), recurrentModule);
   }
 
-  //output = boost::apply_visitor(outputParameterVisitor, transferModule);
-  output= transferModule->OutputParameter();
+  output = boost::apply_visitor(outputParameterVisitor, transferModule);
 
   // Save the feedback output parameter when training the module.
   if (!deterministic)
@@ -191,9 +218,11 @@ void RecurrentType<InputType, OutputType>::Forward(
   }
 }
 
-template<typename InputType, typename OutputType>
-void RecurrentType<InputType, OutputType>::Backward(
-    const InputType& /* input */, const OutputType& gy, OutputType& g)
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+template<typename eT>
+void Recurrent<InputDataType, OutputDataType, CustomLayers...>::Backward(
+    const arma::Mat<eT>& /* input */, const arma::Mat<eT>& gy, arma::Mat<eT>& g)
 {
   if (!recurrentError.is_empty())
   {
@@ -206,72 +235,60 @@ void RecurrentType<InputType, OutputType>::Backward(
 
   if (backwardStep < (rho - 1))
   {
-    //boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-        //outputParameterVisitor, recurrentModule), recurrentError,
-        //boost::apply_visitor(deltaVisitor, recurrentModule)),
-        //recurrentModule);
-      recurrentModule->Backward(recurrentModule->OutputParameter(), recurrentError,recurrentModule->Delta());
+    boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+        outputParameterVisitor, recurrentModule), recurrentError,
+        boost::apply_visitor(deltaVisitor, recurrentModule)),
+        recurrentModule);
 
-    //boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-        //outputParameterVisitor, inputModule),
-        //boost::apply_visitor(deltaVisitor, recurrentModule), g),
-        //inputModule);
-      inputModule->Backward(inputModule->OutputParameter(), recurrentModule->Delta(), g);
+    boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+        outputParameterVisitor, inputModule),
+        boost::apply_visitor(deltaVisitor, recurrentModule), g),
+        inputModule);
 
-    //boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-        //outputParameterVisitor, feedbackModule),
-        //boost::apply_visitor(deltaVisitor, recurrentModule),
-        //boost::apply_visitor(deltaVisitor, feedbackModule)), feedbackModule);
-      feedbackModule->Backward(feedbackModule->OutputParameter(), recurrentModule->Delta(), feedbackModule->Delta());
+    boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+        outputParameterVisitor, feedbackModule),
+        boost::apply_visitor(deltaVisitor, recurrentModule),
+        boost::apply_visitor(deltaVisitor, feedbackModule)), feedbackModule);
   }
   else
   {
-    //boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
-        //outputParameterVisitor, initialModule), recurrentError, g),
-        //initialModule);
-    initialModule->Backward(initialModule->OutputParameter(), recurrentError, g);
+    boost::apply_visitor(BackwardVisitor(boost::apply_visitor(
+        outputParameterVisitor, initialModule), recurrentError, g),
+        initialModule);
   }
 
-  //recurrentError = boost::apply_visitor(deltaVisitor, feedbackModule);
-  recurrentError = feedbackModule->Delta();
-
+  recurrentError = boost::apply_visitor(deltaVisitor, feedbackModule);
   backwardStep++;
 }
 
-template<typename InputType, typename OutputType>
-void RecurrentType<InputType, OutputType>::Gradient(
-    const InputType& input,
-    const OutputType& error,
-    OutputType& /* gradient */)
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
+template<typename eT>
+void Recurrent<InputDataType, OutputDataType, CustomLayers...>::Gradient(
+    const arma::Mat<eT>& input,
+    const arma::Mat<eT>& error,
+    arma::Mat<eT>& /* gradient */)
 {
   if (gradientStep < (rho - 1))
   {
-    //boost::apply_visitor(GradientVisitor(input, error), recurrentModule);
-    recurrentModule->Gradient(input, error);
+    boost::apply_visitor(GradientVisitor(input, error), recurrentModule);
 
-    //boost::apply_visitor(GradientVisitor(input,
-        //boost::apply_visitor(deltaVisitor, mergeModule)), inputModule);
-    inputModule->Gradient(input, mergeModule->Delta());
+    boost::apply_visitor(GradientVisitor(input,
+        boost::apply_visitor(deltaVisitor, mergeModule)), inputModule);
 
-
-    //boost::apply_visitor(GradientVisitor(
-       // feedbackOutputParameter[feedbackOutputParameter.size() - 2 -
-       // gradientStep], boost::apply_visitor(deltaVisitor,
-      //  mergeModule)), feedbackModule);
-      feedbackModule->Gradient(feedbackOutputParameter[feedbackOutputParameter.size() - 2 - gradientStep], mergeModule->Delta());
+    boost::apply_visitor(GradientVisitor(
+        feedbackOutputParameter[feedbackOutputParameter.size() - 2 -
+        gradientStep], boost::apply_visitor(deltaVisitor,
+        mergeModule)), feedbackModule);
   }
   else
   {
-    //boost::apply_visitor(GradientZeroVisitor(), recurrentModule);
-    recurrentModule->Gradient().zeros();
-    //boost::apply_visitor(GradientZeroVisitor(), inputModule);
-    inputModule->Gradient().zeros();
-    //boost::apply_visitor(GradientZeroVisitor(), feedbackModule);
-    feedbackModule->Gradient().zeros();
+    boost::apply_visitor(GradientZeroVisitor(), recurrentModule);
+    boost::apply_visitor(GradientZeroVisitor(), inputModule);
+    boost::apply_visitor(GradientZeroVisitor(), feedbackModule);
 
-    //boost::apply_visitor(GradientVisitor(input,
-        //boost::apply_visitor(deltaVisitor, startModule)), initialModule);
-      initialModule->Gradient(input, startModule->Delta());
+    boost::apply_visitor(GradientVisitor(input,
+        boost::apply_visitor(deltaVisitor, startModule)), initialModule);
   }
 
   gradientStep++;
@@ -282,21 +299,19 @@ void RecurrentType<InputType, OutputType>::Gradient(
   }
 }
 
-template<typename InputType, typename OutputType>
+template<typename InputDataType, typename OutputDataType,
+         typename... CustomLayers>
 template<typename Archive>
-void RecurrentType<InputType, OutputType>::serialize(
+void Recurrent<InputDataType, OutputDataType, CustomLayers...>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   // Clean up memory, if we are loading.
   if (cereal::is_loading<Archive>())
   {
     // Clear old things, if needed.
-    //boost::apply_visitor(DeleteVisitor(), recurrentModule);
-    delete *recurrentModule;
-    //boost::apply_visitor(DeleteVisitor(), initialModule);
-    delete *initialModule;
-    //boost::apply_visitor(DeleteVisitor(), startModule);
-    delete *startModule;
+    boost::apply_visitor(DeleteVisitor(), recurrentModule);
+    boost::apply_visitor(DeleteVisitor(), initialModule);
+    boost::apply_visitor(DeleteVisitor(), startModule);
     network.clear();
   }
 
@@ -310,32 +325,25 @@ void RecurrentType<InputType, OutputType>::serialize(
   // Set up the network.
   if (cereal::is_loading<Archive>())
   {
-    initialModule = new Sequential();
-    mergeModule = new AddMerge(false, false, false);
-    recurrentModule = new Sequential(false, false);
+    initialModule = new Sequential<>();
+    mergeModule = new AddMerge<>(false, false, false);
+    recurrentModule = new Sequential<>(false, false);
 
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
-    //                     initialModule);
-    initialModule->Add(inputModule);
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
-     //                    initialModule);
-    initialModule->Add(startModule);
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-      //                   initialModule);
-    initialModule->Add(transferModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
+                         initialModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(startModule),
+                         initialModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                         initialModule);
 
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
-    //                     mergeModule);
-    mergeModule->Add(inputModule);
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
-    //                     mergeModule);
-    mergeModule->Add(feedbackModule);
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
-     //                    recurrentModule);
-     recurrentModule->Add(mergeModule);
-    //boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
-     //                    recurrentModule);
-     recurrentModule->Add(transferModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(inputModule),
+                         mergeModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(feedbackModule),
+                         mergeModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(mergeModule),
+                         recurrentModule);
+    boost::apply_visitor(AddVisitor<CustomLayers...>(transferModule),
+                         recurrentModule);
 
     network.push_back(initialModule);
     network.push_back(mergeModule);

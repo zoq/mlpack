@@ -321,7 +321,7 @@ void AtrousConvolutionType<
     InputType,
     OutputType
 >::Gradient(
-    const InputType& /* input */,
+    const InputType& input,
     const InputType& error,
     OutputType& gradient)
 {

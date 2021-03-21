@@ -20,13 +20,13 @@ namespace ann /** Artificial Neural Network. */ {
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
 ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
+    InputType,
+    OutputType
 >::ConcatPerformanceType(const size_t inSize, OutputLayerType&& outputLayer) :
     inSize(inSize),
     outputLayer(std::move(outputLayer))
@@ -36,14 +36,14 @@ ConcatPerformanceType<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
 double ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
->::Forward(const InputType& input, OutputType& output)
+    InputType,
+    OutputType
+>::Forward(const InputType& input, OutputType& target)
 {
   const size_t elements = input.n_elem / inSize;
 
@@ -59,13 +59,13 @@ double ConcatPerformanceType<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
 void ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
+    InputType,
+    OutputType
 >::Backward(
     const InputType& input,
     const InputType& target,
@@ -92,14 +92,14 @@ void ConcatPerformanceType<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
 template<typename Archive>
 void ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
+    InputType,
+    OutputType
 >::serialize(Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(inSize));

@@ -40,21 +40,21 @@ GRUType<InputType, OutputType>::GRUType(
     deterministic(false)
 {
   // Input specific linear layers(for zt, rt, ot).
-  input2GateModule = new Linear<>(inSize, 3 * outSize);
+  input2GateModule = new Linear(inSize, 3 * outSize);
 
   // Previous output gates (for zt and rt).
-  output2GateModule = new LinearNoBias<>(outSize, 2 * outSize);
+  output2GateModule = new LinearNoBias(outSize, 2 * outSize);
 
   // Previous output gate for ot.
-  outputHidden2GateModule = new LinearNoBias<>(outSize, outSize);
+  outputHidden2GateModule = new LinearNoBias(outSize, outSize);
 
   network.push_back(input2GateModule);
   network.push_back(output2GateModule);
   network.push_back(outputHidden2GateModule);
 
-  inputGateModule = new SigmoidLayer<>();
-  forgetGateModule = new SigmoidLayer<>();
-  hiddenStateModule = new TanHLayer<>();
+  inputGateModule = new SigmoidLayer();
+  forgetGateModule = new SigmoidLayer();
+  hiddenStateModule = new TanHLayer();
 
   network.push_back(inputGateModule);
   network.push_back(hiddenStateModule);
@@ -73,7 +73,7 @@ GRUType<InputType, OutputType>::GRUType(
 }
 
 template<typename InputType, typename OutputType>
-void GRU<InputType, OutputType>::Forward(
+void GRUType<InputType, OutputType>::Forward(
     const InputType& input,
     OutputType& output)
 {
@@ -181,7 +181,7 @@ void GRU<InputType, OutputType>::Forward(
 
 template<typename InputType, typename OutputType>
 void GRUType<InputType, OutputType>::Backward(
-    const InputType& /* input */,
+    const InputType& input,
     const InputType& gy,
     OutputType& g)
 {
@@ -233,12 +233,12 @@ void GRUType<InputType, OutputType>::Backward(
   // Delta of input gate.
   inputGateModule->Backward(
       inputGateModule->OutputParameter(), dZt,
-      inputGateModule->Delta())
+      inputGateModule->Delta());
 
   // Delta of hidden gate.
   hiddenStateModule->Backward(
       hiddenStateModule->OutputParameter(), dOt,
-      hiddenStateModule->Delta())
+      hiddenStateModule->Delta());
       
 
   // Delta of outputHidden2GateModule.
