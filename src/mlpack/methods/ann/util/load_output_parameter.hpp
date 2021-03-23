@@ -31,7 +31,7 @@ void LoadOutputParameter(LayerType& layer, ParamVector& parameter)
   layer->OutputParameter() = parameter.back();
   parameter.pop_back();
 
-  if (layer->Model() > 0)
+  if (layer->Model().size() > 0)
   {
     for (size_t i = 0; i != layer.Model().size(); ++i)
       LoadOutputParameter(layer->Model()[i], parameter);

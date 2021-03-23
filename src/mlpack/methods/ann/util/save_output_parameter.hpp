@@ -30,7 +30,7 @@ void SaveOutputParameter(LayerType& layer, ParamVector& parameter)
 {
   parameter.push_back(layer->OutputParameter());
 
-  if (layer->Model() > 0)
+  if (layer->Model().size() > 0)
   {
     for (size_t i = 0; i != layer.Model().size(); ++i)
       SaveOutputParameter(layer->Model()[i], parameter);

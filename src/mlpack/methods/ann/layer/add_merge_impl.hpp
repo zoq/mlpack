@@ -15,6 +15,7 @@
 
 // In case it hasn't yet been included.
 #include "add_merge.hpp"
+#include "../util/deleter.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -40,8 +41,7 @@ AddMergeType<InputType, OutputType>::~AddMergeType()
 {
   if (!model && ownsLayers)
   {
-    for (auto it = network.begin(); it != network.end(); ++it)
-        delete it;
+    Deleter<std::vector<Layer<InputType, OutputType>*> >(network);
   }
 }
 
@@ -53,14 +53,14 @@ void AddMergeType<InputType, OutputType>::Forward(
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Forward(input, network[i]->outputParameter());
+      network[i]->Forward(input, network[i]->OutputParameter());
     }
   }
 
-  output = network.front()->outputParameter();
+  output = network.front()->OutputParameter();
   for (size_t i = 1; i < network.size(); ++i)
   {
-    output += network[i]->outputParameter();
+    output += network[i]->OutputParameter();
   }
 }
 
@@ -74,7 +74,7 @@ void AddMergeType<InputType, OutputType>::Backward(
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Backward(network[i]->outputParameter(), gy,
+      network[i]->Backward(network[i]->OutputParameter(), gy,
           network[i]->Delta());
     }
 
@@ -95,7 +95,7 @@ void AddMergeType<InputType, OutputType>::Backward(
     OutputType& g,
     const size_t index)
 {
-  network[index]->Backward(network[index]->outputParameter(), 
+  network[index]->Backward(network[index]->OutputParameter(), 
       gy, network[index]->Delta());
   g = network[index]->Delta();
 }

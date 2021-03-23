@@ -1,7 +1,9 @@
 # Define the files we need to compile
 # Anything not in this list will not be compiled into mlpack.
 set(SOURCES
+  deleter.hpp
   deterministic_update.hpp
+  gradient_set.hpp
   gradient_update.hpp
   load_output_parameter.hpp
   loss_update.hpp

@@ -115,7 +115,7 @@ class GRUType : public Layer<InputType, OutputType>
   void ResetCell(const size_t size);
 
   //! The value of the deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
   //! Modify the value of the deterministic parameter.
   bool& Deterministic() { return deterministic; }
 
@@ -145,7 +145,7 @@ class GRUType : public Layer<InputType, OutputType>
   OutputType& Gradient() { return gradient; }
 
   //! Get the model modules.
-  std::vector<Layer<InputType, OutputType> >& Model() { return network; }
+  std::vector<Layer<InputType, OutputType>*>& Model() { return network; }
 
   //! Get the number of input units.
   size_t InSize() const { return inSize; }
@@ -176,25 +176,25 @@ class GRUType : public Layer<InputType, OutputType>
   OutputType weights;
 
   //! Locally-stored input 2 gate module.
-  Layer<InputType, OutputType> input2GateModule;
+  Layer<InputType, OutputType>* input2GateModule;
 
   //! Locally-stored output 2 gate module.
-  Layer<InputType, OutputType> output2GateModule;
+  Layer<InputType, OutputType>* output2GateModule;
 
   //! Locally-stored output hidden state 2 gate module.
-  Layer<InputType, OutputType> outputHidden2GateModule;
+  Layer<InputType, OutputType>* outputHidden2GateModule;
 
   //! Locally-stored input gate module.
-  Layer<InputType, OutputType> inputGateModule;
+  Layer<InputType, OutputType>* inputGateModule;
 
   //! Locally-stored hidden state module.
-  Layer<InputType, OutputType> hiddenStateModule;
+  Layer<InputType, OutputType>* hiddenStateModule;
 
   //! Locally-stored forget gate module.
-  Layer<InputType, OutputType> forgetGateModule;
+  Layer<InputType, OutputType>* forgetGateModule;
 
   //! Locally-stored list of network modules.
-  std::vector<Layer<InputType, OutputType> > network;
+  std::vector<Layer<InputType, OutputType>*> network;
 
   //! Locally-stored number of forward steps.
   size_t forwardStep;

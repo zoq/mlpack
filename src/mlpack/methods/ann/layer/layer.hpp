@@ -296,6 +296,9 @@ class Layer
   //! Modify the value of run parameter.
   virtual bool& Run() { return run; }
 
+  //! Get the shape of the input.
+  virtual size_t InputShape() const { return 0; };
+
  private:
   //! Locally-stored output width.
   size_t outputWidth;
