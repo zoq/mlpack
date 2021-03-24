@@ -41,7 +41,8 @@ AddMergeType<InputType, OutputType>::~AddMergeType()
 {
   if (!model && ownsLayers)
   {
-    Deleter<std::vector<Layer<InputType, OutputType>*> >(network);
+    for (auto it = network.begin(); it != network.end(); ++it)
+      delete *it;
   }
 }
 
@@ -110,7 +111,7 @@ void AddMergeType<InputType, OutputType>::Gradient(
   {
     for (size_t i = 0; i < network.size(); ++i)
     {
-      network[i]->Gradient(input, error);
+      network[i]->Gradient(input, error, network[i]->Gradient());
     }
   }
 }
@@ -122,7 +123,7 @@ void AddMergeType<InputType, OutputType>::Gradient(
     OutputType& /* gradient */,
     const size_t index)
 {
-  network[index]->Gradient(input, error);
+  network[index]->Gradient(input, error, network[index]->Gradient());
 }
 
 template<typename InputType, typename OutputType>

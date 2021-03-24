@@ -196,7 +196,10 @@ class FastLSTMType : public Layer<InputType, OutputType>
    * @param input The input data.
    * @param sigmoid The matrix to store the sigmoid approximation into.
    */
-  void FastSigmoid(const InputType& input, OutputType& sigmoids)
+
+  // Had to remove the reference param for second input, was throwing error. 
+  // Prev : OutputType& sigmoids
+  void FastSigmoid(const InputType& input, OutputType sigmoids)
   {
     for (size_t i = 0; i < input.n_elem; ++i)
       sigmoids(i) = FastSigmoid(input(i));

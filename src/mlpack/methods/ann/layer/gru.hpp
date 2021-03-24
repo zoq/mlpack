@@ -35,6 +35,7 @@
 #include "add_merge.hpp"
 #include "sequential.hpp"
 #include "layer.hpp"
+#include "linear_no_bias.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

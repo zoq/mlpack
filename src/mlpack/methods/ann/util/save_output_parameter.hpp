@@ -32,7 +32,7 @@ void SaveOutputParameter(LayerType& layer, ParamVector& parameter)
 
   if (layer->Model().size() > 0)
   {
-    for (size_t i = 0; i != layer.Model().size(); ++i)
+    for (size_t i = 0; i != layer->Model().size(); ++i)
       SaveOutputParameter(layer->Model()[i], parameter);
   }
 }

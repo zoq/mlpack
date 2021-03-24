@@ -325,14 +325,16 @@ void GRUType<InputType, OutputType>::Gradient(
     gradIterator = --(--outParameter.end());
   }
 
-  input2GateModule->Gradient(input, prevError);
+  input2GateModule->Gradient(input, prevError, input2GateModule->Gradient());
 
   output2GateModule->Gradient(*gradIterator,
-      prevError.submat(0, 0, 2 * outSize - 1, batchSize - 1));
+      prevError.submat(0, 0, 2 * outSize - 1, batchSize - 1),
+      output2GateModule->Gradient());
 
   outputHidden2GateModule->Gradient(*gradIterator %
       forgetGateModule->OutputParameter(),
-      prevError.submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1));
+      prevError.submat(2 * outSize, 0, 3 * outSize - 1, batchSize - 1),
+      outputHidden2GateModule->Gradient());
 
   gradIterator--;
 }

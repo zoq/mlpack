@@ -512,7 +512,7 @@ void RNN<OutputLayerType, InitializationRuleType,
     OutputType& gradient)
 {
   size_t offset = 0;
-  for (Layer<InputType, OutputType>& layer : network)
+  for (Layer<InputType, OutputType>* layer : network)
   {
     offset += GradientUpdate(layer, gradient, offset);
   }
@@ -561,7 +561,7 @@ void RNN<OutputLayerType, InitializationRuleType,
   for (size_t i = 1; i < network.size() - 1; ++i)
   {
     network[i]->Gradient(network[i - 1]->OutputParameter(),
-        network[i + 1]->Delta(), network[i]);
+        network[i + 1]->Delta(), network[i]->Gradient());
   }
 }
 
