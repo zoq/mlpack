@@ -51,7 +51,7 @@ template <
     typename InputType = arma::mat,
     typename OutputType = arma::mat
 >
-class MiniBatchDiscriminationType
+class MiniBatchDiscriminationType : public Layer<InputType, OutputType>
 {
  public:
   //! Create the MiniBatchDiscrimination object.

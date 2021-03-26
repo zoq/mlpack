@@ -171,10 +171,10 @@ class RecurrentAttentionType : Layer<InputType, OutputType>
   size_t outSize;
 
   //! Locally-stored start module.
-  Layer<InputType, OutputType> rnnModule;
+  Layer<InputType, OutputType>* rnnModule;
 
   //! Locally-stored input module.
-  Layer<InputType, OutputType> actionModule;
+  Layer<InputType, OutputType>* actionModule;
 
   //! Number of steps to backpropagate through time (BPTT).
   size_t rho;
@@ -192,7 +192,7 @@ class RecurrentAttentionType : Layer<InputType, OutputType>
   OutputType parameters;
 
   //! Locally-stored model modules.
-  std::vector<Layer<InputType, OutputType> > network;
+  std::vector<Layer<InputType, OutputType>*> network;
 
   //! Locally-stored feedback output parameters.
   std::vector<OutputType> feedbackOutputParameter;

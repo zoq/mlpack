@@ -11,8 +11,8 @@
  * http://www.opensource.org/licenses/BSD-3-Clause for more information.
  */
 
-#ifndef MLPACK_METHODS_ANN_UTIL_GRADIENT_UPDATE_HPP
-#define MLPACK_METHODS_ANN_UTIL_GRADIENT_UPDATE_HPP
+#ifndef MLPACK_METHODS_ANN_UTIL_GRADIENT_SET_HPP
+#define MLPACK_METHODS_ANN_UTIL_GRADIENT_SET_HPP
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */{
