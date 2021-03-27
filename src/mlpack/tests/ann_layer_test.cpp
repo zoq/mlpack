@@ -1124,7 +1124,7 @@ TEST_CASE("LSTMLayerParametersTest", "[ANNLayerTest]")
 /**
  * Test the FastLSTM layer with a user defined rho parameter and without.
  */
-TEST_CASE("FastLSTMRrhoTest", "[ANNLayerTest]")
+TEST_CASE("FastLSTMRhoTest", "[ANNLayerTest]")
 {
   const size_t rho = 5;
   arma::cube input = arma::randu(1, 1, 5);

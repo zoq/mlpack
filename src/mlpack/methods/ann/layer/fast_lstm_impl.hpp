@@ -210,7 +210,7 @@ void FastLSTMType<InputType, OutputType>::Forward(
       forwardStep, forwardStep + batchStep);
   gate.cols(forwardStep, forwardStep + batchStep).each_col() += input2GateBias;
 
-  arma::subview<double> sigmoidOut = gateActivation.cols(forwardStep,
+  OutputType sigmoidOut = gateActivation.cols(forwardStep,
       forwardStep + batchStep);
   FastSigmoid(
       gate.submat(0, forwardStep, 3 * outSize - 1, forwardStep + batchStep),
