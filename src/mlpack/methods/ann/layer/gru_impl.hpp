@@ -60,9 +60,9 @@ GRUType<InputType, OutputType>::GRUType(
   network.push_back(hiddenStateModule);
   network.push_back(forgetGateModule);
 
-  prevError = arma::zeros<arma::mat>(3 * outSize, batchSize);
+  prevError = arma::zeros<InputType>(3 * outSize, batchSize);
 
-  allZeros = arma::zeros<arma::mat>(outSize, batchSize);
+  allZeros = arma::zeros<OutputType>(outSize, batchSize);
 
   outParameter.emplace_back(allZeros.memptr(),
       allZeros.n_rows, allZeros.n_cols, false, true);
@@ -120,14 +120,14 @@ void GRUType<InputType, OutputType>::Forward(
       1 * outSize, 0, 2 * outSize - 1, batchSize - 1),
       forgetGateModule->OutputParameter());
 
-  arma::mat modInput = (forgetGateModule->OutputParameter() % *prevOutput);
+  InputType modInput = (forgetGateModule->OutputParameter() % *prevOutput);
 
   // Pass that through the outputHidden2GateModule.
   outputHidden2GateModule->Forward(modInput,
       outputHidden2GateModule->OutputParameter());
 
   // Merge for ot.
-  arma::mat outputH = input2GateModule->OutputParameter().submat(
+  OutputType outputH = input2GateModule->OutputParameter().submat(
       2 * outSize, 0, 3 * outSize - 1, batchSize - 1) +
       outputHidden2GateModule->OutputParameter();
 
@@ -154,7 +154,7 @@ void GRUType<InputType, OutputType>::Forward(
     }
     else
     {
-      *prevOutput = arma::mat(allZeros.memptr(),
+      *prevOutput = OutputType(allZeros.memptr(),
           allZeros.n_rows, allZeros.n_cols, false, true);
     }
   }
@@ -223,11 +223,11 @@ void GRUType<InputType, OutputType>::Backward(
   }
 
   // Delta zt.
-  arma::mat dZt = gyLocal % (*backIterator -
+  InputType dZt = gyLocal % (*backIterator -
       hiddenStateModule->OutputParameter());
 
   // Delta ot.
-  arma::mat dOt = gyLocal % (arma::ones<arma::mat>(outSize, batchSize) -
+  InputType dOt = gyLocal % (arma::ones<InputType>(outSize, batchSize) -
       inputGateModule->OutputParameter());
 
   // Delta of input gate.
@@ -248,7 +248,7 @@ void GRUType<InputType, OutputType>::Backward(
       outputHidden2GateModule->Delta());
 
   // Delta rt.
-  arma::mat dRt = outputHidden2GateModule->Delta() % *backIterator;
+  InputType dRt = outputHidden2GateModule->Delta() % *backIterator;
 
   // Delta of forget gate.
   forgetGateModule->Backward(
@@ -268,7 +268,7 @@ void GRUType<InputType, OutputType>::Backward(
       hiddenStateModule->Delta();
 
   // Get delta ht - 1 for input gate and forget gate.
-  arma::mat prevErrorSubview = prevError.submat(0, 0, 2 * outSize - 1,
+  InputType prevErrorSubview = prevError.submat(0, 0, 2 * outSize - 1,
       batchSize - 1);
   output2GateModule->Backward(
       input2GateModule->OutputParameter(),

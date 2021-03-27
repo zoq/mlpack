@@ -222,7 +222,7 @@ class GRUType : public Layer<InputType, OutputType>
   typename std::list<OutputType>::iterator gradIterator;
 
   //! Locally-stored previous error.
-  arma::mat prevError;
+  InputType prevError;
 
   //! If true dropout and scaling is disabled, see notes above.
   bool deterministic;
