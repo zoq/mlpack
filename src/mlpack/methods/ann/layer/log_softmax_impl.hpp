@@ -63,7 +63,7 @@ void LogSoftMaxType<InputType, OutputType>::Forward(
 template<typename InputType, typename OutputType>
 void LogSoftMaxType<InputType, OutputType>::Backward(
     const InputType& input,
-    const OutputType& gy,
+    const InputType& gy,
     OutputType& g)
 {
   g = arma::exp(input) + gy;
