@@ -204,7 +204,7 @@ void BatchNormType<InputType, OutputType>::Backward(
 
 template<typename InputType, typename OutputType>
 void BatchNormType<InputType, OutputType>::Gradient(
-    const InputType& input,
+    const InputType& /* input */,
     const InputType& error,
     OutputType& gradient)
 {

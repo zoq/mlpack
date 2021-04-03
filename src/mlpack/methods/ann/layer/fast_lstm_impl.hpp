@@ -47,6 +47,7 @@ FastLSTMType<InputType, OutputType>::FastLSTMType(
 
 template<typename InputType, typename OutputType>
 FastLSTMType<InputType, OutputType>::FastLSTMType(const FastLSTMType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     rho(layer.rho),

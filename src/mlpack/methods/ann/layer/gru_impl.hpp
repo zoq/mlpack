@@ -280,7 +280,7 @@ void GRUType<InputType, OutputType>::Backward(
       forgetGateModule->OutputParameter();
 
   // Add delta ht - 1 from ht.
-  output2GateModule->Delta() += gyLocal % 
+  output2GateModule->Delta() += gyLocal %
       inputGateModule->OutputParameter();
 
   // Get delta input.

@@ -26,7 +26,8 @@ LSTMType<InputType, OutputType>::LSTMType()
 
 template<typename InputType, typename OutputType>
 LSTMType<InputType, OutputType>::LSTMType(
-    const LSTMType& layer) : 
+    const LSTMType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     rho(layer.rho),

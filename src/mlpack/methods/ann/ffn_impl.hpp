@@ -348,7 +348,7 @@ template<typename OutputLayerType,
          typename InputType,
          typename OutputType>
 double FFN<OutputLayerType, InitializationRuleType, InputType, OutputType>::
-EvaluateWithGradient(const OutputType& parameters,
+EvaluateWithGradient(const OutputType& /* parameters */,
                      const size_t begin,
                      OutputType& gradient,
                      const size_t batchSize)
@@ -539,13 +539,14 @@ Gradient(const InputType& input)
       error, network[network.size() - 1]->Gradient());
 }
 
+// TO DO.
 template<typename OutputLayerType,
          typename InitializationRuleType,
          typename InputType,
          typename OutputType>
 template<typename Archive>
 void FFN<OutputLayerType, InitializationRuleType, InputType, OutputType>::
-serialize(Archive& ar, const uint32_t /* version */)
+serialize(Archive& /* ar */, const uint32_t /* version */)
 {
   /* ar(CEREAL_NVP(parameter)); */
   /* ar(CEREAL_NVP(width)); */

@@ -38,6 +38,7 @@ SequentialType(const bool model, const bool ownsLayers) :
 template <typename InputType, typename OutputType, bool Residual>
 SequentialType<InputType, OutputType, Residual>::
 SequentialType(const SequentialType& layer) :
+    Layer<InputType, OutputType>(layer),
     model(layer.model),
     reset(layer.reset),
     width(layer.width),

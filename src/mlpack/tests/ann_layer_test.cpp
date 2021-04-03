@@ -3491,7 +3491,7 @@ TEST_CASE("GradientWeightNormLayerTest", "[ANNLayerTest]")
  */
 TEST_CASE("WeightNormRunTest", "[ANNLayerTest]")
 {
-  arma::mat output, input, delta, error;
+  arma::mat output, input, delta;
 
   Linear* linear = new Linear(10, 10);
 
