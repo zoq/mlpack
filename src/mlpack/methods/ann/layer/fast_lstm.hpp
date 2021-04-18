@@ -15,6 +15,7 @@
 
 #include <mlpack/prereqs.hpp>
 #include <limits>
+
 #include "layer.hpp"
 
 namespace mlpack {
@@ -196,6 +197,9 @@ class FastLSTMType : public Layer<InputType, OutputType>
    * @param input The input data.
    * @param sigmoid The matrix to store the sigmoid approximation into.
    */
+
+  // Had to remove the reference param for second input, was throwing error. 
+  // Prev : OutputType& sigmoids
   void FastSigmoid(const InputType& input, OutputType& sigmoids)
   {
     for (size_t i = 0; i < input.n_elem; ++i)

@@ -32,9 +32,11 @@ DropoutType<InputType, OutputType>::DropoutType(
 template<typename InputType, typename OutputType>
 DropoutType<InputType, OutputType>::DropoutType(
     const DropoutType& layer) :
+    Layer<InputType, OutputType>(layer),
     ratio(layer.ratio),
     scale(layer.scale),
     deterministic(layer.deterministic)
+
 {
   // Nothing to do here.
 }

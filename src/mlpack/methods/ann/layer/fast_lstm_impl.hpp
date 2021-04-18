@@ -47,6 +47,7 @@ FastLSTMType<InputType, OutputType>::FastLSTMType(
 
 template<typename InputType, typename OutputType>
 FastLSTMType<InputType, OutputType>::FastLSTMType(const FastLSTMType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     rho(layer.rho),
@@ -134,14 +135,14 @@ void FastLSTMType<InputType, OutputType>::Reset()
 {
   // Set the weight parameter for the input to gate layer (linear layer) using
   // the overall layer parameter matrix.
-  input2GateWeight = OutputDataType(weights.memptr(),
+  input2GateWeight = OutputType(weights.memptr(),
       4 * outSize, inSize, false, false);
-  input2GateBias = OutputDataType(weights.memptr() + input2GateWeight.n_elem,
+  input2GateBias = OutputType(weights.memptr() + input2GateWeight.n_elem,
       4 * outSize, 1, false, false);
 
   // Set the weight parameter for the output to gate layer
   // (linear no bias layer) using the overall layer parameter matrix.
-  output2GateWeight = OutputDataType(weights.memptr() + input2GateWeight.n_elem
+  output2GateWeight = OutputType(weights.memptr() + input2GateWeight.n_elem
       + input2GateBias.n_elem, 4 * outSize, outSize, false, false);
 }
 
@@ -210,7 +211,7 @@ void FastLSTMType<InputType, OutputType>::Forward(
       forwardStep, forwardStep + batchStep);
   gate.cols(forwardStep, forwardStep + batchStep).each_col() += input2GateBias;
 
-  arma::subview<double> sigmoidOut = gateActivation.cols(forwardStep,
+  OutputType sigmoidOut = gateActivation.cols(forwardStep,
       forwardStep + batchStep);
   FastSigmoid(
       gate.submat(0, forwardStep, 3 * outSize - 1, forwardStep + batchStep),

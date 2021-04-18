@@ -20,14 +20,14 @@ namespace ann /** Artificial Neural Network. */ {
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
-ConcatPerformance<
+ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
->::ConcatPerformance(const size_t inSize, OutputLayerType&& outputLayer) :
+    InputType,
+    OutputType
+>::ConcatPerformanceType(const size_t inSize, OutputLayerType&& outputLayer) :
     inSize(inSize),
     outputLayer(std::move(outputLayer))
 {
@@ -36,15 +36,14 @@ ConcatPerformance<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
-template<typename eT>
-double ConcatPerformance<
+double ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
->::Forward(const arma::Mat<eT>& input, arma::Mat<eT>& target)
+    InputType,
+    OutputType
+>::Forward(const InputType& input, OutputType& target)
 {
   const size_t elements = input.n_elem / inSize;
 
@@ -60,18 +59,17 @@ double ConcatPerformance<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
-template<typename eT>
-void ConcatPerformance<
+void ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
+    InputType,
+    OutputType
 >::Backward(
-    const arma::Mat<eT>& input,
-    const arma::Mat<eT>& target,
-    arma::Mat<eT>& output)
+    const InputType& input,
+    const InputType& target,
+    OutputType& output)
 {
   const size_t elements = input.n_elem / inSize;
 
@@ -94,14 +92,14 @@ void ConcatPerformance<
 
 template<
     typename OutputLayerType,
-    typename InputDataType,
-    typename OutputDataType
+    typename InputType,
+    typename OutputType
 >
 template<typename Archive>
-void ConcatPerformance<
+void ConcatPerformanceType<
     OutputLayerType,
-    InputDataType,
-    OutputDataType
+    InputType,
+    OutputType
 >::serialize(Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(inSize));

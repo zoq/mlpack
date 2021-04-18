@@ -29,6 +29,7 @@ NoisyLinearType<InputType, OutputType>::NoisyLinearType() :
 template<typename InputType, typename OutputType>
 NoisyLinearType<InputType, OutputType>::NoisyLinearType(
   const NoisyLinearType& layer) :
+    Layer<InputType, OutputType>(layer),
     inSize(layer.inSize),
     outSize(layer.outSize),
     weights(layer.weights)

@@ -15,6 +15,7 @@
 #include <mlpack/prereqs.hpp>
 
 #include "layer_types.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -41,20 +42,20 @@ namespace ann /** Artificial Neural Network. */ {
  * }
  * @endcode
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
 template <
-    typename InputDataType = arma::mat,
-    typename OutputDataType = arma::mat
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
 >
-class MiniBatchDiscrimination
+class MiniBatchDiscriminationType : public Layer<InputType, OutputType>
 {
  public:
   //! Create the MiniBatchDiscrimination object.
-  MiniBatchDiscrimination();
+  MiniBatchDiscriminationType();
 
   /**
    * Create the MiniBatchDiscrimination layer object using the specified
@@ -64,9 +65,9 @@ class MiniBatchDiscrimination
    * @param outSize The number of output units.
    * @param features The number of features to compute for each dimension.
    */
-  MiniBatchDiscrimination(const size_t inSize,
-                          const size_t outSize,
-                          const size_t features);
+  MiniBatchDiscriminationType(const size_t inSize,
+                              const size_t outSize,
+                              const size_t features);
 
   /**
    * Reset the layer parameter.
@@ -80,8 +81,7 @@ class MiniBatchDiscrimination
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  template<typename eT>
-  void Forward(const arma::Mat<eT>& input, arma::Mat<eT>& output);
+  void Forward(const InputType& input, OutputType& output);
 
   /**
    * Ordinary feed-backward pass of a neural network, calculating the function
@@ -92,10 +92,9 @@ class MiniBatchDiscrimination
    * @param gy The backpropagated error.
    * @param g The calculated gradient.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& /* input */,
-                const arma::Mat<eT>& gy,
-                arma::Mat<eT>& g);
+  void Backward(const InputType& /* input */,
+                const InputType& gy,
+                OutputType& g);
 
   /**
    * Calculate the gradient using the output delta and the input activation.
@@ -104,35 +103,39 @@ class MiniBatchDiscrimination
    * @param * (error) The calculated error.
    * @param gradient The calculated gradient.
    */
-  template<typename eT>
-  void Gradient(const arma::Mat<eT>& input,
-                const arma::Mat<eT>& /* error */,
-                arma::Mat<eT>& gradient);
+  void Gradient(const InputType& input,
+                const InputType& /* error */,
+                OutputType& gradient);
+
+  //! Clone the MiniBatchDiscriminationType object. This handles polymorphism
+  //  correctly.
+  MiniBatchDiscriminationType* Clone() const
+      { return new MiniBatchDiscriminationType(*this); }
 
   //! Get the parameters.
-  OutputDataType const& Parameters() const { return weights; }
+  OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
-  OutputDataType& Parameters() { return weights; }
+  OutputType& Parameters() { return weights; }
 
   //! Get the input parameter.
-  InputDataType const& InputParameter() const { return inputParameter; }
+  InputType const& InputParameter() const { return inputParameter; }
   //! Modify the input parameter.
-  InputDataType& InputParameter() { return inputParameter; }
+  InputType& InputParameter() { return inputParameter; }
 
   //! Get the output parameter.
-  OutputDataType const& OutputParameter() const { return outputParameter; }
+  OutputType const& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
+  OutputType& OutputParameter() { return outputParameter; }
 
   //! Get the delta.
-  OutputDataType const& Delta() const { return delta; }
+  OutputType const& Delta() const { return delta; }
   //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
+  OutputType& Delta() { return delta; }
 
   //! Get the gradient.
-  OutputDataType const& Gradient() const { return gradient; }
+  OutputType const& Gradient() const { return gradient; }
   //! Modify the gradient.
-  OutputDataType& Gradient() { return gradient; }
+  OutputType& Gradient() { return gradient; }
 
   /**
    * Serialize the layer.
@@ -151,10 +154,10 @@ class MiniBatchDiscrimination
   arma::mat tempM;
 
   //! Locally-stored weight object.
-  OutputDataType weights;
+  OutputType weights;
 
   //! Locally-stored weight parameters.
-  OutputDataType weight;
+  OutputType weight;
 
   //! Locally-stored features of input.
   arma::cube M;
@@ -166,21 +169,25 @@ class MiniBatchDiscrimination
   arma::cube distances;
 
   //! Locally-stored delta object.
-  OutputDataType delta;
+  OutputType delta;
 
   //! Locally-stored temporary delta object.
-  OutputDataType deltaTemp;
+  OutputType deltaTemp;
 
   //! Locally-stored gradient object.
-  OutputDataType gradient;
+  OutputType gradient;
 
   //! Locally-stored input parameter object.
-  InputDataType inputParameter;
+  InputType inputParameter;
 
   //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
+  OutputType outputParameter;
 }; // class MiniBatchDiscrimination
 
+// Standard Mini Batch Discrimination layer.
+typedef MiniBatchDiscriminationType<arma::mat, arma::mat>
+    MiniBatchDiscrimination;
+    
 } // namespace ann
 } // namespace mlpack
 

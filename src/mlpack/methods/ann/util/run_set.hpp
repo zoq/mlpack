@@ -1,9 +1,9 @@
 /**
- * @file methods/ann/util/loss_update.hpp
- * @author Marcus Edel
+ * @file methods/ann/util/run_set.hpp
+ * @author Aakash Kaushik
  *
- * Definition of the LossUpdate() function which returns the layer/sub-layer
- * loss.
+ * Definition of the RunSet() function which sets the run parameter given the 
+ * run value.
  *
  * mlpack is free software; you may redistribute it and/or modify it under the
  * terms of the 3-clause BSD license.  You should have received a copy of the
@@ -11,31 +11,29 @@
  * http://www.opensource.org/licenses/BSD-3-Clause for more information.
  */
 
-#ifndef MLPACK_METHODS_ANN_UTIL_LOSS_UPDATE_HPP
-#define MLPACK_METHODS_ANN_UTIL_LOSS_UPDATE_HPP
+#ifndef MLPACK_METHODS_ANN_UTIL_RUN_SET_HPP
+#define MLPACK_METHODS_ANN_UTIL_RUN_SET_HPP
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */{
 
 /**
- * Get the loss from the given layer/sub-layer.
+ * Set the run parameter given the run value.
  *
  * @tparam LayerType The type of the given layer.
  * @param layer The layer to get the loss for.
- * @return The layer loss.
+ * @param run boolean value for run. 
  */
 template<typename LayerType>
-double LossUpdate(const LayerType& layer)
+size_t RunSet(const LayerType& layer, const bool& run)
 {
-  double loss = layer->Loss();
+  layer->Run() = run;
 
   if (layer->Model().size() > 0)
   {
     for (size_t i = 0; i < layer->Model().size(); ++i)
-      loss += LossUpdate(layer->Model()[i]);
+      layer->Model()[i]->Run() = run;
   }
-
-  return loss;
 }
 
 } // namespace ann

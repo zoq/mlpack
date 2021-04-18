@@ -1,26 +1,19 @@
 # Define the files we need to compile
 # Anything not in this list will not be compiled into mlpack.
 set(SOURCES
-  ffn.hpp
-  ffn_impl.hpp
-  rnn.hpp
-  rnn_impl.hpp
-  brnn.hpp
-  brnn_impl.hpp
-  #layer_names.hpp
+  deleter.hpp
+  deterministic_update.hpp
+  gradient_set.hpp
+  gradient_update.hpp
+  load_output_parameter.hpp
+  loss_update.hpp
+  output_height_update.hpp
+  output_width_update.hpp
+  reset_update.hpp
+  run_set.hpp
+  save_output_parameter.hpp
+  weight_size.hpp
 )
-
-#add_subdirectory(visitor)
-#add_subdirectory(activation_functions)
-add_subdirectory(init_rules)
-add_subdirectory(layer)
-add_subdirectory(loss_functions)
-#add_subdirectory(convolution_rules)
-#add_subdirectory(gan)
-#add_subdirectory(rbm)
-#add_subdirectory(augmented)
-add_subdirectory(regularizer)
-add_subdirectory(util)
 
 # Add directory name to sources.
 set(DIR_SRCS)

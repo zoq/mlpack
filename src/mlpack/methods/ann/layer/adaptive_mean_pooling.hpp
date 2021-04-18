@@ -74,6 +74,11 @@ class AdaptiveMeanPoolingType : public Layer<InputType, OutputType>
                 const OutputType& gy,
                 OutputType& g);
 
+  //! Clone the AdaptiveMeanPoolingType object. This handles polymorphism 
+  //  correctly.
+  AdaptiveMeanPoolingType* Clone() const
+      { return new AdaptiveMeanPoolingType(*this); }
+
   //! Get the input width.
   size_t const& InputWidth() const { return poolingLayer.InputWidth(); }
   //! Modify the input width.

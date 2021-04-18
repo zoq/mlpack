@@ -13,10 +13,10 @@
 #define MLPACK_METHODS_ANN_LAYER_CONCAT_PERFORMANCE_HPP
 
 #include <mlpack/prereqs.hpp>
-
 #include <boost/ptr_container/ptr_vector.hpp>
-
+#include <mlpack/methods/ann/loss_functions/negative_log_likelihood.hpp>
 #include "layer_types.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -26,17 +26,17 @@ namespace ann /** Artificial Neural Network. */ {
  * feed-forward fully connected network container which plugs performance layers
  * together.
  *
- * @tparam InputDataType Type of the input data (arma::colvec, arma::mat,
+ * @tparam InputType Type of the input data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
- * @tparam OutputDataType Type of the output data (arma::colvec, arma::mat,
+ * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
 template <
     typename OutputLayerType = NegativeLogLikelihood<>,
-    typename InputDataType = arma::mat,
-    typename OutputDataType = arma::mat
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
 >
-class ConcatPerformance
+class ConcatPerformanceType : public Layer<InputType, OutputType>
 {
  public:
   /**
@@ -45,8 +45,8 @@ class ConcatPerformance
    * @param inSize The number of inputs.
    * @param outputLayer Output layer used to evaluate the network.
    */
-  ConcatPerformance(const size_t inSize = 0,
-                    OutputLayerType&& outputLayer = OutputLayerType());
+  ConcatPerformanceType(const size_t inSize = 0,
+                        OutputLayerType&& outputLayer = OutputLayerType());
 
   /*
    * Computes the Negative log likelihood.
@@ -54,8 +54,7 @@ class ConcatPerformance
    * @param input Input data used for evaluating the specified function.
    * @param output Resulting output activation.
    */
-  template<typename eT>
-  double Forward(const arma::Mat<eT>& input, arma::Mat<eT>& target);
+  double Forward(const InputType& input, OutputType& target);
 
   /**
    * Ordinary feed backward pass of a neural network. The negative log
@@ -68,20 +67,24 @@ class ConcatPerformance
    *        between 1 and the number of classes.
    * @param output The calculated error.
    */
-  template<typename eT>
-  void Backward(const arma::Mat<eT>& input,
-                const arma::Mat<eT>& target,
-                arma::Mat<eT>& output);
+  void Backward(const InputType& input,
+                const InputType& target,
+                OutputType& output);
+
+  //! Clone the ConcatPerformanceType object. This handles polymorphism 
+  //  correctly.
+  ConcatPerformanceType* Clone() const
+      { return new ConcatPerformanceType(*this); }
 
   //! Get the output parameter.
-  OutputDataType& OutputParameter() const { return outputParameter; }
+  OutputType& OutputParameter() const { return outputParameter; }
   //! Modify the output parameter.
-  OutputDataType& OutputParameter() { return outputParameter; }
+  OutputType& OutputParameter() { return outputParameter; }
 
   //! Get the delta.
-  OutputDataType& Delta() const { return delta; }
+  OutputType& Delta() const { return delta; }
   //! Modify the delta.
-  OutputDataType& Delta() { return delta; }
+  OutputType& Delta() { return delta; }
 
   //! Get the number of inputs.
   size_t InSize() const { return inSize; }
@@ -100,11 +103,16 @@ class ConcatPerformance
   OutputLayerType outputLayer;
 
   //! Locally-stored delta object.
-  OutputDataType delta;
+  OutputType delta;
 
   //! Locally-stored output parameter object.
-  OutputDataType outputParameter;
+  OutputType outputParameter;
 }; // class ConcatPerformance
+
+// Standaed Add Merge layer
+typedef ConcatPerformanceType<NegativeLogLikelihood<>,
+                              arma::mat,
+                              arma::mat> ConcatPerformance;
 
 } // namespace ann
 } // namespace mlpack

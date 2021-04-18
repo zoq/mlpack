@@ -31,6 +31,7 @@
 
 #include "layer_types.hpp"
 #include <algorithm>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -125,6 +126,9 @@ class GlimpseType : public Layer<InputType, OutputType>
   void Backward(const InputType& /* input */,
                 const OutputType& gy,
                 OutputType& g);
+
+  //! Clone the GlimpseType object. This handles polymorphism correctly.
+  GlimpseType* Clone() const { return new GlimpseType(*this); }
 
   //! Get the output parameter.
   const OutputType& OutputParameter() const {return outputParameter; }

@@ -15,6 +15,7 @@
 
 #include <mlpack/prereqs.hpp>
 #include <mlpack/methods/ann/layer/layer_traits.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

@@ -63,7 +63,7 @@ class LogSoftMaxType : public Layer<InputType, OutputType>
    * @param g The calculated gradient.
    */
   void Backward(const InputType& input,
-                const OutputType& gy,
+                const InputType& gy,
                 OutputType& g);
 
  private:

@@ -22,6 +22,7 @@
 
 #include "layer_types.hpp"
 #include "padding.hpp"
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -148,6 +149,9 @@ class ConvolutionType : public Layer<InputType, OutputType>
   void Gradient(const InputType& /* input */,
                 const OutputType& error,
                 OutputType& gradient);
+
+  //! Clone the ConvolutionType object. This handles polymorphism correctly.
+  ConvolutionType* Clone() const { return new ConvolutionType(*this); }
 
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
@@ -293,10 +297,9 @@ class ConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  template<typename eT>
-  void Rotate180(const arma::Cube<eT>& input, arma::Cube<eT>& output)
+  void Rotate180(const arma::cube& input, arma::cube& output)
   {
-    output = arma::Cube<eT>(input.n_rows, input.n_cols, input.n_slices);
+    output = arma::cube(input.n_rows, input.n_cols, input.n_slices);
 
     // * left-right flip, up-down flip */
     for (size_t s = 0; s < output.n_slices; s++)
@@ -309,8 +312,7 @@ class ConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  template<typename eT>
-  void Rotate180(const arma::Mat<eT>& input, arma::Mat<eT>& output)
+  void Rotate180(const InputType& input, OutputType& output)
   {
     // * left-right flip, up-down flip */
     output = arma::fliplr(arma::flipud(input));

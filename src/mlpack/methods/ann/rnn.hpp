@@ -14,11 +14,6 @@
 
 #include <mlpack/prereqs.hpp>
 
-#include "visitor/delete_visitor.hpp"
-#include "visitor/delta_visitor.hpp"
-#include "visitor/output_parameter_visitor.hpp"
-#include "visitor/reset_visitor.hpp"
-
 #include "init_rules/network_init.hpp"
 
 #include <mlpack/methods/ann/layer/layer_types.hpp>
@@ -40,15 +35,16 @@ namespace ann /** Artificial Neural Network. */ {
 template<
   typename OutputLayerType = NegativeLogLikelihood<>,
   typename InitializationRuleType = RandomInitialization,
-  typename... CustomLayers
->
+  typename InputType = arma::mat,
+  typename OutputType = arma::mat>
 class RNN
 {
  public:
   //! Convenience typedef for the internal model construction.
   using NetworkType = RNN<OutputLayerType,
                           InitializationRuleType,
-                          CustomLayers...>;
+                          InputType,
+                          OutputType>;
 
   /**
    * Create the RNN object.
@@ -214,7 +210,7 @@ class RNN
    * @param deterministic Whether or not to train or test the model. Note some
    *        layer act differently in training or testing mode.
    */
-  double Evaluate(const arma::mat& parameters,
+  double Evaluate(const InputType& parameters,
                   const size_t begin,
                   const size_t batchSize,
                   const bool deterministic);
@@ -230,7 +226,7 @@ class RNN
    * @param batchSize Number of points to be passed at a time to use for
    *        objective function evaluation.
    */
-  double Evaluate(const arma::mat& parameters,
+  double Evaluate(const InputType& parameters,
                   const size_t begin,
                   const size_t batchSize);
 
@@ -246,7 +242,7 @@ class RNN
    *        objective function evaluation.
    */
   template<typename GradType>
-  double EvaluateWithGradient(const arma::mat& parameters,
+  double EvaluateWithGradient(const InputType& parameters,
                               const size_t begin,
                               GradType& gradient,
                               const size_t batchSize);
@@ -264,9 +260,9 @@ class RNN
    * @param batchSize Number of points to be processed as a batch for objective
    *        function gradient evaluation.
    */
-  void Gradient(const arma::mat& parameters,
+  void Gradient(const InputType& parameters,
                 const size_t begin,
-                arma::mat& gradient,
+                OutputType& gradient,
                 const size_t batchSize);
 
   /**
@@ -288,7 +284,7 @@ class RNN
    *
    * @param layer The Layer to be added to the model.
    */
-  void Add(LayerTypes<CustomLayers...> layer) { network.push_back(layer); }
+  void Add(Layer<InputType, OutputType>* layer) { network.push_back(layer); }
 
   //! Return the number of separable functions (the number of predictor points).
   size_t NumFunctions() const { return numFunctions; }
@@ -337,7 +333,6 @@ class RNN
    *
    * @param input Data sequence to compute probabilities for.
    */
-  template<typename InputType>
   void Forward(const InputType& input);
 
   /**
@@ -355,7 +350,6 @@ class RNN
    * Iterate through all layer modules and update the the gradient using the
    * layer defined optimizer.
    */
-  template<typename InputType>
   void Gradient(const InputType& input);
 
   /**
@@ -367,7 +361,7 @@ class RNN
   /**
    * Reset the gradient for all modules that implement the Gradient function.
    */
-  void ResetGradients(arma::mat& gradient);
+  void ResetGradients(OutputType& gradient);
 
   //! Number of steps to backpropagate through time (BPTT).
   size_t rho;
@@ -395,7 +389,7 @@ class RNN
   bool single;
 
   //! Locally-stored model modules.
-  std::vector<LayerTypes<CustomLayers...> > network;
+  std::vector<Layer<InputType, OutputType>* > network;
 
   //! The matrix of data points (predictors).
   arma::cube predictors;
@@ -404,40 +398,22 @@ class RNN
   arma::cube responses;
 
   //! Matrix of (trained) parameters.
-  arma::mat parameter;
+  OutputType parameter;
 
   //! The number of separable functions (the number of predictor points).
   size_t numFunctions;
 
   //! The current error for the backward pass.
-  arma::mat error;
-
-  //! Locally-stored delta visitor.
-  DeltaVisitor deltaVisitor;
-
-  //! Locally-stored output parameter visitor.
-  OutputParameterVisitor outputParameterVisitor;
+  OutputType error;
 
   //! List of all module parameters for the backward pass (BBTT).
-  std::vector<arma::mat> moduleOutputParameter;
-
-  //! Locally-stored weight size visitor.
-  WeightSizeVisitor weightSizeVisitor;
-
-  //! Locally-stored copy visitor
-  CopyVisitor<CustomLayers...> copyVisitor;
-
-  //! Locally-stored reset visitor.
-  ResetVisitor resetVisitor;
-
-  //! Locally-stored delete visitor.
-  DeleteVisitor deleteVisitor;
+  std::vector<OutputType> moduleOutputParameter;
 
   //! The current evaluation mode (training or testing).
   bool deterministic;
 
   //! The current gradient for the gradient pass.
-  arma::mat currentGradient;
+  OutputType currentGradient;
 
   // The BRN class should have access to internal members.
   template<
@@ -445,7 +421,8 @@ class RNN
     typename MergeLayerType1,
     typename MergeOutputType1,
     typename InitializationRuleType1,
-    typename... CustomLayers1
+    typename InputType1,
+    typename OutputType1
   >
   friend class BRNN;
 }; // class RNN

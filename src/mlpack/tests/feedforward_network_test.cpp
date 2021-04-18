@@ -34,7 +34,7 @@ void TestNetwork(ModelType& model,
                  MatType& trainLabels,
                  MatType& testData,
                  MatType& testLabels,
-                 const size_t maxEpochs,
+                 const size_t /* maxEpochs */,
                  const double classificationErrorThreshold)
 {
   ens::RMSProp opt(0.01, 32, 0.88, 1e-8, 10001, -100);
@@ -53,7 +53,7 @@ void TestNetwork(ModelType& model,
   size_t correct = arma::accu(prediction == testLabels);
 
   double classificationError = 1 - double(correct) / testData.n_cols;
-  /* REQUIRE(classificationError <= classificationErrorThreshold); */
+  REQUIRE(classificationError <= classificationErrorThreshold);
 }
 
 // network1 should be allocated with `new`, and trained on some data.
@@ -61,7 +61,7 @@ template<typename MatType = arma::mat, typename ModelType>
 void CheckCopyFunction(ModelType* network1,
                        MatType& trainData,
                        MatType& trainLabels,
-                       const size_t maxEpochs)
+                       const size_t /* maxEpochs */)
 {
   ens::RMSProp opt(0.01, 32, 0.88, 1e-8, trainData.n_cols, -1);
   network1->Train(trainData, trainLabels, opt);
@@ -85,7 +85,7 @@ template<typename MatType = arma::mat, typename ModelType>
 void CheckMoveFunction(ModelType* network1,
                        MatType& trainData,
                        MatType& trainLabels,
-                       const size_t maxEpochs)
+                       const size_t /* maxEpochs */)
 {
   ens::RMSProp opt(0.01, 32, 0.88, 1e-8, trainData.n_cols, -1);
   network1->Train(trainData, trainLabels, opt);

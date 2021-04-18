@@ -18,9 +18,9 @@
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
-template<typename InputDataType, typename OutputDataType>
-MiniBatchDiscrimination<InputDataType, OutputDataType
->::MiniBatchDiscrimination() :
+template<typename InputType, typename OutputType>
+MiniBatchDiscriminationType<InputType, OutputType
+>::MiniBatchDiscriminationType() :
   A(0),
   B(0),
   C(0),
@@ -29,9 +29,9 @@ MiniBatchDiscrimination<InputDataType, OutputDataType
   // Nothing to do here.
 }
 
-template <typename InputDataType, typename OutputDataType>
-MiniBatchDiscrimination<InputDataType, OutputDataType
->::MiniBatchDiscrimination(
+template <typename InputType, typename OutputType>
+MiniBatchDiscriminationType<InputType, OutputType
+>::MiniBatchDiscriminationType(
     const size_t inSize,
     const size_t outSize,
     const size_t features) :
@@ -43,16 +43,15 @@ MiniBatchDiscrimination<InputDataType, OutputDataType
   weights.set_size(A * B * C, 1);
 }
 
-template<typename InputDataType, typename OutputDataType>
-void MiniBatchDiscrimination<InputDataType, OutputDataType>::Reset()
+template<typename InputType, typename OutputType>
+void MiniBatchDiscriminationType<InputType, OutputType>::Reset()
 {
   weight = arma::mat(weights.memptr(), B * C, A, false, false);
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void MiniBatchDiscrimination<InputDataType, OutputDataType>::Forward(
-    const arma::Mat<eT>& input, arma::Mat<eT>& output)
+template<typename InputType, typename OutputType>
+void MiniBatchDiscriminationType<InputType, OutputType>::Forward(
+    const InputType& input, OutputType& output)
 {
   batchSize = input.n_cols;
   tempM = weight * input;
@@ -85,13 +84,14 @@ void MiniBatchDiscrimination<InputDataType, OutputDataType>::Forward(
   output = join_cols(input, output); // (A + B) x batchSize
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void MiniBatchDiscrimination<InputDataType, OutputDataType>::Backward(
-    const arma::Mat<eT>& /* input */, const arma::Mat<eT>& gy, arma::Mat<eT>& g)
+template<typename InputType, typename OutputType>
+void MiniBatchDiscriminationType<InputType, OutputType>::Backward(
+    const InputType& /* input */,
+    const InputType& gy,
+    OutputType& g)
 {
   g = gy.head_rows(A);
-  arma::Mat<eT> gM = gy.tail_rows(B);
+  InputType gM = gy.tail_rows(B);
   deltaM.zeros(B, C, batchSize);
 
   for (size_t i = 0; i < M.n_slices; ++i)
@@ -114,19 +114,18 @@ void MiniBatchDiscrimination<InputDataType, OutputDataType>::Backward(
   g += weight.t() * deltaTemp;
 }
 
-template<typename InputDataType, typename OutputDataType>
-template<typename eT>
-void MiniBatchDiscrimination<InputDataType, OutputDataType>::Gradient(
-    const arma::Mat<eT>& input,
-    const arma::Mat<eT>& /* error */,
-    arma::Mat<eT>& gradient)
+template<typename InputType, typename OutputType>
+void MiniBatchDiscriminationType<InputType, OutputType>::Gradient(
+    const InputType& input,
+    const InputType& /* error */,
+    OutputType& gradient)
 {
   gradient = arma::vectorise(deltaTemp * input.t());
 }
 
-template<typename InputDataType, typename OutputDataType>
+template<typename InputType, typename OutputType>
 template<typename Archive>
-void MiniBatchDiscrimination<InputDataType, OutputDataType>::serialize(
+void MiniBatchDiscriminationType<InputType, OutputType>::serialize(
     Archive& ar, const uint32_t /* version */)
 {
   ar(CEREAL_NVP(A));

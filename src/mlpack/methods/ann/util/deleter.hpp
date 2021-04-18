@@ -1,9 +1,9 @@
 /**
- * @file methods/ann/util/loss_update.hpp
- * @author Marcus Edel
+ * @file methods/ann/util/deleter.hpp
+ * @author Aakash Kaushik
  *
- * Definition of the LossUpdate() function which returns the layer/sub-layer
- * loss.
+ * Definition of the Deleter() function which executes the destructor of 
+ * the given layer or network.
  *
  * mlpack is free software; you may redistribute it and/or modify it under the
  * terms of the 3-clause BSD license.  You should have received a copy of the
@@ -11,31 +11,28 @@
  * http://www.opensource.org/licenses/BSD-3-Clause for more information.
  */
 
-#ifndef MLPACK_METHODS_ANN_UTIL_LOSS_UPDATE_HPP
-#define MLPACK_METHODS_ANN_UTIL_LOSS_UPDATE_HPP
+#ifndef MLPACK_METHODS_ANN_UTIL_RUN_SET_HPP
+#define MLPACK_METHODS_ANN_UTIL_RUN_SET_HPP
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */{
 
 /**
- * Get the loss from the given layer/sub-layer.
+ * Execute the destructor of the given layer.
  *
  * @tparam LayerType The type of the given layer.
- * @param layer The layer to get the loss for.
- * @return The layer loss.
+ * @param layer The layer to execute the destructor for. 
  */
 template<typename LayerType>
-double LossUpdate(const LayerType& layer)
+void Deleter(const LayerType layer)
 {
-  double loss = layer->Loss();
+  delete layer;
 
   if (layer->Model().size() > 0)
   {
     for (size_t i = 0; i < layer->Model().size(); ++i)
-      loss += LossUpdate(layer->Model()[i]);
+      Deleter(layer->Model()[i]);
   }
-
-  return loss;
 }
 
 } // namespace ann

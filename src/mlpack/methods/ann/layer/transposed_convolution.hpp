@@ -170,6 +170,11 @@ class TransposedConvolutionType : public Layer<InputType, OutputType>
                 const OutputType& error,
                 OutputType& gradient);
 
+  //! Clone the TransposedConvolutionType object. This handles polymorphism
+  //  correctly.
+  TransposedConvolutionType* Clone() const
+      { return new TransposedConvolutionType(*this); }
+
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
@@ -284,10 +289,9 @@ class TransposedConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  template<typename eT>
-  void Rotate180(const arma::Cube<eT>& input, arma::Cube<eT>& output)
+  void Rotate180(const arma::cube& input, arma::cube& output)
   {
-    output = arma::Cube<eT>(input.n_rows, input.n_cols, input.n_slices);
+    output = arma::cube(input.n_rows, input.n_cols, input.n_slices);
 
     // * left-right flip, up-down flip */
     for (size_t s = 0; s < output.n_slices; s++)
@@ -305,8 +309,7 @@ class TransposedConvolutionType : public Layer<InputType, OutputType>
    * @param input The input data to be rotated.
    * @param output The rotated output.
    */
-  template<typename eT>
-  void Rotate180(const arma::Mat<eT>& input, arma::Mat<eT>& output)
+  void Rotate180(const InputType& input, OutputType& output)
   {
     // * left-right flip, up-down flip */
     output = arma::fliplr(arma::flipud(input));
@@ -322,11 +325,10 @@ class TransposedConvolutionType : public Layer<InputType, OutputType>
    * @param strideHeight Stride of filter application in the y direction.
    * @param output The padded output data.
    */
-  template<typename eT>
-  void InsertZeros(const arma::Mat<eT>& input,
+  void InsertZeros(const InputType& input,
                    const size_t strideWidth,
                    const size_t strideHeight,
-                   arma::Mat<eT>& output)
+                   OutputType& output)
   {
     if (output.n_rows != input.n_rows * strideWidth - strideWidth + 1 ||
         output.n_cols != input.n_cols * strideHeight - strideHeight + 1)
@@ -355,18 +357,17 @@ class TransposedConvolutionType : public Layer<InputType, OutputType>
    * @param strideHeight Stride of filter application in the y direction.
    * @param output The padded output data.
    */
-  template<typename eT>
-  void InsertZeros(const arma::Cube<eT>& input,
+  void InsertZeros(const arma::cube& input,
                    const size_t strideWidth,
                    const size_t strideHeight,
-                   arma::Cube<eT>& output)
+                   arma::cube& output)
   {
     output = arma::zeros(input.n_rows * strideWidth - strideWidth + 1,
         input.n_cols * strideHeight - strideHeight + 1, input.n_slices);
 
     for (size_t i = 0; i < input.n_slices; ++i)
     {
-      InsertZeros<eT>(input.slice(i), strideWidth, strideHeight,
+      InsertZeros(input.slice(i), strideWidth, strideHeight,
           output.slice(i));
     }
   }

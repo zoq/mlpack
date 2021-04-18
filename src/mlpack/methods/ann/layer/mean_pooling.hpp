@@ -14,6 +14,7 @@
 #define MLPACK_METHODS_ANN_LAYER_MEAN_POOLING_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -72,6 +73,9 @@ class MeanPoolingType : public Layer<InputType, OutputType>
   void Backward(const InputType& /* input */,
                 const OutputType& gy,
                 OutputType& g);
+
+  //! Clone the MeanPoolingType object. This handles polymorphism correctly.
+  MeanPoolingType* Clone() const { return new MeanPoolingType(*this); }  
 
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }

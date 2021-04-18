@@ -12,6 +12,7 @@
 #define MLPACK_METHODS_ANN_LAYER_BILINEAR_INTERPOLATION_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
@@ -80,6 +81,11 @@ class BilinearInterpolationType : public Layer<InputType, OutputType>
   void Backward(const InputType& /*input*/,
                 const OutputType& gradient,
                 OutputType& output);
+
+  //! Clone the BilinearInterpolationType object. This handles polymorphism 
+  //  correctly.
+  BilinearInterpolationType* Clone() const
+      { return new BilinearInterpolationType(*this); }
 
   //! Get the output parameter.
   OutputType const& OutputParameter() const { return outputParameter; }

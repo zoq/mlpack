@@ -13,6 +13,7 @@
 #define MLPACK_METHODS_ANN_LAYER_POSITIONAL_ENCODING_HPP
 
 #include <mlpack/prereqs.hpp>
+#include "layer.hpp"
 
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {

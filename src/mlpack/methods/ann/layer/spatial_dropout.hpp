@@ -85,7 +85,7 @@ class SpatialDropoutType : public Layer<InputType, OutputType>
   size_t& Size() { return size; }
 
   //! Get the value of the deterministic parameter.
-  bool Deterministic() const { return deterministic; }
+  bool const& Deterministic() const { return deterministic; }
   //! Modify the value of the deterministic parameter.
   bool& Deterministic() { return deterministic; }
 
