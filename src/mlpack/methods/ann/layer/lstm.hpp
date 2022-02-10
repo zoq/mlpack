@@ -15,6 +15,8 @@
 #include <mlpack/prereqs.hpp>
 #include <limits>
 
+#include "layer.hpp"
+
 namespace mlpack {
 namespace ann /** Artificial Neural Network. */ {
 
@@ -55,15 +57,23 @@ namespace ann /** Artificial Neural Network. */ {
  * @tparam OutputType Type of the output data (arma::colvec, arma::mat,
  *         arma::sp_mat or arma::cube).
  */
+<<<<<<< Updated upstream
 template <
     typename InputType = arma::mat,
     typename OutputType = arma::mat
 >
 class LSTM : public Layer<InputType, OutputType>
+=======
+template<
+    typename InputType = arma::mat,
+    typename OutputType = arma::mat
+>
+class LSTMType : public Layer<InputType, OutputType>
+>>>>>>> Stashed changes
 {
  public:
   //! Create the LSTM object.
-  LSTM();
+  LSTMType();
 
   /**
    * Create the LSTM layer object using the specified parameters.
@@ -72,21 +82,18 @@ class LSTM : public Layer<InputType, OutputType>
    * @param outSize The number of output units.
    * @param rho Maximum number of steps to backpropagate through time (BPTT).
    */
-  LSTM(const size_t inSize,
-       const size_t outSize,
-       const size_t rho = std::numeric_limits<size_t>::max());
+  LSTMType(const size_t inSize,
+           const size_t outSize,
+           const size_t rho = std::numeric_limits<size_t>::max());
 
-  //! Copy constructor.
-  LSTM(const LSTM& layer);
+  //! Clone the LSTMType object. This handles polymorphism correctly.
+  LSTMType* Clone() const { return new LSTMType(*this); }
 
-  //! Move constructor.
-  LSTM(LSTM&&);
-
-  //! Copy assignment operator.
-  LSTM& operator=(const LSTM& layer);
-
-  //! Move assignment operator.
-  LSTM& operator=(LSTM&& layer);
+  /**
+   * Reset the layer parameter. The method is called to
+   * assign the allocated memory to the internal learnable parameters.
+   */
+  void SetWeights(typename OutputType::elem_type* weightsPtr);
 
   /**
    * Ordinary feed-forward pass of a neural network, evaluating the function
@@ -123,11 +130,14 @@ class LSTM : public Layer<InputType, OutputType>
   void Backward(const InputType& input,
                 const OutputType& gy,
                 OutputType& g);
+<<<<<<< Updated upstream
 
   /*
    * Reset the layer parameter.
    */
   void Reset();
+=======
+>>>>>>> Stashed changes
 
   /*
    * Resets the cell to accept a new input. This breaks the BPTT chain starts a
@@ -153,6 +163,7 @@ class LSTM : public Layer<InputType, OutputType>
   //! Modify the maximum number of steps to backpropagate through time (BPTT).
   size_t& Rho() { return rho; }
 
+<<<<<<< Updated upstream
   //! Get the parameters.
   OutputType const& Parameters() const { return weights; }
   //! Modify the parameters.
@@ -178,10 +189,36 @@ class LSTM : public Layer<InputType, OutputType>
 
   //! Get the number of output units.
   size_t OutSize() const { return outSize; }
+=======
+    //! Get the parameters.
+  const OutputType& Parameters() const { return weights; }
+  //! Modify the parameters.
+  OutputType& Parameters() { return weights; }
+
+  //! Get the weight of the layer.
+  OutputType const& Weight() const { return weight; }
+  //! Modify the weight of the layer.
+  OutputType& Weight() { return weight; }
+>>>>>>> Stashed changes
 
   const size_t WeightSize() const
   {
+<<<<<<< Updated upstream
     // TODO ...
+=======
+    return (4 * outSize * inSize + 7 * outSize + 4 * outSize * outSize);
+  }
+
+  void ComputeOutputDimensions()
+  {
+    inSize = std::accumulate(this->inputDimensions.begin(),
+        this->inputDimensions.end(), 0);
+    this->outputDimensions = std::vector<size_t>(this->inputDimensions.size(),
+        1);
+
+    // The Linear layer flattens its input.
+    this->outputDimensions[0] = outSize;
+>>>>>>> Stashed changes
   }
 
   /**
@@ -227,6 +264,18 @@ class LSTM : public Layer<InputType, OutputType>
 
   //! Locally-stored cell activation error.
   OutputType cellActivationError;
+<<<<<<< Updated upstream
+=======
+
+  //! Locally-stored delta object.
+  OutputType delta;
+
+  //! Locally-stored gradient object.
+  OutputType grad;
+
+  //! Locally-stored output parameter object.
+  OutputType outputParameter;
+>>>>>>> Stashed changes
 
   //! Weights between the output and input gate.
   OutputType output2GateInputWeight;
@@ -330,6 +379,11 @@ class LSTM : public Layer<InputType, OutputType>
   //! Current backpropagate through time steps.
   size_t bpttSteps;
 }; // class LSTM
+
+// Convenience typedefs.
+
+// Standard LSTM layer.
+typedef LSTMType<arma::mat, arma::mat, NoRegularizer> LSTM;
 
 } // namespace ann
 } // namespace mlpack
